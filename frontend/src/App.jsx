@@ -1,31 +1,30 @@
 import React, { useState } from "react";
 
-// Initial Demo State
+// Pre-seeded Users with Roles
 const INITIAL_USERS = [
-  { id: "usr-1", name: "System Admin", email: "admin@bugforge.io", role: "ADMIN" },
-  { id: "usr-2", name: "Alex Rivera", email: "alex@bugforge.io", role: "MANAGER" },
-  { id: "usr-3", name: "Sarah Chen", email: "sarah@bugforge.io", role: "DEVELOPER" },
-  { id: "usr-4", name: "David Kim", email: "david@bugforge.io", role: "DEVELOPER" },
+  { id: "usr-admin", name: "System Administrator", email: "admin@bugforge.io", role: "ADMIN" },
+  { id: "usr-dev1", name: "Sarah Chen", email: "sarah@bugforge.io", role: "DEVELOPER" },
+  { id: "usr-dev2", name: "Alex Rivera", email: "alex@bugforge.io", role: "DEVELOPER" },
+  { id: "usr-dev3", name: "David Kim", email: "david@bugforge.io", role: "DEVELOPER" },
 ];
 
 const INITIAL_PROJECTS = [
-  { id: "prj-1", key: "ENG", name: "Backend Core Engine", description: "FastAPI REST API & Database engine", createdBy: "admin@bugforge.io" },
-  { id: "prj-2", key: "AUTH", name: "Authentication Service", description: "JWT & Redis session management", createdBy: "alex@bugforge.io" },
-  { id: "prj-3", key: "UI", name: "Frontend Web Portal", description: "React Single Page Application", createdBy: "sarah@bugforge.io" },
+  { id: "prj-1", key: "ENG", name: "Backend Core Engine", description: "FastAPI REST API & Async Database engine", createdBy: "admin@bugforge.io" },
+  { id: "prj-2", key: "AUTH", name: "Authentication Service", description: "JWT & Redis session security", createdBy: "admin@bugforge.io" },
 ];
 
 const INITIAL_ISSUES = [
   {
     id: "ENG-101",
     type: "BUG",
-    title: "Database connection pool exhaustion under high load",
-    description: "Asyncpg connection pool exceeds max allowed slots during concurrency benchmarks.",
+    title: "Database connection pool exhaustion under peak load",
+    description: "Asyncpg connection pool exceeds maximum allowed slots during load testing.",
     status: "OPEN",
     priority: "CRITICAL",
     severity: "BLOCKER",
     projectKey: "ENG",
-    assigneeId: "usr-3",
-    reporterId: "usr-1",
+    assigneeId: "usr-dev1",
+    reporterId: "usr-admin",
     createdAt: "2026-08-05",
   },
   {
@@ -37,21 +36,21 @@ const INITIAL_ISSUES = [
     priority: "HIGH",
     severity: "HIGH",
     projectKey: "AUTH",
-    assigneeId: "usr-3",
-    reporterId: "usr-2",
+    assigneeId: "usr-dev2",
+    reporterId: "usr-admin",
     createdAt: "2026-08-04",
   },
   {
-    id: "UI-103",
+    id: "ENG-103",
     type: "TASK",
-    title: "Optimize NGINX Gzip compression rules",
-    description: "Add cache control headers for static production assets.",
-    status: "RESOLVED",
+    title: "Configure Redis token revocation blacklist",
+    description: "Add JTI key expiration checks to auth dependencies.",
+    status: "IN_REVIEW",
     priority: "MEDIUM",
     severity: "MEDIUM",
-    projectKey: "UI",
-    assigneeId: "usr-4",
-    reporterId: "usr-3",
+    projectKey: "ENG",
+    assigneeId: "usr-dev1",
+    reporterId: "usr-admin",
     createdAt: "2026-08-03",
   },
 ];
@@ -59,19 +58,17 @@ const INITIAL_ISSUES = [
 const STATUSES = ["OPEN", "IN_PROGRESS", "IN_REVIEW", "RESOLVED", "CLOSED"];
 
 export default function App() {
-  // Auth & State Management
+  // State
   const [users, setUsers] = useState(INITIAL_USERS);
   const [currentUser, setCurrentUser] = useState(INITIAL_USERS[0]); // Default Admin
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [issues, setIssues] = useState(INITIAL_ISSUES);
 
-  // Active View & Filters
+  // Filters & Views
   const [activeTab, setActiveTab] = useState("BOARD"); // 'BOARD', 'PROJECTS', 'USERS'
   const [selectedProjectKey, setSelectedProjectKey] = useState("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Selected Issue for Detail Modal
   const [selectedIssue, setSelectedIssue] = useState(null);
@@ -90,11 +87,13 @@ export default function App() {
     priority: "MEDIUM",
     severity: "MEDIUM",
     projectKey: "ENG",
-    assigneeId: "usr-3",
+    assigneeId: "usr-dev1",
   });
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "DEVELOPER" });
 
-  // Filtered Issues
+  const isAdmin = currentUser.role === "ADMIN";
+
+  // Filter Issues
   const filteredIssues = issues.filter((issue) => {
     const matchesProject = selectedProjectKey === "ALL" || issue.projectKey === selectedProjectKey;
     const matchesPriority = selectedPriority === "ALL" || issue.priority === selectedPriority;
@@ -104,13 +103,22 @@ export default function App() {
     return matchesProject && matchesPriority && matchesSearch;
   });
 
-  // Actions: Projects
+  // Admin Actions: Create Project
   const handleCreateProject = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert("Access Denied: Only System Admin can create new projects.");
+      return;
+    }
     if (!newProject.name || !newProject.key) return;
+    const keyUpper = newProject.key.toUpperCase().trim();
+    if (projects.some((p) => p.key === keyUpper)) {
+      alert(`Project key ${keyUpper} already exists.`);
+      return;
+    }
     const project = {
       id: `prj-${projects.length + 1}`,
-      key: newProject.key.toUpperCase().trim(),
+      key: keyUpper,
       name: newProject.name.trim(),
       description: newProject.description,
       createdBy: currentUser.email,
@@ -120,16 +128,44 @@ export default function App() {
     setIsNewProjectModalOpen(false);
   };
 
+  // Admin Actions: Delete Project
   const handleDeleteProject = (projectKey) => {
-    if (!window.confirm(`Delete project ${projectKey} and all associated issues?`)) return;
+    if (!isAdmin) {
+      alert("Access Denied: Only System Admin can delete projects.");
+      return;
+    }
+    if (!window.confirm(`Admin Warning: Delete project ${projectKey} and all associated issues?`)) return;
     setProjects(projects.filter((p) => p.key !== projectKey));
     setIssues(issues.filter((i) => i.projectKey !== projectKey));
     if (selectedProjectKey === projectKey) setSelectedProjectKey("ALL");
   };
 
-  // Actions: Issues
+  // Admin Actions: Create User
+  const handleCreateUser = (e) => {
+    e.preventDefault();
+    if (!isAdmin) {
+      alert("Access Denied: Only System Admin can add users.");
+      return;
+    }
+    if (!newUser.name || !newUser.email) return;
+    const user = {
+      id: `usr-${users.length + 1}`,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+    };
+    setUsers([...users, user]);
+    setNewUser({ name: "", email: "", role: "DEVELOPER" });
+    setIsNewUserModalOpen(false);
+  };
+
+  // Admin Actions: Create Issue
   const handleCreateIssue = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert("Access Denied: Only System Admin can create and assign new issues.");
+      return;
+    }
     if (!newIssue.title) return;
     const issue = {
       ...newIssue,
@@ -146,12 +182,19 @@ export default function App() {
       priority: "MEDIUM",
       severity: "MEDIUM",
       projectKey: projects[0]?.key || "ENG",
-      assigneeId: currentUser.id,
+      assigneeId: users.find((u) => u.role === "DEVELOPER")?.id || users[0].id,
     });
     setIsNewIssueModalOpen(false);
   };
 
+  // Issue Operations
   const handleUpdateIssueStatus = (issueId, newStatus) => {
+    // Developers can update status of issues assigned to them, Admin can update any
+    const issue = issues.find((i) => i.id === issueId);
+    if (!isAdmin && issue?.assigneeId !== currentUser.id) {
+      alert("Access Denied: Developers can only update status of issues assigned to them.");
+      return;
+    }
     setIssues(issues.map((i) => (i.id === issueId ? { ...i, status: newStatus } : i)));
     if (selectedIssue && selectedIssue.id === issueId) {
       setSelectedIssue({ ...selectedIssue, status: newStatus });
@@ -159,6 +202,10 @@ export default function App() {
   };
 
   const handleUpdateIssueAssignee = (issueId, newAssigneeId) => {
+    if (!isAdmin) {
+      alert("Access Denied: Only System Admin can reassign issues.");
+      return;
+    }
     setIssues(issues.map((i) => (i.id === issueId ? { ...i, assigneeId: newAssigneeId } : i)));
     if (selectedIssue && selectedIssue.id === issueId) {
       setSelectedIssue({ ...selectedIssue, assigneeId: newAssigneeId });
@@ -166,24 +213,13 @@ export default function App() {
   };
 
   const handleDeleteIssue = (issueId) => {
-    if (!window.confirm(`Are you sure you want to delete issue ${issueId}?`)) return;
+    if (!isAdmin) {
+      alert("Access Denied: Only System Admin can delete issues.");
+      return;
+    }
+    if (!window.confirm(`Admin Warning: Delete issue ${issueId}?`)) return;
     setIssues(issues.filter((i) => i.id !== issueId));
     setSelectedIssue(null);
-  };
-
-  // Actions: Users
-  const handleCreateUser = (e) => {
-    e.preventDefault();
-    if (!newUser.name || !newUser.email) return;
-    const user = {
-      id: `usr-${users.length + 1}`,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-    };
-    setUsers([...users, user]);
-    setNewUser({ name: "", email: "", role: "DEVELOPER" });
-    setIsNewUserModalOpen(false);
   };
 
   const getUserName = (userId) => {
@@ -191,45 +227,10 @@ export default function App() {
     return u ? u.name : "Unassigned";
   };
 
-  // If user logged out
-  if (!isLoggedIn) {
-    return (
-      <div className="w-full h-screen bg-[#0b0f19] text-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#111827] border border-slate-800 rounded-xl p-6 space-y-5 shadow-2xl">
-          <div className="text-center space-y-1">
-            <h1 className="text-xl font-bold text-white">BugForge Portal</h1>
-            <p className="text-xs text-slate-400">Select user account to sign in</p>
-          </div>
-
-          <div className="space-y-2">
-            {users.map((u) => (
-              <button
-                key={u.id}
-                onClick={() => {
-                  setCurrentUser(u);
-                  setIsLoggedIn(true);
-                }}
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-[#1f2937]/50 hover:bg-slate-800 text-left transition"
-              >
-                <div>
-                  <p className="text-xs font-bold text-white">{u.name}</p>
-                  <p className="text-[11px] text-slate-400">{u.email}</p>
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  {u.role}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full h-screen bg-[#0b0f19] text-slate-100 font-sans flex flex-col overflow-hidden">
       {/* ========================================================================= */}
-      {/* NAVIGATION HEADER */}
+      {/* HEADER WITH STRICT USER ROLE SWITCHER */}
       {/* ========================================================================= */}
       <header className="h-14 bg-[#111827] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
@@ -237,17 +238,14 @@ export default function App() {
             <div className="w-7 h-7 rounded bg-indigo-600 text-white font-black text-xs flex items-center justify-center">
               BF
             </div>
-            <span className="font-bold text-sm text-white tracking-tight">BugForge Engine</span>
+            <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
           </div>
 
-          {/* Navigation Tabs */}
           <nav className="flex items-center gap-1 text-xs font-semibold">
             <button
               onClick={() => setActiveTab("BOARD")}
               className={`px-3 py-1.5 rounded transition ${
-                activeTab === "BOARD"
-                  ? "bg-slate-800 text-white font-bold"
-                  : "text-slate-400 hover:text-slate-200"
+                activeTab === "BOARD" ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               Issue Board
@@ -255,15 +253,12 @@ export default function App() {
             <button
               onClick={() => setActiveTab("PROJECTS")}
               className={`px-3 py-1.5 rounded transition ${
-                activeTab === "PROJECTS"
-                  ? "bg-slate-800 text-white font-bold"
-                  : "text-slate-400 hover:text-slate-200"
+                activeTab === "PROJECTS" ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               Projects ({projects.length})
             </button>
-
-            {currentUser.role === "ADMIN" && (
+            {isAdmin && (
               <button
                 onClick={() => setActiveTab("USERS")}
                 className={`px-3 py-1.5 rounded transition ${
@@ -278,11 +273,10 @@ export default function App() {
           </nav>
         </div>
 
-        {/* User Status & Controls */}
         <div className="flex items-center gap-3">
           {/* Active User Switcher */}
           <div className="flex items-center gap-2 bg-[#1f2937] border border-slate-700 px-3 py-1 rounded text-xs">
-            <span className="text-slate-400">Logged in as:</span>
+            <span className="text-slate-400">Current User:</span>
             <select
               value={currentUser.id}
               onChange={(e) => {
@@ -293,30 +287,46 @@ export default function App() {
             >
               {users.map((u) => (
                 <option key={u.id} value={u.id} className="bg-slate-900 text-white">
-                  {u.name} ({u.role})
+                  {u.name} [{u.role}]
                 </option>
               ))}
             </select>
           </div>
 
-          <button
-            onClick={() => setIsNewIssueModalOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-1.5 rounded transition"
-          >
-            + Create Issue
-          </button>
-
-          <button
-            onClick={() => setIsLoggedIn(false)}
-            className="text-xs text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1 rounded"
-          >
-            Logout
-          </button>
+          {/* Admin Only Action */}
+          {isAdmin ? (
+            <button
+              onClick={() => setIsNewIssueModalOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-1.5 rounded transition"
+            >
+              + Create Issue (Admin)
+            </button>
+          ) : (
+            <span className="text-[11px] text-slate-500 px-2 py-1 bg-slate-900 rounded border border-slate-800">
+              Developer Mode (Read-Only Create)
+            </span>
+          )}
         </div>
       </header>
 
+      {/* Role Permission Notice Banner */}
+      <div
+        className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between ${
+          isAdmin
+            ? "bg-indigo-950/40 border-indigo-800/60 text-indigo-300"
+            : "bg-amber-950/30 border-amber-800/40 text-amber-300"
+        }`}
+      >
+        <span>
+          {isAdmin
+            ? "ADMIN ACCESS ACTIVE: Full privileges enabled (Create projects, add team members, create and assign issues)."
+            : "DEVELOPER ACCESS ACTIVE: View mode active. You can update the status of issues assigned to you."}
+        </span>
+        <span className="font-mono text-[10px] uppercase font-bold">Role: {currentUser.role}</span>
+      </div>
+
       {/* ========================================================================= */}
-      {/* MAIN CONTENT AREA */}
+      {/* MAIN CONTAINER */}
       {/* ========================================================================= */}
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar Filters */}
@@ -355,25 +365,15 @@ export default function App() {
               <option value="LOW">LOW</option>
             </select>
           </div>
-
-          <div className="pt-4 border-t border-slate-800">
-            <span className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
-              Active User Role
-            </span>
-            <span className="inline-block font-mono font-bold px-2 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">
-              {currentUser.role}
-            </span>
-          </div>
         </aside>
 
-        {/* Main View Display */}
+        {/* Main Display Area */}
         <main className="flex-1 bg-[#0b0f19] overflow-y-auto p-5 flex flex-col">
           {/* ========================================================================= */}
           {/* VIEW 1: KANBAN BOARD */}
           {/* ========================================================================= */}
           {activeTab === "BOARD" && (
             <div className="flex-1 flex flex-col">
-              {/* Header Bar */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <input
@@ -388,12 +388,12 @@ export default function App() {
                   </span>
                 </div>
 
-                {currentUser.role === "ADMIN" && (
+                {isAdmin && (
                   <button
                     onClick={() => setIsNewProjectModalOpen(true)}
-                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-1.5 rounded"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
                   >
-                    + Add New Project
+                    + Add New Project (Admin)
                   </button>
                 )}
               </div>
@@ -472,14 +472,20 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-bold text-white">Project Repositories</h2>
-                  <p className="text-xs text-slate-400">Manage software house project spaces</p>
+                  <p className="text-xs text-slate-400">
+                    {isAdmin
+                      ? "Admin Project Control: Create and manage software projects"
+                      : "Developer View: Active project list (Read-Only Creation)"}
+                  </p>
                 </div>
-                <button
-                  onClick={() => setIsNewProjectModalOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
-                >
-                  + Add Project
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => setIsNewProjectModalOpen(true)}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
+                  >
+                    + Add Project (Admin)
+                  </button>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -494,10 +500,10 @@ export default function App() {
                         <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                           KEY: {p.key}
                         </span>
-                        {currentUser.role === "ADMIN" && (
+                        {isAdmin && (
                           <button
                             onClick={() => handleDeleteProject(p.key)}
-                            className="text-[11px] text-red-400 hover:underline"
+                            className="text-[11px] text-red-400 hover:underline font-bold"
                           >
                             Delete Project
                           </button>
@@ -506,11 +512,11 @@ export default function App() {
 
                       <div>
                         <h3 className="text-sm font-bold text-white">{p.name}</h3>
-                        <p className="text-xs text-slate-400 mt-1">{p.description || "No description provided."}</p>
+                        <p className="text-xs text-slate-400 mt-1">{p.description || "No description."}</p>
                       </div>
 
                       <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                        <span>Issues Total: {projIssueCount}</span>
+                        <span>Total Issues: {projIssueCount}</span>
                         <button
                           onClick={() => {
                             setSelectedProjectKey(p.key);
@@ -518,7 +524,7 @@ export default function App() {
                           }}
                           className="text-indigo-400 font-bold hover:underline"
                         >
-                          View Board -&gt;
+                          View Board
                         </button>
                       </div>
                     </div>
@@ -529,20 +535,20 @@ export default function App() {
           )}
 
           {/* ========================================================================= */}
-          {/* VIEW 3: ADMIN USER MANAGEMENT */}
+          {/* VIEW 3: ADMIN USER MANAGEMENT (ADMIN ONLY) */}
           {/* ========================================================================= */}
-          {activeTab === "USERS" && (
+          {activeTab === "USERS" && isAdmin && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-bold text-white">Admin User Management</h2>
-                  <p className="text-xs text-slate-400">Manage software house team members and permissions</p>
+                  <h2 className="text-base font-bold text-white">Admin User & Permission Management</h2>
+                  <p className="text-xs text-slate-400">Add team members and assign roles</p>
                 </div>
                 <button
                   onClick={() => setIsNewUserModalOpen(true)}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
                 >
-                  + Add User Account
+                  + Add User Account (Admin)
                 </button>
               </div>
 
@@ -597,9 +603,9 @@ export default function App() {
               </div>
               <button
                 onClick={() => setSelectedIssue(null)}
-                className="text-slate-400 hover:text-white font-bold"
+                className="text-slate-400 hover:text-white font-bold text-xs"
               >
-                [Close]
+                Close
               </button>
             </div>
 
@@ -632,11 +638,16 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Assignee</label>
+                  <label className="block text-slate-400 font-semibold mb-1">
+                    Assignee {isAdmin ? "(Admin Editable)" : "(Admin Only Reassign)"}
+                  </label>
                   <select
+                    disabled={!isAdmin}
                     value={selectedIssue.assigneeId}
                     onChange={(e) => handleUpdateIssueAssignee(selectedIssue.id, e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 focus:outline-none"
+                    className={`w-full bg-slate-900 border border-slate-700 text-white rounded p-2 focus:outline-none ${
+                      !isAdmin ? "opacity-60 cursor-not-allowed" : ""
+                    }`}
                   >
                     {users.map((u) => (
                       <option key={u.id} value={u.id}>
@@ -649,12 +660,16 @@ export default function App() {
             </div>
 
             <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
-              <button
-                onClick={() => handleDeleteIssue(selectedIssue.id)}
-                className="text-red-400 font-bold hover:underline"
-              >
-                Delete Issue
-              </button>
+              {isAdmin ? (
+                <button
+                  onClick={() => handleDeleteIssue(selectedIssue.id)}
+                  className="text-red-400 font-bold hover:underline"
+                >
+                  Delete Issue (Admin)
+                </button>
+              ) : (
+                <span className="text-slate-500 text-[11px]">Developer Mode</span>
+              )}
               <button
                 onClick={() => setSelectedIssue(null)}
                 className="bg-indigo-600 text-white px-4 py-1.5 rounded font-bold"
@@ -667,18 +682,18 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* CREATE PROJECT MODAL */}
+      {/* CREATE PROJECT MODAL (ADMIN ONLY) */}
       {/* ========================================================================= */}
-      {isNewProjectModalOpen && (
+      {isNewProjectModalOpen && isAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Create New Project Repository</h3>
+              <h3 className="text-sm font-bold text-white">Create New Project Repository (Admin)</h3>
               <button
                 onClick={() => setIsNewProjectModalOpen(false)}
                 className="text-slate-400 hover:text-white"
               >
-                [Close]
+                Close
               </button>
             </div>
 
@@ -688,7 +703,7 @@ export default function App() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Mobile iOS Application"
+                  placeholder="e.g. Mobile iOS App"
                   value={newProject.name}
                   onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
@@ -696,7 +711,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Project Key (Short ID)</label>
+                <label className="block font-semibold text-slate-300 mb-1">Project Key (Short Code)</label>
                 <input
                   type="text"
                   required
@@ -712,7 +727,7 @@ export default function App() {
                 <label className="block font-semibold text-slate-300 mb-1">Description</label>
                 <textarea
                   rows="2"
-                  placeholder="Project purpose and scope..."
+                  placeholder="Project purpose..."
                   value={newProject.description}
                   onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
@@ -740,18 +755,18 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* CREATE ISSUE MODAL */}
+      {/* CREATE ISSUE MODAL (ADMIN ONLY) */}
       {/* ========================================================================= */}
-      {isNewIssueModalOpen && (
+      {isNewIssueModalOpen && isAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Create New Issue Ticket</h3>
+              <h3 className="text-sm font-bold text-white">Create & Assign Issue Ticket (Admin)</h3>
               <button
                 onClick={() => setIsNewIssueModalOpen(false)}
                 className="text-slate-400 hover:text-white"
               >
-                [Close]
+                Close
               </button>
             </div>
 
@@ -803,7 +818,7 @@ export default function App() {
                 <label className="block font-semibold text-slate-300 mb-1">Description</label>
                 <textarea
                   rows="3"
-                  placeholder="Steps to reproduce, technical impact..."
+                  placeholder="Technical description..."
                   value={newIssue.description}
                   onChange={(e) => setNewIssue({ ...newIssue, description: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
@@ -826,11 +841,11 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Assignee</label>
+                  <label className="block font-semibold text-slate-300 mb-1">Select Assignee</label>
                   <select
                     value={newIssue.assigneeId}
                     onChange={(e) => setNewIssue({ ...newIssue, assigneeId: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
+                    className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none font-bold text-indigo-300"
                   >
                     {users.map((u) => (
                       <option key={u.id} value={u.id}>
@@ -853,7 +868,7 @@ export default function App() {
                   type="submit"
                   className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded"
                 >
-                  Create Issue
+                  Create & Assign Issue
                 </button>
               </div>
             </form>
@@ -864,16 +879,16 @@ export default function App() {
       {/* ========================================================================= */}
       {/* CREATE USER MODAL (ADMIN ONLY) */}
       {/* ========================================================================= */}
-      {isNewUserModalOpen && (
+      {isNewUserModalOpen && isAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Add New Software House User</h3>
+              <h3 className="text-sm font-bold text-white">Add New Team Member (Admin)</h3>
               <button
                 onClick={() => setIsNewUserModalOpen(false)}
                 className="text-slate-400 hover:text-white"
               >
-                [Close]
+                Close
               </button>
             </div>
 
@@ -903,14 +918,13 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Access Role</label>
+                <label className="block font-semibold text-slate-300 mb-1">Role</label>
                 <select
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
                 >
                   <option value="ADMIN">ADMIN</option>
-                  <option value="MANAGER">MANAGER</option>
                   <option value="DEVELOPER">DEVELOPER</option>
                 </select>
               </div>
@@ -927,7 +941,7 @@ export default function App() {
                   type="submit"
                   className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded"
                 >
-                  Add User Account
+                  Add Team Member
                 </button>
               </div>
             </form>
