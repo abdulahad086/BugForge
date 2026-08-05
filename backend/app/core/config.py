@@ -33,6 +33,16 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 20
     DB_POOL_RECYCLE: int = 1800
 
+    # Authentication & Security Settings
+    JWT_SECRET: str = "bugforge-super-secret-key-change-in-production-2026"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # Redis Cache & Token Blacklist Settings
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
