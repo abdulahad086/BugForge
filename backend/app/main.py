@@ -1,11 +1,33 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.health import router as health_router
+from app.core.config import settings
 
-app = FastAPI()
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# Production CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Recommend restricting origins in production via settings
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# API Routers
+app.include_router(health_router, prefix="/api")
+
 
 @app.get("/")
-def home():
+def root():
     return {
-        "application": "BugForge",
+        "application": settings.PROJECT_NAME,
+        "environment": settings.ENVIRONMENT,
         "status": "running",
-        "message": "Welcome to BugForge 🚀"
+        "message": f"Welcome to {settings.PROJECT_NAME} API 🚀"
     }
