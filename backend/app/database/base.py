@@ -9,3 +9,7 @@ class Base(AsyncAttrs, DeclarativeBase):
     and DeclarativeBase for SQLAlchemy 2.0 style declarative mapping.
     """
     pass
+
+
+# Import models so Base.metadata is aware of all registered tables
+import app.models  # noqa: F401

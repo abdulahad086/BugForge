@@ -1,0 +1,75 @@
+name: bugforge
+
+services:
+  # ============================================================================
+  # Database Service: PostgreSQL 16
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: bugforge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bugforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bugforge_password}
+      POSTGRES_DB: ${POSTGRES_DB:-bugforge_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bugforge-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bugforge} -d ${POSTGRES_DB:-bugforge_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Backend Service: FastAPI (Python 3.13)
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bugforge-backend
+    restart: unless-stopped
+    environment:
+      PROJECT_NAME: ${PROJECT_NAME:-BugForge}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      POSTGRES_SERVER: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-bugforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bugforge_password}
+      POSTGRES_DB: ${POSTGRES_DB:-bugforge_db}
+    ports:
+      - "8000:8000"
+    networks:
+      - bugforge-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ============================================================================
+  # Frontend Service: React (Vite + NGINX)
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bugforge-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - bugforge-network
+    depends_on:
+      - backend
+
+networks:
+  bugforge-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

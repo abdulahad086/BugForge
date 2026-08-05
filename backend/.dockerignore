@@ -1,0 +1,30 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Git Metadata
+.git
+.gitignore
+
+# IDE & OS Metadata
+.vscode/
+.idea/
+.DS_Store
+
+# Log files & scratch artifacts
+*.log
+tests/
