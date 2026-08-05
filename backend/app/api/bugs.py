@@ -2,8 +2,8 @@ import uuid
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.api.deps import get_current_user, get_db
-from app.models.enums import BugPriority, BugSeverity, BugStatus
+from app.api.deps import get_current_user, get_db, require_role
+from app.models.enums import BugPriority, BugSeverity, BugStatus, UserRole
 from app.models.user import User
 from app.repositories.bug_repository import BugRepository
 from app.repositories.project_repository import ProjectRepository
@@ -22,7 +22,13 @@ async def list_bugs(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """List bugs with optional filtering and text search across organization projects."""
+    """List bugs with tenant isolation and optional filtering."""
+    if current_user.role == UserRole.SUPER_ADMIN:
+        # Super admin list all bugs across system
+        bug_repo = BugRepository(db)
+        res = await db.execute(select(Bug))
+        return list(res.scalars().all())
+
     project_repo = ProjectRepository(db)
     projects = await project_repo.list_by_organization(current_user.organization_id)
     if not projects:
@@ -46,10 +52,21 @@ async def create_bug(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Create a new bug issue ticket."""
+    """
+    Create a new bug ticket.
+    DEVELOPER & VIEWER roles cannot assign bugs. Bug assignment is restricted to
+    ORGANIZATION_ADMIN and TECH_LEAD roles.
+    """
+    # Verify assignment permissions
+    if data.assignee_id and current_user.role not in [UserRole.SUPER_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.TECH_LEAD]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Organization Admin or Tech Lead can assign bugs.",
+        )
+
     project_repo = ProjectRepository(db)
     project = await project_repo.get_by_id(data.project_id)
-    if not project or project.organization_id != current_user.organization_id:
+    if not project or (current_user.role != UserRole.SUPER_ADMIN and project.organization_id != current_user.organization_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
     bug_repo = BugRepository(db)
@@ -77,21 +94,33 @@ async def update_bug(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Update bug details or status transition."""
+    """
+    Update bug details or status.
+    Reassigning assignee_id requires ORGANIZATION_ADMIN or TECH_LEAD role.
+    """
     bug_repo = BugRepository(db)
     bug = await bug_repo.get_by_id(bug_id)
     if not bug:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bug not found.")
+
+    # Restrict bug reassignment
+    if data.assignee_id is not None and data.assignee_id != bug.assignee_id:
+        if current_user.role not in [UserRole.SUPER_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.TECH_LEAD]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only Organization Admin or Tech Lead can reassign bugs.",
+            )
+
     return await bug_repo.update(bug, data)
 
 
 @router.delete("/{bug_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_bug(
     bug_id: uuid.UUID,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.ORGANIZATION_ADMIN])),
     db: AsyncSession = Depends(get_db),
 ):
-    """Delete bug ticket."""
+    """Delete bug ticket (Super Admin & Organization Admin only)."""
     bug_repo = BugRepository(db)
     bug = await bug_repo.get_by_id(bug_id)
     if not bug:

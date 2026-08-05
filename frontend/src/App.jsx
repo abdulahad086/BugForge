@@ -1,159 +1,121 @@
 import React, { useState } from "react";
 
-// Pre-seeded Multi-Tenant B2B Software Houses & Companies
+// Pre-seeded Multi-Tenant Software Houses (Organizations)
 const INITIAL_ORGANIZATIONS = [
-  { id: "org-1", slug: "acme-tech", name: "Acme Tech Solutions", plan: "ENTERPRISE" },
-  { id: "org-2", slug: "cybersoft", name: "CyberSoft Systems", plan: "PRO_SAAS" },
+  { id: "org-eprecisio", name: "Eprecisio Technologies", slug: "eprecisio", logo: "EP", domain: "eprecisio.com", status: "ACTIVE", createdAt: "2026-08-01" },
+  { id: "org-antigravity", name: "Antigravity Systems", slug: "antigravity", logo: "AG", domain: "antigravity.com", status: "ACTIVE", createdAt: "2026-08-02" },
+  { id: "org-stack8s", name: "Stack8s Cloud", slug: "stack8s", logo: "S8", domain: "stack8s.io", status: "ACTIVE", createdAt: "2026-08-03" },
 ];
 
-// Pre-seeded Users tied to Organizations
+// Pre-seeded Users across 6 Roles
 const INITIAL_USERS = [
-  // Super Admin (Platform Owner)
-  { id: "usr-super", orgId: "org-1", name: "Platform Owner (You)", email: "owner@bugforge.io", role: "SUPER_ADMIN" },
-  
-  // Acme Tech (Company 1)
-  { id: "usr-[#1]", orgId: "org-1", name: "John Miller (Tech Lead)", email: "john@acmetech.com", role: "TECH_LEAD" },
-  { id: "usr-[#2]", orgId: "org-1", name: "Alex Rivera (Backend Dev)", email: "alex@acmetech.com", role: "DEVELOPER" },
-  { id: "usr-[#3]", orgId: "org-1", name: "Sarah Chen (Frontend Dev)", email: "sarah@acmetech.com", role: "DEVELOPER" },
+  // Super Admin (Only ONE)
+  { id: "usr-super", orgId: null, name: "Super Administrator", email: "ahad8641@gmail.com", role: "SUPER_ADMIN" },
 
-  // CyberSoft (Company 2)
-  { id: "usr-[#4]", orgId: "org-2", name: "Robert Vance (Company Head)", email: "robert@cybersoft.io", role: "TECH_LEAD" },
-  { id: "usr-[#5]", orgId: "org-2", name: "David Kim (Fullstack Dev)", email: "david@cybersoft.io", role: "DEVELOPER" },
+  // Eprecisio Users
+  { id: "usr-ep1", orgId: "org-eprecisio", name: "Eprecisio Org Admin", email: "admin@eprecisio.com", role: "ORGANIZATION_ADMIN" },
+  { id: "usr-ep2", orgId: "org-eprecisio", name: "Tech Lead Eprecisio", email: "lead@eprecisio.com", role: "TECH_LEAD" },
+  { id: "usr-ep3", orgId: "org-eprecisio", name: "Dev Eprecisio", email: "dev@eprecisio.com", role: "DEVELOPER" },
+  { id: "usr-ep4", orgId: "org-eprecisio", name: "QA Tester Eprecisio", email: "qa@eprecisio.com", role: "QA" },
+
+  // Antigravity Users
+  { id: "usr-ag1", orgId: "org-antigravity", name: "Antigravity Org Admin", email: "admin@antigravity.com", role: "ORGANIZATION_ADMIN" },
+  { id: "usr-ag2", orgId: "org-antigravity", name: "Tech Lead Antigravity", email: "lead@antigravity.com", role: "TECH_LEAD" },
+  { id: "usr-ag3", orgId: "org-antigravity", name: "Dev Antigravity", email: "dev@antigravity.com", role: "DEVELOPER" },
+  { id: "usr-ag4", orgId: "org-antigravity", name: "Viewer Antigravity", email: "viewer@antigravity.com", role: "VIEWER" },
+
+  // Stack8s Users
+  { id: "usr-s8-1", orgId: "org-stack8s", name: "Stack8s Org Admin", email: "admin@stack8s.io", role: "ORGANIZATION_ADMIN" },
+  { id: "usr-s8-2", orgId: "org-stack8s", name: "Dev Stack8s", email: "dev@stack8s.io", role: "DEVELOPER" },
 ];
 
-// Pre-seeded Projects tied to Organizations with Project-Specific Assigned Team
+// Tenant-Isolated Projects
 const INITIAL_PROJECTS = [
-  {
-    id: "prj-1",
-    orgId: "org-1",
-    key: "CORE",
-    name: "Core Payment Engine",
-    description: "Stripe & PayPal billing API integration",
-    leadId: "usr-[#1]",
-    assignedUserIds: ["usr-[#2]", "usr-[#3]"], // Project-specific team members
-  },
-  {
-    id: "prj-2",
-    orgId: "org-1",
-    key: "AUTH",
-    name: "OAuth2 Identity Service",
-    description: "Okta & Google OIDC SSO service",
-    leadId: "usr-[#1]",
-    assignedUserIds: ["usr-[#2]"],
-  },
-  {
-    id: "prj-3",
-    orgId: "org-2",
-    key: "CYBER",
-    name: "CyberSecurity Scanner",
-    description: "Vulnerability analysis engine",
-    leadId: "usr-[#4]",
-    assignedUserIds: ["usr-[#5]"],
-  },
+  // Eprecisio Projects
+  { id: "prj-ep1", orgId: "org-eprecisio", key: "EPREC", name: "Eprecisio Enterprise Core", description: "Core enterprise backend services", leadId: "usr-ep2" },
+  
+  // Antigravity Projects
+  { id: "prj-ag1", orgId: "org-antigravity", key: "ANTI", name: "Antigravity AI Platform", description: "Agentic AI platform infrastructure", leadId: "usr-ag2" },
+
+  // Stack8s Projects
+  { id: "prj-s8-1", orgId: "org-stack8s", key: "STK", name: "Stack8s K8s Engine", description: "Kubernetes orchestration manager", leadId: "usr-s8-1" },
 ];
 
-// Pre-seeded Issues
+// Tenant-Isolated Issues
 const INITIAL_ISSUES = [
-  {
-    id: "CORE-101",
-    orgId: "org-1",
-    projectKey: "CORE",
-    type: "BUG",
-    title: "Database connection timeout during peak checkout payload",
-    description: "Asyncpg connection pool runs out of slots under peak traffic load.",
-    status: "OPEN",
-    priority: "CRITICAL",
-    severity: "BLOCKER",
-    assigneeId: "usr-[#2]",
-    reporterId: "usr-[#1]",
-    createdAt: "2026-08-05",
-  },
-  {
-    id: "AUTH-102",
-    orgId: "org-1",
-    projectKey: "AUTH",
-    type: "FEATURE",
-    title: "Implement SAML 2.0 Single Sign-On for enterprise clients",
-    description: "Enable OKTA and Azure AD SSO login integrations.",
-    status: "IN_PROGRESS",
-    priority: "HIGH",
-    severity: "HIGH",
-    assigneeId: "usr-[#2]",
-    reporterId: "usr-[#1]",
-    createdAt: "2026-08-04",
-  },
-  {
-    id: "CYBER-201",
-    orgId: "org-2",
-    projectKey: "CYBER",
-    type: "BUG",
-    title: "Scanner engine thread lock on large repository scans",
-    description: "Worker threads deadlock during deep AST analysis.",
-    status: "OPEN",
-    priority: "CRITICAL",
-    severity: "BLOCKER",
-    assigneeId: "usr-[#5]",
-    reporterId: "usr-[#4]",
-    createdAt: "2026-08-05",
-  },
+  // Eprecisio Issues
+  { id: "EPREC-101", orgId: "org-eprecisio", projectKey: "EPREC", type: "BUG", title: "Eprecisio payment gateway latency timeout", description: "Payment processing thread times out under peak concurrent requests.", status: "OPEN", priority: "CRITICAL", severity: "BLOCKER", assigneeId: "usr-ep3", reporterId: "usr-ep4", createdAt: "2026-08-05" },
+
+  // Antigravity Issues
+  { id: "ANTI-201", orgId: "org-antigravity", projectKey: "ANTI", type: "FEATURE", title: "Antigravity agent memory indexing optimization", description: "Implement vector store caching for agent trajectory logs.", status: "IN_PROGRESS", priority: "HIGH", severity: "HIGH", assigneeId: "usr-ag3", reporterId: "usr-ag2", createdAt: "2026-08-04" },
+
+  // Stack8s Issues
+  { id: "STK-301", orgId: "org-stack8s", projectKey: "STK", type: "BUG", title: "Stack8s pod autoscaler metrics scrape failure", description: "Prometheus exporter drops scrape targets when pod count exceeds 100.", status: "OPEN", priority: "HIGH", severity: "HIGH", assigneeId: "usr-s8-2", reporterId: "usr-s8-1", createdAt: "2026-08-05" },
 ];
 
 const STATUSES = ["OPEN", "IN_PROGRESS", "IN_REVIEW", "RESOLVED", "CLOSED"];
 
 export default function App() {
-  // State
+  // Master State
   const [organizations, setOrganizations] = useState(INITIAL_ORGANIZATIONS);
-  const [currentOrgId, setCurrentOrgId] = useState("org-1"); // Selected Software House
-
   const [users, setUsers] = useState(INITIAL_USERS);
-  const [currentUser, setCurrentUser] = useState(INITIAL_USERS[1]); // Default to Acme Tech Lead John Miller
-
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [issues, setIssues] = useState(INITIAL_ISSUES);
 
-  // Active View & Filters
-  const [activeTab, setActiveTab] = useState("PROJECTS"); // 'PROJECTS', 'BOARD', 'TEAM', 'CLIENTS'
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(INITIAL_USERS[0]); // Default Super Admin (ahad8641@gmail.com)
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  // Filters & Search
   const [selectedProjectKey, setSelectedProjectKey] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Modals
+  const [isNewOrgModalOpen, setIsNewOrgModalOpen] = useState(false);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isNewIssueModalOpen, setIsNewIssueModalOpen] = useState(false);
   const [isNewUserModalOpen, setIsNewUserModalOpen] = useState(false);
-  const [isNewCompanyModalOpen, setIsNewCompanyModalOpen] = useState(false);
+  const [selectedIssueDetail, setSelectedIssueDetail] = useState(null);
 
   // Form States
-  const [newProject, setNewProject] = useState({
-    name: "",
-    key: "",
-    description: "",
-    assignedUserIds: [],
-  });
-
-  const [newIssue, setNewIssue] = useState({
-    title: "",
-    description: "",
-    type: "BUG",
-    priority: "MEDIUM",
-    severity: "MEDIUM",
-    projectKey: "CORE",
-    assigneeId: "",
-  });
-
+  const [newOrg, setNewOrg] = useState({ name: "", slug: "", domain: "", adminName: "", adminEmail: "", adminPassword: "" });
+  const [newProject, setNewProject] = useState({ name: "", key: "", description: "" });
+  const [newIssue, setNewIssue] = useState({ title: "", description: "", type: "BUG", priority: "MEDIUM", severity: "MEDIUM", projectKey: "EPREC", assigneeId: "" });
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "DEVELOPER" });
-  const [newCompany, setNewCompany] = useState({ name: "", slug: "", leadName: "", leadEmail: "" });
 
-  // Permissions Helper
+  // Role Checks
   const isSuperAdmin = currentUser.role === "SUPER_ADMIN";
-  const isTechLead = currentUser.role === "TECH_LEAD" || isSuperAdmin;
+  const isOrgAdmin = currentUser.role === "ORGANIZATION_ADMIN";
+  const isTechLead = currentUser.role === "TECH_LEAD";
+  const isQA = currentUser.role === "QA";
+  const isDev = currentUser.role === "DEVELOPER";
+  const isViewer = currentUser.role === "VIEWER";
 
-  // Filter Data by Active Organization (Tenant Isolation)
-  const currentOrg = organizations.find((o) => o.id === currentOrgId) || organizations[0];
-  const orgProjects = projects.filter((p) => p.orgId === currentOrgId);
-  const orgUsers = users.filter((u) => u.orgId === currentOrgId || u.role === "SUPER_ADMIN");
-  const orgIssues = issues.filter((i) => i.orgId === currentOrgId);
+  // Permissions Check for Bug Assignment (ONLY ORGANIZATION_ADMIN and TECH_LEAD can assign)
+  const canAssignBugs = isSuperAdmin || isOrgAdmin || isTechLead;
+  // Permissions Check for Project Creation (ORGANIZATION_ADMIN and TECH_LEAD)
+  const canCreateProjects = isSuperAdmin || isOrgAdmin || isTechLead;
+  // Permissions Check for Project Deletion (ORGANIZATION_ADMIN)
+  const canDeleteProjects = isSuperAdmin || isOrgAdmin;
 
-  const filteredIssues = orgIssues.filter((issue) => {
+  // Tenant Isolation Scoping
+  const currentOrg = isSuperAdmin
+    ? organizations[0]
+    : organizations.find((o) => o.id === currentUser.orgId) || organizations[0];
+
+  const tenantProjects = isSuperAdmin
+    ? projects
+    : projects.filter((p) => p.orgId === currentUser.orgId);
+
+  const tenantUsers = isSuperAdmin
+    ? users
+    : users.filter((u) => u.orgId === currentUser.orgId);
+
+  const tenantIssues = isSuperAdmin
+    ? issues
+    : issues.filter((i) => i.orgId === currentUser.orgId);
+
+  const filteredIssues = tenantIssues.filter((issue) => {
     const matchesProject = selectedProjectKey === "ALL" || issue.projectKey === selectedProjectKey;
     const matchesSearch =
       issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -161,62 +123,113 @@ export default function App() {
     return matchesProject && matchesSearch;
   });
 
-  // Action 1: Tech Lead Creates Project with Specific Project Assignees
+  // Action: Super Admin Creates Software House & Auto Provisions Org Admin
+  const handleCreateSoftwareHouse = (e) => {
+    e.preventDefault();
+    if (!isSuperAdmin) {
+      alert("Access Denied: Only Super Admin (ahad8641@gmail.com) can create software houses.");
+      return;
+    }
+    const orgId = `org-${organizations.length + 1}`;
+    const org = {
+      id: orgId,
+      name: newOrg.name.trim(),
+      slug: newOrg.slug.toLowerCase().trim(),
+      logo: newOrg.name.substring(0, 2).toUpperCase(),
+      domain: newOrg.domain.trim() || `${newOrg.slug}.com`,
+      status: "ACTIVE",
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+
+    const adminUser = {
+      id: `usr-${users.length + 1}`,
+      orgId: orgId,
+      name: newOrg.adminName.trim(),
+      email: newOrg.adminEmail.trim(),
+      role: "ORGANIZATION_ADMIN",
+    };
+
+    setOrganizations([...organizations, org]);
+    setUsers([...users, adminUser]);
+    setNewOrg({ name: "", slug: "", domain: "", adminName: "", adminEmail: "", adminPassword: "" });
+    setIsNewOrgModalOpen(false);
+  };
+
+  // Action: Super Admin Suspend/Activate Organization
+  const handleToggleOrgStatus = (orgId) => {
+    if (!isSuperAdmin) return;
+    setOrganizations(
+      organizations.map((o) =>
+        o.id === orgId ? { ...o, status: o.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE" } : o
+      )
+    );
+  };
+
+  // Action: Super Admin Delete Organization
+  const handleDeleteOrg = (orgId) => {
+    if (!isSuperAdmin) return;
+    if (!window.confirm("Super Admin Warning: Permanently delete organization and all tenant data?")) return;
+    setOrganizations(organizations.filter((o) => o.id !== orgId));
+    setUsers(users.filter((u) => u.orgId !== orgId));
+    setProjects(projects.filter((p) => p.orgId !== orgId));
+    setIssues(issues.filter((i) => i.orgId !== orgId));
+  };
+
+  // Action: Create Project
   const handleCreateProject = (e) => {
     e.preventDefault();
-    if (!isTechLead) {
-      alert("Access Denied: Only Company Tech Lead can create projects.");
+    if (!canCreateProjects) {
+      alert("Access Denied: Only Organization Admin or Tech Lead can create projects.");
       return;
     }
-    if (!newProject.name || !newProject.key) return;
     const keyUpper = newProject.key.toUpperCase().trim();
-    if (orgProjects.some((p) => p.key === keyUpper)) {
-      alert(`Project key ${keyUpper} already exists in this software house.`);
+    if (tenantProjects.some((p) => p.key === keyUpper)) {
+      alert(`Project key ${keyUpper} already exists in your organization.`);
       return;
     }
-
     const project = {
       id: `prj-${projects.length + 1}`,
-      orgId: currentOrgId,
+      orgId: currentUser.orgId,
       key: keyUpper,
       name: newProject.name.trim(),
       description: newProject.description,
       leadId: currentUser.id,
-      assignedUserIds: newProject.assignedUserIds, // Project specific assignees
     };
-
     setProjects([...projects, project]);
-    setNewProject({ name: "", key: "", description: "", assignedUserIds: [] });
+    setNewProject({ name: "", key: "", description: "" });
     setIsNewProjectModalOpen(false);
   };
 
-  // Action 2: Tech Lead Deletes Project
+  // Action: Delete Project
   const handleDeleteProject = (projectKey) => {
-    if (!isTechLead) {
-      alert("Access Denied: Only Company Tech Lead can delete projects.");
+    if (!canDeleteProjects) {
+      alert("Access Denied: Only Organization Admin can delete projects.");
       return;
     }
-    if (!window.confirm(`Tech Lead Notice: Delete project ${projectKey} and all project issues?`)) return;
-    setProjects(projects.filter((p) => !(p.orgId === currentOrgId && p.key === projectKey)));
-    setIssues(issues.filter((i) => !(i.orgId === currentOrgId && i.projectKey === projectKey)));
+    if (!window.confirm(`Delete project ${projectKey} and all associated issues?`)) return;
+    setProjects(projects.filter((p) => !(p.orgId === currentUser.orgId && p.key === projectKey)));
+    setIssues(issues.filter((i) => !(i.orgId === currentUser.orgId && i.projectKey === projectKey)));
   };
 
-  // Action 3: Tech Lead Creates Issue & Selects Allowed Project Assignee
+  // Action: Create Issue (QA, Tech Lead, Org Admin, Super Admin)
   const handleCreateIssue = (e) => {
     e.preventDefault();
-    if (!isTechLead) {
-      alert("Access Denied: Only Company Tech Lead can create & assign issues.");
+    if (isViewer || isDev) {
+      alert("Access Denied: Developers and Viewers cannot create issues.");
       return;
     }
     if (!newIssue.title) return;
 
-    const targetProject = orgProjects.find((p) => p.key === newIssue.projectKey);
-    const assignedId = newIssue.assigneeId || (targetProject?.assignedUserIds[0] || currentUser.id);
+    // Check Bug Assignment permission
+    let assignedId = "";
+    if (canAssignBugs) {
+      assignedId = newIssue.assigneeId || tenantUsers.find((u) => u.role === "DEVELOPER")?.id || currentUser.id;
+    }
 
     const issue = {
       ...newIssue,
-      id: `${newIssue.projectKey}-${100 + orgIssues.length + 1}`,
-      orgId: currentOrgId,
+      id: `${newIssue.projectKey}-${100 + tenantIssues.length + 1}`,
+      orgId: currentUser.orgId,
       status: "OPEN",
       assigneeId: assignedId,
       reporterId: currentUser.id,
@@ -227,43 +240,35 @@ export default function App() {
     setIsNewIssueModalOpen(false);
   };
 
-  // Action 4: Tech Lead Onboards New Client Company (Super Admin)
-  const handleOnboardCompany = (e) => {
-    e.preventDefault();
-    if (!isSuperAdmin) {
-      alert("Access Denied: Only Platform Owner can onboard new software house companies.");
-      return;
+  // Action: Update Status & Reassign
+  const handleUpdateStatus = (issueId, newStatus) => {
+    setIssues(issues.map((i) => (i.id === issueId ? { ...i, status: newStatus } : i)));
+    if (selectedIssueDetail && selectedIssueDetail.id === issueId) {
+      setSelectedIssueDetail({ ...selectedIssueDetail, status: newStatus });
     }
-    const newOrgId = `org-${organizations.length + 1}`;
-    const org = {
-      id: newOrgId,
-      slug: newCompany.slug.toLowerCase().trim(),
-      name: newCompany.name.trim(),
-      plan: "ENTERPRISE",
-    };
-    const leadUser = {
-      id: `usr-[#${users.length + 1}]`,
-      orgId: newOrgId,
-      name: newCompany.leadName.trim(),
-      email: newCompany.leadEmail.trim(),
-      role: "TECH_LEAD",
-    };
-
-    setOrganizations([...organizations, org]);
-    setUsers([...users, leadUser]);
-    setCurrentOrgId(newOrgId);
-    setCurrentUser(leadUser);
-    setNewCompany({ name: "", slug: "", leadName: "", leadEmail: "" });
-    setIsNewCompanyModalOpen(false);
   };
 
-  // Action 5: Add Team Member to Software House (Tech Lead)
-  const handleAddTeamMember = (e) => {
+  const handleReassignIssue = (issueId, newAssigneeId) => {
+    if (!canAssignBugs) {
+      alert("Access Denied: Only Organization Admin or Tech Lead can assign/reassign bugs.");
+      return;
+    }
+    setIssues(issues.map((i) => (i.id === issueId ? { ...i, assigneeId: newAssigneeId } : i)));
+    if (selectedIssueDetail && selectedIssueDetail.id === issueId) {
+      setSelectedIssueDetail({ ...selectedIssueDetail, assigneeId: newAssigneeId });
+    }
+  };
+
+  // Action: Invite / Add User inside Organization
+  const handleAddOrgUser = (e) => {
     e.preventDefault();
-    if (!isTechLead) return;
+    if (!isOrgAdmin && !isSuperAdmin) {
+      alert("Access Denied: Only Organization Admin can add users.");
+      return;
+    }
     const user = {
-      id: `usr-[#${users.length + 1}]`,
-      orgId: currentOrgId,
+      id: `usr-${users.length + 1}`,
+      orgId: currentUser.orgId,
       name: newUser.name.trim(),
       email: newUser.email.trim(),
       role: newUser.role,
@@ -273,88 +278,86 @@ export default function App() {
     setIsNewUserModalOpen(false);
   };
 
-  // Update Status
-  const handleUpdateStatus = (issueId, newStatus) => {
-    setIssues(issues.map((i) => (i.id === issueId ? { ...i, status: newStatus } : i)));
-  };
-
   const getUserName = (userId) => {
     const u = users.find((x) => x.id === userId);
     return u ? u.name : "Unassigned";
   };
 
+  // Login Screen
+  if (!isLoggedIn) {
+    return (
+      <div className="w-full h-screen bg-[#090C15] text-slate-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-[#0F1422] border border-slate-800 rounded-xl p-6 space-y-5 shadow-2xl">
+          <div className="text-center space-y-1">
+            <h1 className="text-xl font-bold text-white tracking-tight">BugForge Multi-Tenant SaaS Portal</h1>
+            <p className="text-xs text-slate-400">Select role account to sign in & test strict data isolation</p>
+          </div>
+
+          <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+            {users.map((u) => {
+              const uOrg = organizations.find((o) => o.id === u.orgId);
+              return (
+                <button
+                  key={u.id}
+                  onClick={() => {
+                    setCurrentUser(u);
+                    setIsLoggedIn(true);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-[#141A2A] hover:bg-slate-800 text-left transition"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white">{u.name}</span>
+                      <span className="text-[10px] font-mono text-slate-500">({u.email})</span>
+                    </div>
+                    <span className="text-[11px] text-slate-400">
+                      Tenant: {u.role === "SUPER_ADMIN" ? "SYSTEM GLOBAL" : uOrg ? uOrg.name : "N/A"}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                      u.role === "SUPER_ADMIN"
+                        ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                        : u.role === "ORGANIZATION_ADMIN"
+                        ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
+                        : "bg-slate-800 text-slate-300 border-slate-700"
+                    }`}
+                  >
+                    {u.role}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-screen bg-[#0b0f19] text-slate-100 font-sans flex flex-col overflow-hidden">
+    <div className="w-full h-screen bg-[#090C15] text-slate-100 font-sans flex flex-col overflow-hidden">
       {/* ========================================================================= */}
-      {/* TOP HEADER: SOFTWARE HOUSE SELECTOR & ROLE SWITCHER */}
+      {/* TOP HEADER & ACCOUNT ROLE SWITCHER */}
       {/* ========================================================================= */}
-      <header className="h-14 bg-[#111827] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
+      <header className="h-14 bg-[#0F1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded bg-indigo-600 text-white font-black text-xs flex items-center justify-center">
               BF
             </div>
-            <span className="font-bold text-sm text-white tracking-tight">BugForge B2B SaaS</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
+              <span className="text-[10px] font-mono text-slate-400">
+                {isSuperAdmin ? "SUPER ADMIN GLOBAL OVERWATCH" : `Tenant: ${currentOrg.name}`}
+              </span>
+            </div>
           </div>
-
-          {/* Software House Client Selector */}
-          <div className="flex items-center gap-2 bg-[#1f2937] border border-slate-700 px-3 py-1 rounded text-xs">
-            <span className="text-slate-400">Software House:</span>
-            <select
-              value={currentOrgId}
-              onChange={(e) => {
-                const orgId = e.target.value;
-                setCurrentOrgId(orgId);
-                const firstOrgUser = users.find((u) => u.orgId === orgId && u.role === "TECH_LEAD") || users.find((u) => u.orgId === orgId) || currentUser;
-                setCurrentUser(firstOrgUser);
-                setSelectedProjectKey("ALL");
-              }}
-              className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
-            >
-              {organizations.map((o) => (
-                <option key={o.id} value={o.id} className="bg-slate-900 text-white">
-                  {o.name} [{o.plan}]
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Nav Tabs */}
-          <nav className="flex items-center gap-1 text-xs font-semibold">
-            <button
-              onClick={() => setActiveTab("PROJECTS")}
-              className={`px-3 py-1.5 rounded ${activeTab === "PROJECTS" ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"}`}
-            >
-              Projects ({orgProjects.length})
-            </button>
-            <button
-              onClick={() => setActiveTab("BOARD")}
-              className={`px-3 py-1.5 rounded ${activeTab === "BOARD" ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"}`}
-            >
-              Issue Board
-            </button>
-            <button
-              onClick={() => setActiveTab("TEAM")}
-              className={`px-3 py-1.5 rounded ${activeTab === "TEAM" ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"}`}
-            >
-              Company Team ({orgUsers.length})
-            </button>
-
-            {isSuperAdmin && (
-              <button
-                onClick={() => setActiveTab("CLIENTS")}
-                className="px-3 py-1.5 rounded bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 font-bold"
-              >
-                Onboard New Client Company
-              </button>
-            )}
-          </nav>
         </div>
 
-        {/* User Role Switcher */}
+        {/* User Account Switcher */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#1f2937] border border-slate-700 px-3 py-1 rounded text-xs">
-            <span className="text-slate-400">Active User:</span>
+          <div className="flex items-center gap-2 bg-[#141A2A] border border-slate-700 px-3 py-1 rounded text-xs">
+            <span className="text-slate-400">Account:</span>
             <select
               value={currentUser.id}
               onChange={(e) => {
@@ -363,7 +366,7 @@ export default function App() {
               }}
               className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
             >
-              {orgUsers.map((u) => (
+              {users.map((u) => (
                 <option key={u.id} value={u.id} className="bg-slate-900 text-white">
                   {u.name} [{u.role}]
                 </option>
@@ -371,392 +374,479 @@ export default function App() {
             </select>
           </div>
 
-          {isTechLead ? (
-            <button
-              onClick={() => setIsNewProjectModalOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
-            >
-              + Add Project (Tech Lead)
-            </button>
-          ) : (
-            <span className="text-[11px] text-slate-500 px-2 py-1 bg-slate-900 rounded border border-slate-800">
-              Developer Read-Only
-            </span>
-          )}
+          <button
+            onClick={() => setIsLoggedIn(false)}
+            className="text-xs text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1 rounded"
+          >
+            Logout
+          </button>
         </div>
       </header>
 
-      {/* Role Permission Notice Banner */}
+      {/* Role Banner Notice */}
       <div
         className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between ${
           isSuperAdmin
-            ? "bg-purple-950/40 border-purple-800/60 text-purple-300"
-            : isTechLead
+            ? "bg-purple-950/50 border-purple-800/60 text-purple-300"
+            : isOrgAdmin
             ? "bg-indigo-950/40 border-indigo-800/60 text-indigo-300"
+            : isTechLead
+            ? "bg-blue-950/40 border-blue-800/60 text-blue-300"
             : "bg-slate-900 border-slate-800 text-slate-400"
         }`}
       >
         <span>
           {isSuperAdmin
-            ? "PLATFORM OWNER ACTIVE: You can onboard new client software houses and manage all system data."
+            ? "SUPER ADMIN DASHBOARD ROUTE (ahad8641@gmail.com): Software House Management, Org Provisioning, and Platform Analytics."
+            : isOrgAdmin
+            ? `ORGANIZATION ADMIN DASHBOARD (${currentOrg.name}): Full tenant management (Users, Projects, Teams, Roles).`
             : isTechLead
-            ? `TECH LEAD ACTIVE (${currentOrg.name}): Full control over projects, assigned project teams, and issue creation.`
-            : `DEVELOPER ACTIVE (${currentOrg.name}): View projects and update status of issues assigned to you.`}
+            ? `TECH LEAD DASHBOARD (${currentOrg.name}): Project management, bug assignment, sprint releases, backlog.`
+            : isDev
+            ? `DEVELOPER DASHBOARD (${currentOrg.name}): View assigned bugs, update status, add fix comments.`
+            : isQA
+            ? `QA DASHBOARD (${currentOrg.name}): Bug reporting, verification, and reopen controls.`
+            : `READ-ONLY DASHBOARD (${currentOrg.name}): View-only access.`}
         </span>
-        <span className="font-mono text-[10px] uppercase font-bold">
-          Company: {currentOrg.name} | Role: {currentUser.role}
-        </span>
+        <span className="font-mono text-[10px] uppercase font-bold">Role: {currentUser.role}</span>
       </div>
 
       {/* ========================================================================= */}
-      {/* MAIN CONTAINER */}
+      {/* ROLE DASHBOARD VIEW 1: SUPER ADMIN DASHBOARD */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Main Display Area */}
-        <main className="flex-1 bg-[#0b0f19] overflow-y-auto p-6">
-          {/* ========================================================================= */}
-          {/* TAB 1: PROJECTS MANAGEMENT (TECH LEAD CONTROL) */}
-          {/* ========================================================================= */}
-          {activeTab === "PROJECTS" && (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-white">
-                    {currentOrg.name} - Project Repositories
-                  </h2>
-                  <p className="text-xs text-slate-400">
-                    {isTechLead
-                      ? "Tech Lead Controls: Create projects and assign specific team members to each project."
-                      : "Developer View: Active software house projects."}
-                  </p>
-                </div>
+      {isSuperAdmin ? (
+        <div className="flex-1 bg-[#090C15] overflow-y-auto p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Super Admin Overwatch Dashboard</h1>
+              <p className="text-xs text-slate-400">Platform-wide Software House organization management and analytics</p>
+            </div>
+            <button
+              onClick={() => setIsNewOrgModalOpen(true)}
+              className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-purple-600/30"
+            >
+              + Create Software House (Organization)
+            </button>
+          </div>
 
-                {isTechLead && (
-                  <button
-                    onClick={() => setIsNewProjectModalOpen(true)}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded"
-                  >
-                    + Create New Project (Tech Lead)
-                  </button>
-                )}
-              </div>
+          {/* Platform Analytics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-[#0F1422] border border-slate-800 rounded-xl p-4">
+              <span className="text-xs text-slate-400 font-bold uppercase">Software Houses</span>
+              <p className="text-3xl font-black text-white mt-1">{organizations.length}</p>
+            </div>
+            <div className="bg-[#0F1422] border border-slate-800 rounded-xl p-4">
+              <span className="text-xs text-slate-400 font-bold uppercase">Total Platform Users</span>
+              <p className="text-3xl font-black text-purple-400 mt-1">{users.length}</p>
+            </div>
+            <div className="bg-[#0F1422] border border-slate-800 rounded-xl p-4">
+              <span className="text-xs text-slate-400 font-bold uppercase">Total Projects</span>
+              <p className="text-3xl font-black text-indigo-400 mt-1">{projects.length}</p>
+            </div>
+            <div className="bg-[#0F1422] border border-slate-800 rounded-xl p-4">
+              <span className="text-xs text-slate-400 font-bold uppercase">Total Reported Bugs</span>
+              <p className="text-3xl font-black text-blue-400 mt-1">{issues.length}</p>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {orgProjects.map((p) => {
-                  const pIssues = issues.filter((i) => i.orgId === currentOrgId && i.projectKey === p.key);
-                  const pAssignedUsers = users.filter((u) => p.assignedUserIds.includes(u.id));
+          {/* Software House Management Table */}
+          <div className="bg-[#0F1422] border border-slate-800 rounded-xl overflow-hidden text-xs">
+            <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-sm text-white">Registered Software Houses (Organizations)</h3>
+              <span className="text-slate-400 text-xs font-mono">{organizations.length} Active Tenants</span>
+            </div>
 
+            <table className="w-full text-left text-slate-300">
+              <thead className="bg-[#141A2A] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Logo</th>
+                  <th className="p-3">Organization Name</th>
+                  <th className="p-3">Slug / Domain</th>
+                  <th className="p-3">Org Admin</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3">Created</th>
+                  <th className="p-3 text-right">Super Admin Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {organizations.map((org) => {
+                  const orgAdmin = users.find((u) => u.orgId === org.id && u.role === "ORGANIZATION_ADMIN");
                   return (
-                    <div
-                      key={p.key}
-                      className="bg-[#111827] border border-slate-800 rounded-xl p-4 space-y-4 shadow-lg flex flex-col justify-between"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                            KEY: {p.key}
-                          </span>
-                          {isTechLead && (
-                            <button
-                              onClick={() => handleDeleteProject(p.key)}
-                              className="text-[11px] text-red-400 hover:underline font-bold"
-                            >
-                              Delete Project
-                            </button>
-                          )}
-                        </div>
-
-                        <h3 className="text-sm font-bold text-white">{p.name}</h3>
-                        <p className="text-xs text-slate-400">{p.description || "No description provided."}</p>
-                      </div>
-
-                      {/* Project Specific Assignees Team Section */}
-                      <div className="pt-3 border-t border-slate-800 space-y-2 text-xs">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                          Project Assigned Team ({pAssignedUsers.length}):
+                    <tr key={org.id} className="hover:bg-slate-800/40">
+                      <td className="p-3 font-mono font-bold text-purple-400">{org.logo}</td>
+                      <td className="p-3 font-bold text-white">{org.name}</td>
+                      <td className="p-3 text-slate-400 font-mono">{org.slug} ({org.domain})</td>
+                      <td className="p-3 font-medium text-slate-200">{orgAdmin ? `${orgAdmin.name} (${orgAdmin.email})` : "Unassigned"}</td>
+                      <td className="p-3">
+                        <span
+                          className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
+                            org.status === "ACTIVE"
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                              : "bg-red-500/20 text-red-300 border-red-500/30"
+                          }`}
+                        >
+                          {org.status}
                         </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {pAssignedUsers.map((u) => (
-                            <span
-                              key={u.id}
-                              className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-semibold"
-                            >
-                              {u.name}
-                            </span>
-                          ))}
-                          {pAssignedUsers.length === 0 && (
-                            <span className="text-slate-600 text-[11px]">No specific assignees set</span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                        <span className="text-slate-400 font-bold">{pIssues.length} Total Issues</span>
-                        <div className="flex items-center gap-2">
-                          {isTechLead && (
-                            <button
-                              onClick={() => {
-                                setNewIssue({ ...newIssue, projectKey: p.key });
-                                setIsNewIssueModalOpen(true);
-                              }}
-                              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold px-2.5 py-1 rounded border border-slate-700"
-                            >
-                              + Add Issue
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              setSelectedProjectKey(p.key);
-                              setActiveTab("BOARD");
-                            }}
-                            className="text-indigo-400 font-bold hover:underline"
-                          >
-                            View Board -&gt;
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                      </td>
+                      <td className="p-3 text-slate-500 font-mono text-[10px]">{org.createdAt}</td>
+                      <td className="p-3 text-right space-x-2">
+                        <button
+                          onClick={() => handleToggleOrgStatus(org.id)}
+                          className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[11px]"
+                        >
+                          {org.status === "ACTIVE" ? "Suspend Org" : "Activate Org"}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrg(org.id)}
+                          className="px-2.5 py-1 rounded bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 font-semibold text-[11px]"
+                        >
+                          Delete Org
+                        </button>
+                      </td>
+                    </tr>
                   );
                 })}
-
-                {orgProjects.length === 0 && (
-                  <div className="col-span-3 p-8 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500">
-                    No projects found for {currentOrg.name}. Click "+ Create New Project" to add one.
-                  </div>
-                )}
-              </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* ========================================================================= */
+        /* ROLE DASHBOARD VIEW 2: TENANT DASHBOARDS (ORG ADMIN / TECH LEAD / DEV / QA / VIEWER) */
+        /* ========================================================================= */
+        <div className="flex-1 bg-[#090C15] overflow-y-auto p-6 space-y-5">
+          {/* Header Controls & Filters */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-white tracking-tight">
+                {currentOrg.name} Dashboard
+              </h2>
+              <p className="text-xs text-slate-400">
+                Tenant Isolated Workspace | {tenantProjects.length} Projects | {tenantIssues.length} Issues
+              </p>
             </div>
-          )}
 
-          {/* ========================================================================= */}
-          {/* TAB 2: KANBAN ISSUE BOARD */}
-          {/* ========================================================================= */}
-          {activeTab === "BOARD" && (
-            <div className="flex-1 flex flex-col space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              <select
+                value={selectedProjectKey}
+                onChange={(e) => setSelectedProjectKey(e.target.value)}
+                className="bg-[#0F1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
+              >
+                <option value="ALL">All Tenant Projects</option>
+                {tenantProjects.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    [{p.key}] {p.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                placeholder="Search issues..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-[#0F1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-56"
+              />
+
+              {canCreateProjects && (
+                <button
+                  onClick={() => setIsNewProjectModalOpen(true)}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
+                >
+                  + Add Project
+                </button>
+              )}
+
+              {!isViewer && !isDev && (
+                <button
+                  onClick={() => setIsNewIssueModalOpen(true)}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
+                >
+                  + Create Issue
+                </button>
+              )}
+
+              {(isOrgAdmin || isSuperAdmin) && (
+                <button
+                  onClick={() => setIsNewUserModalOpen(true)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded"
+                >
+                  + Add Org User
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Multi-Tenant Data Isolation Kanban Board */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {STATUSES.map((statusKey) => {
+              const colIssues = filteredIssues.filter((i) => i.status === statusKey);
+              return (
+                <div
+                  key={statusKey}
+                  className="bg-[#0F1422] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[500px]"
+                >
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                    <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
+                      {statusKey.replace("_", " ")}
+                    </span>
+                    <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                      {colIssues.length}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 space-y-2.5">
+                    {colIssues.map((issue) => (
+                      <div
+                        key={issue.id}
+                        onClick={() => setSelectedIssueDetail(issue)}
+                        className="bg-[#141A2A] border border-slate-800 hover:border-indigo-500/60 rounded-xl p-3 cursor-pointer transition space-y-2"
+                      >
+                        <div className="flex items-center justify-between text-[10px]">
+                          <span className="font-mono font-bold text-indigo-400">{issue.id}</span>
+                          <span
+                            className={`font-bold px-1.5 py-0.5 rounded ${
+                              issue.priority === "CRITICAL"
+                                ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                : issue.priority === "HIGH"
+                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                : "bg-slate-800 text-slate-300"
+                            }`}
+                          >
+                            {issue.priority}
+                          </span>
+                        </div>
+
+                        <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
+                          {issue.title}
+                        </p>
+
+                        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                          <span>Assignee: {getUserName(issue.assigneeId)}</span>
+                          <select
+                            disabled={isViewer}
+                            value={issue.status}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleUpdateStatus(issue.id, e.target.value);
+                            }}
+                            className="bg-slate-900 border border-slate-700 text-white rounded px-1 py-0.5 text-[10px] focus:outline-none"
+                          >
+                            {STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+
+                    {colIssues.length === 0 && (
+                      <div className="h-24 border border-dashed border-slate-800 rounded-xl flex items-center justify-center text-[11px] text-slate-600 font-medium">
+                        No issues
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 1: CREATE SOFTWARE HOUSE (SUPER ADMIN ONLY) */}
+      {/* ========================================================================= */}
+      {isNewOrgModalOpen && isSuperAdmin && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+          <div className="bg-[#0F1422] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 className="text-sm font-bold text-white">Create Software House (Organization)</h3>
+              <button onClick={() => setIsNewOrgModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
+                Close
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateSoftwareHouse} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Organization Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Antigravity Systems"
+                  value={newOrg.name}
+                  onChange={(e) => setNewOrg({ ...newOrg, name: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Slug Code</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="antigravity"
+                    value={newOrg.slug}
+                    onChange={(e) => setNewOrg({ ...newOrg, slug: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white font-mono focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Domain</label>
+                  <input
+                    type="text"
+                    placeholder="antigravity.com"
+                    value={newOrg.domain}
+                    onChange={(e) => setNewOrg({ ...newOrg, domain: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-800">
+                <span className="block font-bold text-purple-400 mb-2">Initial Organization Admin User Provisioning</span>
+                <div className="space-y-2">
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Admin Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Admin Antigravity"
+                      value={newOrg.adminName}
+                      onChange={(e) => setNewOrg({ ...newOrg, adminName: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Admin Email</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="admin@antigravity.com"
+                      value={newOrg.adminEmail}
+                      onChange={(e) => setNewOrg({ ...newOrg, adminEmail: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Temporary Password</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="********"
+                      value={newOrg.adminPassword}
+                      onChange={(e) => setNewOrg({ ...newOrg, adminPassword: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setIsNewOrgModalOpen(false)} className="px-3 py-1.5 text-slate-400">
+                  Cancel
+                </button>
+                <button type="submit" className="bg-purple-600 text-white font-bold px-4 py-1.5 rounded">
+                  Provision Software House
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 2: ISSUE DETAIL & STRICT BUG ASSIGNMENT CONTROL */}
+      {/* ========================================================================= */}
+      {selectedIssueDetail && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+          <div className="bg-[#0F1422] border border-slate-800 rounded-xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-bold text-sm text-indigo-400">{selectedIssueDetail.id}</span>
+                <span className="text-xs text-slate-400">[{selectedIssueDetail.projectKey}]</span>
+              </div>
+              <button onClick={() => setSelectedIssueDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs">
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <h3 className="text-sm font-bold text-white leading-snug">{selectedIssueDetail.title}</h3>
+              <p className="text-slate-300 p-3 rounded bg-slate-900 border border-slate-800">{selectedIssueDetail.description}</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">Status</label>
                   <select
-                    value={selectedProjectKey}
-                    onChange={(e) => setSelectedProjectKey(e.target.value)}
-                    className="bg-[#111827] border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
+                    disabled={isViewer}
+                    value={selectedIssueDetail.status}
+                    onChange={(e) => handleUpdateStatus(selectedIssueDetail.id, e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 focus:outline-none"
                   >
-                    <option value="ALL">All Projects ({orgProjects.length})</option>
-                    {orgProjects.map((p) => (
-                      <option key={p.key} value={p.key}>
-                        [{p.key}] {p.name}
+                    {STATUSES.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
                       </option>
                     ))}
                   </select>
-
-                  <input
-                    type="text"
-                    placeholder="Search issues..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-[#111827] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
-                  />
                 </div>
 
-                {isTechLead && (
-                  <button
-                    onClick={() => setIsNewIssueModalOpen(true)}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">
+                    Assignee {canAssignBugs ? "(Admin/Tech Lead Editable)" : "(Restricted - Admin/Tech Lead Only)"}
+                  </label>
+                  <select
+                    disabled={!canAssignBugs}
+                    value={selectedIssueDetail.assigneeId}
+                    onChange={(e) => handleReassignIssue(selectedIssueDetail.id, e.target.value)}
+                    className={`w-full bg-slate-900 border border-slate-700 text-white rounded p-2 focus:outline-none ${
+                      !canAssignBugs ? "opacity-60 cursor-not-allowed" : "font-bold text-indigo-300"
+                    }`}
                   >
-                    + Create & Assign Issue (Tech Lead)
-                  </button>
-                )}
-              </div>
-
-              {/* Status Columns */}
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 flex-1">
-                {STATUSES.map((statusKey) => {
-                  const colIssues = filteredIssues.filter((i) => i.status === statusKey);
-                  return (
-                    <div
-                      key={statusKey}
-                      className="bg-[#111827] border border-slate-800 rounded-lg p-3 flex flex-col min-h-[500px]"
-                    >
-                      <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
-                        <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
-                          {statusKey.replace("_", " ")}
-                        </span>
-                        <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                          {colIssues.length}
-                        </span>
-                      </div>
-
-                      <div className="flex-1 space-y-2.5">
-                        {colIssues.map((issue) => (
-                          <div
-                            key={issue.id}
-                            className="bg-[#1f2937]/70 border border-slate-800 rounded-lg p-3 space-y-2"
-                          >
-                            <div className="flex items-center justify-between text-[10px]">
-                              <span className="font-mono font-bold text-indigo-400">{issue.id}</span>
-                              <span
-                                className={`font-bold px-1.5 py-0.5 rounded ${
-                                  issue.priority === "CRITICAL"
-                                    ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                                    : issue.priority === "HIGH"
-                                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                                    : "bg-slate-800 text-slate-300"
-                                }`}
-                              >
-                                {issue.priority}
-                              </span>
-                            </div>
-
-                            <p className="text-xs font-semibold text-white leading-snug">{issue.title}</p>
-
-                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
-                              <span>Assignee: {getUserName(issue.assigneeId)}</span>
-                              <select
-                                value={issue.status}
-                                onChange={(e) => handleUpdateStatus(issue.id, e.target.value)}
-                                className="bg-slate-900 border border-slate-700 text-white rounded px-1 py-0.5 text-[10px] focus:outline-none"
-                              >
-                                {STATUSES.map((s) => (
-                                  <option key={s} value={s}>
-                                    {s}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-                        ))}
-
-                        {colIssues.length === 0 && (
-                          <div className="h-24 border border-dashed border-slate-800 rounded flex items-center justify-center text-[11px] text-slate-600 font-medium">
-                            No issues
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                    {tenantUsers.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.name} ({u.role})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* ========================================================================= */}
-          {/* TAB 3: COMPANY TEAM MEMBERS */}
-          {/* ========================================================================= */}
-          {activeTab === "TEAM" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-white">{currentOrg.name} - Team Roster</h2>
-                  <p className="text-xs text-slate-400">Manage developers and project assignees</p>
-                </div>
-                {isTechLead && (
-                  <button
-                    onClick={() => setIsNewUserModalOpen(true)}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
-                  >
-                    + Add Team Member (Tech Lead)
-                  </button>
-                )}
-              </div>
-
-              <div className="bg-[#111827] border border-slate-800 rounded-lg overflow-hidden text-xs">
-                <table className="w-full text-left text-slate-300">
-                  <thead className="bg-[#1f2937] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
-                    <tr>
-                      <th className="p-3">User ID</th>
-                      <th className="p-3">Full Name</th>
-                      <th className="p-3">Email Address</th>
-                      <th className="p-3">Role</th>
-                      <th className="p-3">Assigned Projects</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {orgUsers.map((u) => {
-                      const userProjs = orgProjects.filter((p) => p.assignedUserIds.includes(u.id));
-                      return (
-                        <tr key={u.id} className="hover:bg-slate-800/50">
-                          <td className="p-3 font-mono text-slate-400">{u.id}</td>
-                          <td className="p-3 font-bold text-white">{u.name}</td>
-                          <td className="p-3 text-slate-400">{u.email}</td>
-                          <td className="p-3">
-                            <span className="font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-indigo-300 border border-slate-700 text-[10px]">
-                              {u.role}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            {userProjs.map((p) => p.key).join(", ") || "None"}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 4: SUPER ADMIN CLIENT ONBOARDING */}
-          {/* ========================================================================= */}
-          {activeTab === "CLIENTS" && isSuperAdmin && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-white">Platform Owner - Onboard Software Houses</h2>
-                  <p className="text-xs text-slate-400">Register new client companies and setup their Tech Leads</p>
-                </div>
+            <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+              {canDeleteProjects ? (
                 <button
-                  onClick={() => setIsNewCompanyModalOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded"
+                  onClick={() => {
+                    setIssues(issues.filter((i) => i.id !== selectedIssueDetail.id));
+                    setSelectedIssueDetail(null);
+                  }}
+                  className="text-red-400 font-bold hover:underline"
                 >
-                  + Onboard Client Software House
+                  Delete Issue
                 </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {organizations.map((org) => {
-                  const orgLead = users.find((u) => u.orgId === org.id && u.role === "TECH_LEAD");
-                  const pCount = projects.filter((p) => p.orgId === org.id).length;
-                  return (
-                    <div key={org.id} className="bg-[#111827] border border-slate-800 rounded-xl p-4 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono font-bold text-xs text-indigo-400">SLUG: {org.slug}</span>
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono text-[10px]">
-                          {org.plan}
-                        </span>
-                      </div>
-                      <h3 className="text-sm font-bold text-white">{org.name}</h3>
-                      <p className="text-xs text-slate-400">Tech Lead: {orgLead ? `${orgLead.name} (${orgLead.email})` : "Unassigned"}</p>
-                      <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 flex justify-between">
-                        <span>Projects: {pCount}</span>
-                        <button
-                          onClick={() => {
-                            setCurrentOrgId(org.id);
-                            if (orgLead) setCurrentUser(orgLead);
-                            setActiveTab("PROJECTS");
-                          }}
-                          className="text-indigo-400 font-bold hover:underline"
-                        >
-                          Switch to Workspace -&gt;
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              ) : (
+                <span className="text-slate-500">Bug Assignment Protected</span>
+              )}
+              <button onClick={() => setSelectedIssueDetail(null)} className="bg-indigo-600 text-white px-4 py-1.5 rounded font-bold">
+                Done
+              </button>
             </div>
-          )}
-        </main>
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
-      {/* CREATE PROJECT MODAL (TECH LEAD ONLY) */}
+      {/* MODAL 3: CREATE PROJECT */}
       {/* ========================================================================= */}
-      {isNewProjectModalOpen && isTechLead && (
+      {isNewProjectModalOpen && canCreateProjects && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+          <div className="bg-[#0F1422] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Create New Project (Tech Lead)</h3>
-              <button onClick={() => setIsNewProjectModalOpen(false)} className="text-slate-400 hover:text-white">
+              <h3 className="text-sm font-bold text-white">Create New Project</h3>
+              <button onClick={() => setIsNewProjectModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
                 Close
               </button>
             </div>
@@ -767,7 +857,7 @@ export default function App() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Core Payment Engine"
+                  placeholder="e.g. Core Engine"
                   value={newProject.name}
                   onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
@@ -775,15 +865,15 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Project Key (Code)</label>
+                <label className="block font-semibold text-slate-300 mb-1">Project Key</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. PAY"
+                  placeholder="ENG"
                   maxLength={10}
                   value={newProject.key}
                   onChange={(e) => setNewProject({ ...newProject, key: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white font-mono focus:outline-none uppercase"
+                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white font-mono uppercase focus:outline-none"
                 />
               </div>
 
@@ -791,42 +881,11 @@ export default function App() {
                 <label className="block font-semibold text-slate-300 mb-1">Description</label>
                 <textarea
                   rows="2"
-                  placeholder="Project scope and details..."
+                  placeholder="Project details..."
                   value={newProject.description}
                   onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
                 />
-              </div>
-
-              {/* Multi Select Project Specific Assignees */}
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">
-                  Assign Project Team Members (Select Assignees for this project)
-                </label>
-                <div className="space-y-1.5 max-h-32 overflow-y-auto bg-slate-900 p-2 border border-slate-800 rounded">
-                  {orgUsers.map((u) => (
-                    <label key={u.id} className="flex items-center gap-2 text-slate-300 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newProject.assignedUserIds.includes(u.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setNewProject({
-                              ...newProject,
-                              assignedUserIds: [...newProject.assignedUserIds, u.id],
-                            });
-                          } else {
-                            setNewProject({
-                              ...newProject,
-                              assignedUserIds: newProject.assignedUserIds.filter((x) => x !== u.id),
-                            });
-                          }
-                        }}
-                      />
-                      <span>{u.name} ({u.role})</span>
-                    </label>
-                  ))}
-                </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -843,14 +902,14 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* CREATE ISSUE MODAL (TECH LEAD ONLY) */}
+      {/* MODAL 4: CREATE ISSUE */}
       {/* ========================================================================= */}
-      {isNewIssueModalOpen && isTechLead && (
+      {isNewIssueModalOpen && !isViewer && !isDev && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
+          <div className="bg-[#0F1422] border border-slate-800 rounded-xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Create & Assign Issue Ticket (Tech Lead)</h3>
-              <button onClick={() => setIsNewIssueModalOpen(false)} className="text-slate-400 hover:text-white">
+              <h3 className="text-sm font-bold text-white">Create New Issue Ticket</h3>
+              <button onClick={() => setIsNewIssueModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
                 Close
               </button>
             </div>
@@ -864,7 +923,7 @@ export default function App() {
                     onChange={(e) => setNewIssue({ ...newIssue, projectKey: e.target.value })}
                     className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
                   >
-                    {orgProjects.map((p) => (
+                    {tenantProjects.map((p) => (
                       <option key={p.key} value={p.key}>
                         [{p.key}] {p.name}
                       </option>
@@ -926,13 +985,18 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Select Assignee for this Project</label>
+                  <label className="block font-semibold text-slate-300 mb-1">
+                    Select Assignee {canAssignBugs ? "" : "(Org Admin / Tech Lead Only)"}
+                  </label>
                   <select
+                    disabled={!canAssignBugs}
                     value={newIssue.assigneeId}
                     onChange={(e) => setNewIssue({ ...newIssue, assigneeId: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white font-bold text-indigo-300 focus:outline-none"
+                    className={`w-full bg-slate-900 border border-slate-700 text-white rounded p-2 focus:outline-none ${
+                      !canAssignBugs ? "opacity-50 cursor-not-allowed" : "font-bold text-indigo-300"
+                    }`}
                   >
-                    {orgUsers.map((u) => (
+                    {tenantUsers.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.name} ({u.role})
                       </option>
@@ -946,7 +1010,7 @@ export default function App() {
                   Cancel
                 </button>
                 <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded">
-                  Create & Assign Issue
+                  Create Issue
                 </button>
               </div>
             </form>
@@ -955,100 +1019,25 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* ONBOARD CLIENT COMPANY MODAL (SUPER ADMIN ONLY) */}
+      {/* MODAL 5: ADD TENANT USER (ORG ADMIN ONLY) */}
       {/* ========================================================================= */}
-      {isNewCompanyModalOpen && isSuperAdmin && (
+      {isNewUserModalOpen && (isOrgAdmin || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+          <div className="bg-[#0F1422] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Onboard New Software House Client (Super Admin)</h3>
-              <button onClick={() => setIsNewCompanyModalOpen(false)} className="text-slate-400 hover:text-white">
+              <h3 className="text-sm font-bold text-white">Add User to {currentOrg.name}</h3>
+              <button onClick={() => setIsNewUserModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
                 Close
               </button>
             </div>
 
-            <form onSubmit={handleOnboardCompany} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Software House Company Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. CyberSoft Systems"
-                  value={newCompany.name}
-                  onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Company Slug</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. cybersoft"
-                  value={newCompany.slug}
-                  onChange={(e) => setNewCompany({ ...newCompany, slug: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white font-mono focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Tech Lead Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Robert Vance"
-                  value={newCompany.leadName}
-                  onChange={(e) => setNewCompany({ ...newCompany, leadName: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Tech Lead Email</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="robert@cybersoft.io"
-                  value={newCompany.leadEmail}
-                  onChange={(e) => setNewCompany({ ...newCompany, leadEmail: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsNewCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400">
-                  Cancel
-                </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded">
-                  Onboard Software House
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* ADD TEAM MEMBER MODAL (TECH LEAD ONLY) */}
-      {/* ========================================================================= */}
-      {isNewUserModalOpen && isTechLead && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-[#111827] border border-slate-800 rounded-xl w-full max-w-md p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Add Team Member (Tech Lead)</h3>
-              <button onClick={() => setIsNewUserModalOpen(false)} className="text-slate-400 hover:text-white">
-                Close
-              </button>
-            </div>
-
-            <form onSubmit={handleAddTeamMember} className="space-y-3 text-xs">
+            <form onSubmit={handleAddOrgUser} className="space-y-3 text-xs">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Full Name</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Michael Scott"
+                  placeholder="e.g. John Doe"
                   value={newUser.name}
                   onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
@@ -1060,7 +1049,7 @@ export default function App() {
                 <input
                   type="email"
                   required
-                  placeholder="michael@company.com"
+                  placeholder="john@company.com"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
@@ -1068,14 +1057,16 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Role</label>
+                <label className="block font-semibold text-slate-300 mb-1">Assign Role</label>
                 <select
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none"
                 >
-                  <option value="DEVELOPER">DEVELOPER</option>
                   <option value="TECH_LEAD">TECH_LEAD</option>
+                  <option value="DEVELOPER">DEVELOPER</option>
+                  <option value="QA">QA</option>
+                  <option value="VIEWER">VIEWER</option>
                 </select>
               </div>
 
@@ -1084,7 +1075,7 @@ export default function App() {
                   Cancel
                 </button>
                 <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded">
-                  Add Team Member
+                  Add Organization User
                 </button>
               </div>
             </form>

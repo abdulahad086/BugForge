@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["development", "staging", "production"] = "development"
     LOG_LEVEL: str = "INFO"
 
+    # Super Admin Configuration
+    SUPER_ADMIN_EMAIL: str = "ahad8641@gmail.com"
+
     # PostgreSQL Database Settings
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432

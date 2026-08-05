@@ -23,13 +23,13 @@ class User(Base, UUIDMixin, TimestampMixin):
     )
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
 
-    # Foreign key to Organization (Multi-Tenancy)
-    organization_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("organizations.id", ondelete="CASCADE"), index=True, nullable=False
+    # Foreign key to Organization (Optional for SUPER_ADMIN)
+    organization_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        Uuid, ForeignKey("organizations.id", ondelete="CASCADE"), index=True, nullable=True
     )
 
     # Relationships
-    organization: Mapped["Organization"] = relationship("Organization", back_populates="users", lazy="raise")
+    organization: Mapped[Optional["Organization"]] = relationship("Organization", back_populates="users", lazy="raise")
     assigned_bugs: Mapped[List["Bug"]] = relationship(
         "Bug", foreign_keys="Bug.assignee_id", back_populates="assignee", lazy="raise"
     )

@@ -2,10 +2,17 @@ from enum import Enum
 
 
 class UserRole(str, Enum):
-    ADMIN = "ADMIN"
-    MANAGER = "MANAGER"
+    SUPER_ADMIN = "SUPER_ADMIN"
+    ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN"
+    TECH_LEAD = "TECH_LEAD"
     DEVELOPER = "DEVELOPER"
+    QA = "QA"
     VIEWER = "VIEWER"
+
+
+class OrganizationStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    SUSPENDED = "SUSPENDED"
 
 
 class BugStatus(str, Enum):
