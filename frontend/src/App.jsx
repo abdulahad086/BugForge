@@ -29,11 +29,11 @@ const INITIAL_USERS = [
     password: "password123",
     role: "SUPER_ADMIN",
   },
-  // Eprecisio Tech Lead & Assignees
+  // Eprecisio Tech Lead & Assignees (Dev & QA)
   {
     id: "usr-ep-tl",
     companyId: "comp-eprecisio",
-    name: "Alex Vance",
+    name: "Alex Vance (Tech Lead)",
     email: "lead@eprecisio.com",
     password: "password123",
     role: "TECH_LEAD",
@@ -41,7 +41,7 @@ const INITIAL_USERS = [
   {
     id: "usr-ep-dev1",
     companyId: "comp-eprecisio",
-    name: "David Kim",
+    name: "David Kim (Dev)",
     email: "david@eprecisio.com",
     password: "password123",
     role: "ASSIGNEE",
@@ -49,7 +49,7 @@ const INITIAL_USERS = [
   {
     id: "usr-ep-dev2",
     companyId: "comp-eprecisio",
-    name: "Maria Garcia",
+    name: "Maria Garcia (QA)",
     email: "maria@eprecisio.com",
     password: "password123",
     role: "ASSIGNEE",
@@ -58,7 +58,7 @@ const INITIAL_USERS = [
   {
     id: "usr-ag-tl",
     companyId: "comp-antigravity",
-    name: "Sarah Connor",
+    name: "Sarah Connor (Tech Lead)",
     email: "lead@antigravity.com",
     password: "password123",
     role: "TECH_LEAD",
@@ -66,7 +66,7 @@ const INITIAL_USERS = [
   {
     id: "usr-ag-dev1",
     companyId: "comp-antigravity",
-    name: "John Reese",
+    name: "John Reese (Dev)",
     email: "john@antigravity.com",
     password: "password123",
     role: "ASSIGNEE",
@@ -96,7 +96,7 @@ const DEMO_SCREENSHOT_1 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org
 
 const DEMO_SCREENSHOT_2 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='800' height='450' fill='%230b0f19'/><rect x='30' y='30' width='740' height='390' rx='10' fill='%23111827' stroke='%23374151'/><text x='60' y='80' fill='%23f59e0b' font-family='sans-serif' font-weight='bold' font-size='20'>Vector Indexing Latency Spike Trace</text><rect x='60' y='110' width='680' height='260' rx='6' fill='%231f2937'/><text x='90' y='160' fill='%2310b981' font-family='monospace' font-size='15'>Latency: 285ms (Threshold: 50ms)</text><text x='90' y='200' fill='%23ef4444' font-family='monospace' font-size='15'>Worker Thread Deadlock in AST indexing loop</text></svg>";
 
-// Pre-seeded Bugs matching exact 12-field schema with screenshot images
+// Pre-seeded Bugs matching 12-field schema
 const INITIAL_BUGS = [
   {
     id: "BUG-001",
@@ -193,7 +193,7 @@ export default function App() {
   const [isAddBugModalOpen, setIsAddBugModalOpen] = useState(false);
   const [selectedBugDetail, setSelectedBugDetail] = useState(null);
 
-  // Fullscreen Lightbox Modal State for Enlarged Screenshot View
+  // Fullscreen Lightbox Modal State
   const [expandedImageSrc, setExpandedImageSrc] = useState(null);
 
   // Change Password Modal State
@@ -206,7 +206,7 @@ export default function App() {
   const [projectForm, setProjectForm] = useState({ key: "", name: "", description: "" });
   const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "", password: "" });
 
-  // 12-Field Bug Form with Interactive Screenshot Dropzone
+  // 12-Field Bug Form
   const [bugForm, setBugForm] = useState({
     projectKey: "",
     category: "Functional",
@@ -218,7 +218,7 @@ export default function App() {
     severity: "Minor",
     priority: "P3 - Medium",
     status: "To Do",
-    evidence: "", // Image data URL or file URL
+    evidence: "",
     notes: "",
     assigneeEmail: "",
   });
@@ -318,15 +318,14 @@ export default function App() {
   const isTechLead = currentUser?.role === "TECH_LEAD";
   const isAssignee = currentUser?.role === "ASSIGNEE";
 
-  // Data Isolation Scoping
+  // Data Isolation: Company Level Scoping
   const userCompany = companies.find((c) => c.id === currentUser?.companyId);
 
   const scopedProjects = projects.filter((p) => p.companyId === currentUser?.companyId);
   const scopedAssignees = users.filter((u) => u.companyId === currentUser?.companyId && u.role === "ASSIGNEE");
 
-  const scopedBugs = isAssignee
-    ? bugs.filter((b) => b.companyId === currentUser?.companyId && b.assigneeEmail.toLowerCase() === currentUser?.email.toLowerCase())
-    : bugs.filter((b) => b.companyId === currentUser?.companyId);
+  // ALL TEAM MEMBERS (TECH LEAD & ASSIGNEES/DEVS/QA) IN THE COMPANY SEE THE SAME SHARED PROJECT BUGS BOARD!
+  const scopedBugs = bugs.filter((b) => b.companyId === currentUser?.companyId);
 
   const filteredBugs = scopedBugs.filter((b) => {
     const matchesProj = selectedProjectKey === "ALL" || b.projectKey === selectedProjectKey;
@@ -469,10 +468,10 @@ export default function App() {
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  // Actions: Tech Lead Create 12-Field Bug
+  // Actions: Create Bug (ALLOWED FOR BOTH TECH LEADS AND ASSIGNEES/DEVS/QA!)
   const handleSaveBug = (e) => {
     e.preventDefault();
-    if (!isTechLead) return;
+    if (!isTechLead && !isAssignee) return;
 
     const targetProjKey = bugForm.projectKey || (scopedProjects[0]?.key || "EPREC");
     const targetAssignee = bugForm.assigneeEmail || (scopedAssignees[0]?.email || currentUser.email);
@@ -516,7 +515,7 @@ export default function App() {
     setIsAddBugModalOpen(false);
   };
 
-  // Assignee Update Bug Status
+  // Assignee & Tech Lead Update Bug Status
   const handleUpdateBugStatus = (bugId, newStatus) => {
     setBugs(bugs.map((b) => (b.id === bugId ? { ...b, status: newStatus } : b)));
     if (selectedBugDetail && selectedBugDetail.id === bugId) {
@@ -623,7 +622,7 @@ export default function App() {
                     activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  Bug Lifecycle ({scopedBugs.length})
+                  Shared Bug Board ({scopedBugs.length})
                 </button>
                 <button
                   onClick={() => setActiveTab("ASSIGNEES")}
@@ -641,13 +640,13 @@ export default function App() {
                 onClick={() => setActiveTab("BUGS")}
                 className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold"
               >
-                My Bug Lifecycle ({scopedBugs.length})
+                Shared Team Bug Board ({scopedBugs.length})
               </button>
             )}
           </nav>
         </div>
 
-        {/* ACCOUNT IDENTITY & CHANGE PASSWORD */}
+        {/* IDENTITY & CHANGE PASSWORD */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
@@ -690,7 +689,7 @@ export default function App() {
             ? "SUPER ADMIN WORKSPACE: Software company management ONLY. Internal tenant data is private."
             : isTechLead
             ? `TECH LEAD WORKSPACE (${userCompany?.name}): Projects, team assignee emails, bug creation & assignment.`
-            : `ASSIGNEE WORKSPACE (${currentUser.email}): View assigned bugs & update bug lifecycle status ONLY.`}
+            : `TEAM MEMBER WORKSPACE (${currentUser.name} - ${currentUser.email}): Shared company board view. You can create & report bugs and update bug lifecycle statuses.`}
         </span>
         <span className="font-mono text-[10px] uppercase font-bold">
           Tenant: {isSuperAdmin ? "GLOBAL SYSTEM" : userCompany?.name} | Role: {currentUser.role}
@@ -849,9 +848,9 @@ export default function App() {
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-white">Team Assignees (Developers)</h2>
+                <h2 className="text-base font-bold text-white">Team Assignees (Developers & QA)</h2>
                 <p className="text-xs text-slate-400">
-                  Add and manage authorized developer emails for {userCompany?.name}
+                  Add and manage authorized developer and QA emails for {userCompany?.name}
                 </p>
               </div>
               <button
@@ -917,7 +916,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 4: BUG LIFECYCLE (KANBAN & TABLE VIEWS WITH EXPANDABLE SCREENSHOTS) */}
+        {/* VIEW 4: SHARED COMPANY BUG BOARD (ACCESSIBLE TO ALL TEAM MEMBERS: TECH LEAD & ASSIGNEES/DEVS/QA!) */}
         {activeTab === "BUGS" && (isTechLead || isAssignee) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -927,7 +926,7 @@ export default function App() {
                   onChange={(e) => setSelectedProjectKey(e.target.value)}
                   className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
                 >
-                  <option value="ALL">All Projects ({scopedProjects.length})</option>
+                  <option value="ALL">All Company Projects ({scopedProjects.length})</option>
                   {scopedProjects.map((p) => (
                     <option key={p.key} value={p.key}>
                       [{p.key}] {p.name}
@@ -968,14 +967,13 @@ export default function App() {
                 </div>
               </div>
 
-              {isTechLead && (
-                <button
-                  onClick={() => setIsAddBugModalOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
-                >
-                  + Create & Assign Bug (Tech Lead)
-                </button>
-              )}
+              {/* BOTH TECH LEADS AND ASSIGNEES (DEVS / QA) CAN CREATE & REPORT BUGS! */}
+              <button
+                onClick={() => setIsAddBugModalOpen(true)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-indigo-600/30"
+              >
+                + Create Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
+              </button>
             </div>
 
             {/* JIRA STYLE KANBAN COLUMNS BOARD */}
@@ -1027,7 +1025,7 @@ export default function App() {
                               {bug.title}
                             </p>
 
-                            {/* SCREENSHOT THUMBNAIL ON KANBAN CARD (CLICK TO ENLARGE) */}
+                            {/* SCREENSHOT THUMBNAIL ON KANBAN CARD */}
                             {bug.evidence && bug.evidence.startsWith("data:image") && (
                               <div
                                 onClick={(e) => {
@@ -1047,6 +1045,7 @@ export default function App() {
                               <span className="font-mono text-indigo-300 truncate max-w-[120px]">
                                 {bug.assigneeEmail}
                               </span>
+                              {/* STATUS UPDATE DROPDOWN */}
                               <select
                                 value={bug.status}
                                 onChange={(e) => {
@@ -1176,9 +1175,7 @@ export default function App() {
         )}
       </main>
 
-      {/* ========================================================================= */}
-      {/* FULLSCREEN LIGHTBOX MODAL (CLICK TO ENLARGE SCREENSHOT IMAGE) */}
-      {/* ========================================================================= */}
+      {/* FULLSCREEN LIGHTBOX MODAL */}
       {expandedImageSrc && (
         <div
           onClick={() => setExpandedImageSrc(null)}
@@ -1485,12 +1482,14 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: CREATE BUG (WITH INTERACTIVE SCREENSHOT DROPZONE) */}
-      {isAddBugModalOpen && isTechLead && (
+      {/* MODAL 4: CREATE BUG (ALLOWED FOR BOTH TECH LEADS AND ASSIGNEES/DEVS/QA!) */}
+      {isAddBugModalOpen && (isTechLead || isAssignee) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-sm font-bold text-white">Create & Assign Commercial Bug Ticket</h3>
+              <h3 className="text-sm font-bold text-white">
+                Create & Assign Commercial Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
+              </h3>
               <button onClick={() => setIsAddBugModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
                 Close
               </button>
@@ -1682,7 +1681,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Assignee Email</label>
+                <label className="block font-semibold text-slate-300 mb-1">Assign to Team Assignee Email</label>
                 <select
                   value={bugForm.assigneeEmail}
                   onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
@@ -1720,7 +1719,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 5: BUG DETAIL (WITH SCREENSHOT CLICK TO ENLARGE) */}
+      {/* MODAL 5: BUG DETAIL */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1801,7 +1800,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* LARGE SCREENSHOT EVIDENCE BOX WITH CLICK TO ENLARGE */}
+              {/* SCREENSHOT EVIDENCE BOX */}
               <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                   Screenshot Evidence (Click Image to Enlarge Fullscreen)
