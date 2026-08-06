@@ -575,11 +575,6 @@ export default function App() {
             <div className="w-full p-8 space-y-6">
               {/* REACT BITS PARTICLE TEXT HEADER */}
               <div className="text-center space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[11px] font-bold text-indigo-300 uppercase tracking-widest mb-1">
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-                  Enterprise Bug Tracker
-                </div>
-
                 <div className="h-16 w-full flex items-center justify-center">
                   <ParticleText
                     text="BugForge"
@@ -649,36 +644,6 @@ export default function App() {
                   </button>
                 </GlassSurface>
               </form>
-
-              {/* QUICK DEMO SWITCHER */}
-              <div className="pt-4 border-t border-slate-800 space-y-2 text-center">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Quick Role Switcher (Instant Demo Access)
-                </span>
-                <div className="flex justify-center gap-2 text-[11px] font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin("ahad8641@gmail.com", "password123")}
-                    className="px-2.5 py-1 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 cursor-pointer"
-                  >
-                    Super Admin
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin("lead@eprecisio.com", "password123")}
-                    className="px-2.5 py-1 rounded-md bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 cursor-pointer"
-                  >
-                    Tech Lead (Eprecisio)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin("david@eprecisio.com", "password123")}
-                    className="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 cursor-pointer"
-                  >
-                    Dev (David Kim)
-                  </button>
-                </div>
-              </div>
             </div>
           </GlassSurface>
         </div>
@@ -709,21 +674,9 @@ export default function App() {
       <header className="h-16 glass-header px-6 flex items-center justify-between shrink-0 z-10 relative">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-xs flex items-center justify-center shadow-lg shadow-indigo-600/40 border border-indigo-400/40">
-              BF
-            </div>
-            <div className="h-8 w-36 overflow-hidden hidden sm:block">
-              <ParticleText
-                text="BugForge"
-                fontSize="1.3rem"
-                particleSize={1.8}
-                density={3}
-                color="#ffffff"
-                highlightColor="#8b5cf6"
-                trigger="hover"
-                glow={false}
-              />
-            </div>
+            <h1 className="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-purple-400">
+              BugForge
+            </h1>
           </div>
 
           <nav className="flex items-center gap-2 text-xs font-semibold">
