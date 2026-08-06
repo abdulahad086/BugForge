@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import RippleGrid from "./RippleGrid";
+import FluidGlass from "./FluidGlass";
 
 // Pre-seeded Software Companies
 const INITIAL_COMPANIES = [
@@ -525,12 +526,12 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: LOGIN SCREEN WITH ANIMATED RIPPLEGRID BACKGROUND
+  // SCREEN 1: LOGIN SCREEN WITH RIPPLEGRID & FLUIDGLASS BACKGROUND
   // =========================================================================
   if (!currentUser) {
     return (
       <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* REACT BITS ANIMATED RIPPLEGRID BACKGROUND */}
+        {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS */}
         <RippleGrid
           enableRainbow={false}
           gridColor="#6366f1"
@@ -539,12 +540,23 @@ export default function App() {
           gridThickness={16}
           mouseInteraction={true}
           mouseInteractionRadius={1.2}
-          opacity={0.7}
+          opacity={0.65}
+        />
+        <FluidGlass
+          mode="lens"
+          lensProps={{
+            scale: 0.35,
+            ior: 1.25,
+            thickness: 6,
+            chromaticAberration: 0.2,
+            anisotropy: 0.02,
+          }}
         />
 
-        <div className="w-full max-w-md bg-[#0f1422]/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-7 space-y-6 shadow-2xl z-10">
+        {/* ULTRA-PROMINENT LIQUID GLASS MODAL */}
+        <div className="w-full max-w-md glass-modal rounded-2xl p-7 space-y-6 z-10">
           <div className="text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/40">
+            <div className="w-11 h-11 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/50">
               BF
             </div>
             <h1 className="text-xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
@@ -552,7 +564,7 @@ export default function App() {
           </div>
 
           {loginError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-semibold text-center">
+            <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/40 text-red-200 text-xs font-semibold text-center">
               {loginError}
             </div>
           )}
@@ -566,7 +578,7 @@ export default function App() {
                 placeholder="your.email@company.com"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full glass-input rounded-lg p-2.5 text-white font-mono text-xs focus:outline-none"
               />
             </div>
 
@@ -578,13 +590,13 @@ export default function App() {
                 placeholder="Enter password..."
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
-                className="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full glass-input rounded-lg p-2.5 text-white text-xs focus:outline-none"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30 cursor-pointer"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-indigo-600/40 cursor-pointer"
             >
               Log In to Workspace
             </button>
@@ -595,11 +607,11 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE WITH ANIMATED RIPPLEGRID BACKGROUND
+  // SCREEN 2: AUTHENTICATED WORKSPACE WITH RIPPLEGRID & FLUIDGLASS BACKGROUND
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden relative">
-      {/* REACT BITS ANIMATED RIPPLEGRID BACKGROUND */}
+      {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS */}
       <RippleGrid
         enableRainbow={false}
         gridColor="#4f46e5"
@@ -608,11 +620,21 @@ export default function App() {
         gridThickness={14}
         mouseInteraction={true}
         mouseInteractionRadius={1.0}
-        opacity={0.4}
+        opacity={0.45}
+      />
+      <FluidGlass
+        mode="lens"
+        lensProps={{
+          scale: 0.35,
+          ior: 1.2,
+          thickness: 5,
+          chromaticAberration: 0.15,
+          anisotropy: 0.015,
+        }}
       />
 
-      {/* HEADER */}
-      <header className="h-14 bg-[#0f1422]/90 backdrop-blur-md border-b border-slate-800 px-5 flex items-center justify-between shrink-0 z-10">
+      {/* GLASS HEADER */}
+      <header className="h-14 glass-header px-5 flex items-center justify-between shrink-0 z-10">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40">
@@ -673,7 +695,7 @@ export default function App() {
 
         {/* IDENTITY & CHANGE PASSWORD */}
         <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2 bg-[#141a2a]/80 backdrop-blur-md border border-slate-700 px-3 py-1 rounded-lg">
+          <div className="flex items-center gap-2 glass-panel px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
             <span className="font-bold text-white">{currentUser.name}</span>
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
@@ -685,14 +707,14 @@ export default function App() {
               setPasswordMessage({ type: "", text: "" });
               setIsChangePasswordModalOpen(true);
             }}
-            className="text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 px-3 py-1 rounded-lg font-bold cursor-pointer"
+            className="text-slate-300 hover:text-white glass-panel px-3 py-1 rounded-lg font-bold cursor-pointer"
           >
             Change Password
           </button>
 
           <button
             onClick={handleLogout}
-            className="text-slate-400 hover:text-red-400 border border-slate-800 px-3 py-1 rounded-lg font-bold cursor-pointer"
+            className="text-slate-400 hover:text-red-400 glass-panel px-3 py-1 rounded-lg font-bold cursor-pointer"
           >
             Logout
           </button>
@@ -701,12 +723,12 @@ export default function App() {
 
       {/* Role Banner Notice */}
       <div
-        className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between z-10 backdrop-blur-md ${
+        className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between z-10 glass-header ${
           isSuperAdmin
-            ? "bg-purple-950/60 border-purple-800/60 text-purple-300"
+            ? "text-purple-300"
             : isTechLead
-            ? "bg-indigo-950/50 border-indigo-800/60 text-indigo-300"
-            : "bg-slate-900/70 border-slate-800 text-slate-400"
+            ? "text-indigo-300"
+            : "text-slate-400"
         }`}
       >
         <span>
@@ -739,7 +761,7 @@ export default function App() {
                   setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
                   setIsAddCompanyModalOpen(true);
                 }}
-                className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
+                className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer shadow-lg shadow-purple-600/30"
               >
                 + Add Software Company (Super Admin)
               </button>
@@ -747,7 +769,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {companies.map((comp) => (
-                <div key={comp.id} className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl p-5 space-y-3 shadow-xl">
+                <div key={comp.id} className="glass-panel rounded-xl p-5 space-y-3">
                   <div className="flex justify-between items-center">
                     <h3 className="text-sm font-bold text-white">{comp.name}</h3>
                     <div className="flex gap-2 text-xs">
@@ -775,7 +797,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#141a2a]/90 border border-slate-800 rounded-lg text-xs space-y-1">
+                  <div className="p-3 glass-card rounded-lg text-xs space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">
                       Authorized Tech Lead Login Email
                     </span>
@@ -809,7 +831,7 @@ export default function App() {
                   setProjectForm({ key: "", name: "", description: "" });
                   setIsAddProjectModalOpen(true);
                 }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer shadow-lg shadow-indigo-600/30"
               >
                 + Add Project (Tech Lead)
               </button>
@@ -819,7 +841,7 @@ export default function App() {
               {scopedProjects.map((p) => {
                 const projBugs = bugs.filter((b) => b.projectKey === p.key && b.companyId === p.companyId);
                 return (
-                  <div key={p.id} className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl p-4 space-y-3 shadow-xl">
+                  <div key={p.id} className="glass-panel rounded-xl p-4 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                         [{p.key}]
@@ -884,13 +906,13 @@ export default function App() {
                   setAssigneeForm({ name: "", email: "", password: "" });
                   setIsAddAssigneeModalOpen(true);
                 }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer shadow-lg shadow-indigo-600/30"
               >
                 + Add Assignee Email (Tech Lead)
               </button>
             </div>
 
-            <div className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl overflow-hidden text-xs shadow-xl">
+            <div className="glass-panel rounded-xl overflow-hidden text-xs">
               <table className="w-full text-left text-slate-300">
                 <thead className="bg-[#141a2a]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                   <tr>
@@ -949,7 +971,7 @@ export default function App() {
                 <select
                   value={selectedProjectKey}
                   onChange={(e) => setSelectedProjectKey(e.target.value)}
-                  className="bg-[#0f1422]/85 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="glass-input rounded px-3 py-1.5 text-xs text-white focus:outline-none"
                 >
                   <option value="ALL">All Company Projects ({scopedProjects.length})</option>
                   {scopedProjects.map((p) => (
@@ -964,11 +986,11 @@ export default function App() {
                   placeholder="Search by ID, Title, Category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#0f1422]/85 border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
+                  className="glass-input rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
                 />
 
                 {/* VIEW LAYOUT TOGGLE */}
-                <div className="flex bg-[#141a2a]/90 backdrop-blur-md border border-slate-800 p-0.5 rounded-lg text-xs font-bold">
+                <div className="flex glass-panel p-0.5 rounded-lg text-xs font-bold">
                   <button
                     onClick={() => setBugLayoutView("KANBAN")}
                     className={`px-3 py-1 rounded-md transition cursor-pointer ${
@@ -1008,7 +1030,7 @@ export default function App() {
                   return (
                     <div
                       key={statusKey}
-                      className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl p-3 flex flex-col min-h-[520px] shadow-xl"
+                      className="glass-panel rounded-xl p-3 flex flex-col min-h-[520px]"
                     >
                       <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
                         <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
@@ -1024,7 +1046,7 @@ export default function App() {
                           <div
                             key={bug.id}
                             onClick={() => setSelectedBugDetail(bug)}
-                            className="bg-[#141a2a]/90 border border-slate-800 hover:border-indigo-500/60 rounded-xl p-3 cursor-pointer transition space-y-2.5 shadow-lg"
+                            className="glass-card rounded-xl p-3 cursor-pointer space-y-2.5"
                           >
                             <div className="flex items-center justify-between text-[10px]">
                               <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
@@ -1099,7 +1121,7 @@ export default function App() {
               </div>
             ) : (
               /* COMMERCIAL TABLE REGISTER VIEW */
-              <div className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl overflow-hidden text-xs shadow-xl">
+              <div className="glass-panel rounded-xl overflow-hidden text-xs">
                 <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]/90">
                   <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
                   <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
@@ -1221,7 +1243,7 @@ export default function App() {
       {/* CHANGE PASSWORD MODAL */}
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+          <div className="glass-modal rounded-2xl w-full max-w-md p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-white">Change Account Password</h3>
               <button
@@ -1253,7 +1275,7 @@ export default function App() {
                   placeholder="Enter current password..."
                   value={passwordForm.currentPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
                 />
               </div>
 
@@ -1265,7 +1287,7 @@ export default function App() {
                   placeholder="At least 6 characters..."
                   value={passwordForm.newPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
                 />
               </div>
 
@@ -1277,7 +1299,7 @@ export default function App() {
                   placeholder="Re-enter new password..."
                   value={passwordForm.confirmPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
                 />
               </div>
 
@@ -1301,7 +1323,7 @@ export default function App() {
       {/* MODAL 1: ADD COMPANY */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+          <div className="glass-modal rounded-2xl w-full max-w-md p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-sm font-bold text-white">
                 {editingCompany ? "Edit Software Company" : "Add New Software Company"}
@@ -1320,7 +1342,7 @@ export default function App() {
                   placeholder="e.g. Eprecisio Technologies"
                   value={companyForm.name}
                   onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1332,7 +1354,7 @@ export default function App() {
                   placeholder="e.g. Alex Vance"
                   value={companyForm.techLeadName}
                   onChange={(e) => setCompanyForm({ ...companyForm, techLeadName: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1344,7 +1366,7 @@ export default function App() {
                   placeholder="lead@eprecisio.com"
                   value={companyForm.techLeadEmail}
                   onChange={(e) => setCompanyForm({ ...companyForm, techLeadEmail: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
                 />
               </div>
 
@@ -1357,7 +1379,7 @@ export default function App() {
                     placeholder="password123"
                     value={companyForm.techLeadPassword}
                     onChange={(e) => setCompanyForm({ ...companyForm, techLeadPassword: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
                   />
                 </div>
               )}
@@ -1378,7 +1400,7 @@ export default function App() {
       {/* MODAL 2: ADD PROJECT */}
       {isAddProjectModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+          <div className="glass-modal rounded-2xl w-full max-w-md p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-sm font-bold text-white">
                 {editingProject ? "Edit Project" : "Add New Project"}
@@ -1399,7 +1421,7 @@ export default function App() {
                     maxLength={10}
                     value={projectForm.key}
                     onChange={(e) => setProjectForm({ ...projectForm, key: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono uppercase focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white font-mono uppercase focus:outline-none"
                   />
                 </div>
               )}
@@ -1412,7 +1434,7 @@ export default function App() {
                   placeholder="e.g. Enterprise Core Engine"
                   value={projectForm.name}
                   onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1423,7 +1445,7 @@ export default function App() {
                   placeholder="Project details..."
                   value={projectForm.description}
                   onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1443,7 +1465,7 @@ export default function App() {
       {/* MODAL 3: ADD ASSIGNEE EMAIL */}
       {isAddAssigneeModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+          <div className="glass-modal rounded-2xl w-full max-w-md p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-sm font-bold text-white">
                 {editingAssignee ? "Edit Assignee Email" : "Add Team Assignee Email"}
@@ -1462,7 +1484,7 @@ export default function App() {
                   placeholder="e.g. David Kim"
                   value={assigneeForm.name}
                   onChange={(e) => setAssigneeForm({ ...assigneeForm, name: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1474,7 +1496,7 @@ export default function App() {
                   placeholder="david@eprecisio.com"
                   value={assigneeForm.email}
                   onChange={(e) => setAssigneeForm({ ...assigneeForm, email: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
                 />
               </div>
 
@@ -1487,7 +1509,7 @@ export default function App() {
                     placeholder="password123"
                     value={assigneeForm.password}
                     onChange={(e) => setAssigneeForm({ ...assigneeForm, password: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
                   />
                 </div>
               )}
@@ -1508,7 +1530,7 @@ export default function App() {
       {/* MODAL 4: CREATE BUG */}
       {isAddBugModalOpen && (isTechLead || isAssignee) && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="glass-modal rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-white">
                 Create & Assign Commercial Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
@@ -1525,7 +1547,7 @@ export default function App() {
                   <select
                     value={bugForm.projectKey}
                     onChange={(e) => setBugForm({ ...bugForm, projectKey: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   >
                     {scopedProjects.map((p) => (
                       <option key={p.key} value={p.key}>
@@ -1540,7 +1562,7 @@ export default function App() {
                   <select
                     value={bugForm.category}
                     onChange={(e) => setBugForm({ ...bugForm, category: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   >
                     {BUG_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -1559,7 +1581,7 @@ export default function App() {
                   placeholder="e.g. Broken navigation links on corporate portal footer"
                   value={bugForm.title}
                   onChange={(e) => setBugForm({ ...bugForm, title: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
                 />
               </div>
 
@@ -1571,7 +1593,7 @@ export default function App() {
                   placeholder="1. Open homepage&#10;2. Scroll to footer&#10;3. Click link..."
                   value={bugForm.stepsToReproduce}
                   onChange={(e) => setBugForm({ ...bugForm, stepsToReproduce: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
                 />
               </div>
 
@@ -1583,7 +1605,7 @@ export default function App() {
                     placeholder="Each link should open the correct page..."
                     value={bugForm.expectedResult}
                     onChange={(e) => setBugForm({ ...bugForm, expectedResult: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1593,7 +1615,7 @@ export default function App() {
                     placeholder="Links do not navigate anywhere..."
                     value={bugForm.actualResult}
                     onChange={(e) => setBugForm({ ...bugForm, actualResult: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   />
                 </div>
               </div>
@@ -1605,7 +1627,7 @@ export default function App() {
                   placeholder="e.g. Users cannot reach intended pages; reduces site credibility"
                   value={bugForm.impact}
                   onChange={(e) => setBugForm({ ...bugForm, impact: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1615,7 +1637,7 @@ export default function App() {
                   <select
                     value={bugForm.severity}
                     onChange={(e) => setBugForm({ ...bugForm, severity: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   >
                     {SEVERITY_LEVELS.map((sev) => (
                       <option key={sev} value={sev}>
@@ -1630,7 +1652,7 @@ export default function App() {
                   <select
                     value={bugForm.priority}
                     onChange={(e) => setBugForm({ ...bugForm, priority: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   >
                     {PRIORITY_LEVELS.map((pri) => (
                       <option key={pri} value={pri}>
@@ -1645,7 +1667,7 @@ export default function App() {
                   <select
                     value={bugForm.status}
                     onChange={(e) => setBugForm({ ...bugForm, status: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none font-bold"
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none font-bold"
                   >
                     {BUG_STATUSES.map((st) => (
                       <option key={st} value={st}>
@@ -1663,7 +1685,7 @@ export default function App() {
                 </label>
                 <div
                   onPaste={handleImagePaste}
-                  className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 bg-slate-900/60 text-center space-y-2 transition relative"
+                  className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 glass-card text-center space-y-2 relative"
                 >
                   {bugForm.evidence ? (
                     <div className="space-y-2">
@@ -1708,7 +1730,7 @@ export default function App() {
                 <select
                   value={bugForm.assigneeEmail}
                   onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
                 >
                   {scopedAssignees.map((u) => (
                     <option key={u.id} value={u.email}>
@@ -1725,7 +1747,7 @@ export default function App() {
                   placeholder="Additional technical notes..."
                   value={bugForm.notes}
                   onChange={(e) => setBugForm({ ...bugForm, notes: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                 />
               </div>
 
@@ -1745,7 +1767,7 @@ export default function App() {
       {/* MODAL 5: BUG DETAIL */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="glass-modal rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-3">
                 <span className="font-mono font-bold text-base text-indigo-400">{selectedBugDetail.id}</span>
@@ -1768,7 +1790,7 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="p-3 rounded-lg glass-card space-y-1">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                     Steps to Reproduce
                   </span>
@@ -1776,13 +1798,13 @@ export default function App() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                  <div className="p-2.5 rounded-lg glass-card">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
                       Expected Result
                     </span>
                     <p className="text-slate-300">{selectedBugDetail.expectedResult}</p>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                  <div className="p-2.5 rounded-lg glass-card">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
                       Actual Result
                     </span>
@@ -1791,14 +1813,14 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-3 rounded-lg glass-card">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
                   Impact
                 </span>
                 <p className="text-slate-300">{selectedBugDetail.impact}</p>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-[#141a2a] border border-slate-800">
+              <div className="grid grid-cols-3 gap-3 p-3 rounded-lg glass-panel">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Severity</span>
                   <span className="font-bold text-red-400">{selectedBugDetail.severity}</span>
@@ -1812,7 +1834,7 @@ export default function App() {
                   <select
                     value={selectedBugDetail.status}
                     onChange={(e) => handleUpdateBugStatus(selectedBugDetail.id, e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 font-bold text-indigo-300 focus:outline-none"
+                    className="w-full glass-input rounded px-2 py-1 font-bold text-indigo-300 focus:outline-none"
                   >
                     {BUG_STATUSES.map((st) => (
                       <option key={st} value={st}>
@@ -1824,7 +1846,7 @@ export default function App() {
               </div>
 
               {/* SCREENSHOT EVIDENCE BOX */}
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
+              <div className="p-3 rounded-lg glass-card space-y-2">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                   Screenshot Evidence (Click Image to Enlarge Fullscreen)
                 </span>
@@ -1847,7 +1869,7 @@ export default function App() {
                 )}
               </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-2.5 rounded-lg glass-card">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
                   Assigned Email
                 </span>
@@ -1855,7 +1877,7 @@ export default function App() {
               </div>
 
               {selectedBugDetail.notes && (
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <div className="p-2.5 rounded-lg glass-card">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Notes</span>
                   <p className="text-slate-400">{selectedBugDetail.notes}</p>
                 </div>
