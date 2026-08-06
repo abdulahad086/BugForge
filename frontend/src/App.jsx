@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import RippleGrid from "./RippleGrid";
-import FluidGlass from "./FluidGlass";
+import GlassSurface from "./GlassSurface";
 
 // Pre-seeded Software Companies
 const INITIAL_COMPANIES = [
@@ -526,37 +526,40 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: LOGIN SCREEN WITH DUAL WEBGL BACKGROUND (RIPPLEGRID + FLUIDGLASS)
+  // SCREEN 1: LOGIN SCREEN WITH HIGH PERFORMANCE ANIMATED RIPPLEGRID BACKGROUND
   // =========================================================================
   if (!currentUser) {
     return (
       <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS 3D REFRACTION */}
-        <RippleGrid
-          enableRainbow={false}
-          gridColor="#6366f1"
-          rippleIntensity={0.06}
-          gridSize={12}
-          gridThickness={16}
-          mouseInteraction={true}
-          mouseInteractionRadius={1.2}
-          opacity={0.65}
-        />
-        <FluidGlass
-          mode="lens"
-          lensProps={{
-            scale: 0.45,
-            ior: 1.3,
-            thickness: 8,
-            chromaticAberration: 0.3,
-            anisotropy: 0.03,
-          }}
-        />
+        {/* REACT BITS HIGH PERFORMANCE ANIMATED RIPPLEGRID BACKGROUND */}
+        <div className="fixed inset-0 w-full h-full pointer-events-auto z-0">
+          <RippleGrid
+            enableRainbow={false}
+            gridColor="#6366f1"
+            rippleIntensity={0.08}
+            gridSize={12}
+            gridThickness={16}
+            mouseInteraction={true}
+            mouseInteractionRadius={1.2}
+            opacity={0.8}
+          />
+        </div>
 
-        {/* ULTRA-PROMINENT FROSTED LIQUID GLASS MODAL */}
-        <div className="w-full max-w-md glass-modal rounded-2xl p-7 space-y-6 z-10 relative">
+        {/* REACT BITS <GlassSurface /> COMPONENT WRAPPER FOR LOGIN MODAL */}
+        <GlassSurface
+          width="100%"
+          height="auto"
+          borderRadius={24}
+          distortionScale={-160}
+          redOffset={4}
+          greenOffset={12}
+          blueOffset={20}
+          brightness={55}
+          opacity={0.92}
+          className="max-w-md p-7 space-y-6 z-10 relative"
+        >
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 font-black text-white text-base flex items-center justify-center mx-auto shadow-xl shadow-indigo-600/50 border border-indigo-400/30">
+            <div className="w-12 h-12 rounded-xl bg-indigo-600 font-black text-white text-base flex items-center justify-center mx-auto shadow-xl shadow-indigo-600/50 border border-indigo-400/30">
               BF
             </div>
             <h1 className="text-2xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
@@ -594,101 +597,107 @@ export default function App() {
               />
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold py-3 rounded-lg text-xs transition shadow-xl shadow-indigo-600/40 cursor-pointer border border-indigo-400/30"
-            >
-              Log In to Workspace
-            </button>
+            <GlassSurface borderRadius={12} width="100%" height="auto" className="p-0">
+              <button
+                type="submit"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-xl shadow-indigo-600/40 cursor-pointer border border-indigo-400/30"
+              >
+                Log In to Workspace
+              </button>
+            </GlassSurface>
           </form>
-        </div>
+        </GlassSurface>
       </div>
     );
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE WITH DUAL WEBGL BACKGROUND
+  // SCREEN 2: AUTHENTICATED WORKSPACE WITH HIGH PERFORMANCE ANIMATED RIPPLEGRID & GLASS SURFACES
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden relative">
-      {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS 3D REFRACTION */}
-      <RippleGrid
-        enableRainbow={false}
-        gridColor="#4f46e5"
-        rippleIntensity={0.04}
-        gridSize={14}
-        gridThickness={14}
-        mouseInteraction={true}
-        mouseInteractionRadius={1.0}
-        opacity={0.5}
-      />
-      <FluidGlass
-        mode="lens"
-        lensProps={{
-          scale: 0.45,
-          ior: 1.25,
-          thickness: 6,
-          chromaticAberration: 0.25,
-          anisotropy: 0.02,
-        }}
-      />
+      {/* REACT BITS HIGH PERFORMANCE ANIMATED RIPPLEGRID BACKGROUND */}
+      <div className="fixed inset-0 w-full h-full pointer-events-auto z-0">
+        <RippleGrid
+          enableRainbow={false}
+          gridColor="#4f46e5"
+          rippleIntensity={0.06}
+          gridSize={14}
+          gridThickness={14}
+          mouseInteraction={true}
+          mouseInteractionRadius={1.0}
+          opacity={0.65}
+        />
+      </div>
 
-      {/* GLASS HEADER */}
-      <header className="h-14 glass-header px-5 flex items-center justify-between shrink-0 z-10 relative">
+      {/* GLASS HEADER WITH WATER DROPLET REFRACTION */}
+      <header className="h-16 glass-header px-5 flex items-center justify-between shrink-0 z-10 relative">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40 border border-indigo-400/30">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40 border border-indigo-400/30">
               BF
             </div>
             <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
           </div>
 
-          <nav className="flex items-center gap-1.5 text-xs font-semibold">
+          <nav className="flex items-center gap-2 text-xs font-semibold">
             {isSuperAdmin && (
-              <button
-                onClick={() => setActiveTab("COMPANIES")}
-                className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold cursor-pointer shadow-md shadow-purple-600/30"
-              >
-                Software Companies ({companies.length})
-              </button>
+              <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                <button
+                  onClick={() => setActiveTab("COMPANIES")}
+                  className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold cursor-pointer shadow-md shadow-purple-600/30"
+                >
+                  Software Companies ({companies.length})
+                </button>
+              </GlassSurface>
             )}
 
             {isTechLead && (
               <>
-                <button
-                  onClick={() => setActiveTab("PROJECTS")}
-                  className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
-                    activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30" : "text-slate-300 hover:text-white glass-panel"
-                  }`}
-                >
-                  Projects ({scopedProjects.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab("BUGS")}
-                  className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
-                    activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30" : "text-slate-300 hover:text-white glass-panel"
-                  }`}
-                >
-                  Shared Bug Board ({scopedBugs.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab("ASSIGNEES")}
-                  className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
-                    activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30" : "text-slate-300 hover:text-white glass-panel"
-                  }`}
-                >
-                  Team Assignees ({scopedAssignees.length})
-                </button>
+                <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                  <button
+                    onClick={() => setActiveTab("PROJECTS")}
+                    className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
+                      activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    Projects ({scopedProjects.length})
+                  </button>
+                </GlassSurface>
+
+                <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                  <button
+                    onClick={() => setActiveTab("BUGS")}
+                    className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
+                      activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    Shared Bug Board ({scopedBugs.length})
+                  </button>
+                </GlassSurface>
+
+                <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                  <button
+                    onClick={() => setActiveTab("ASSIGNEES")}
+                    className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
+                      activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    Team Assignees ({scopedAssignees.length})
+                  </button>
+                </GlassSurface>
               </>
             )}
 
             {isAssignee && (
-              <button
-                onClick={() => setActiveTab("BUGS")}
-                className="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer shadow-md shadow-indigo-600/30"
-              >
-                Shared Team Bug Board ({scopedBugs.length})
-              </button>
+              <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                <button
+                  onClick={() => setActiveTab("BUGS")}
+                  className="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer"
+                >
+                  Shared Team Bug Board ({scopedBugs.length})
+                </button>
+              </GlassSurface>
             )}
           </nav>
         </div>
@@ -701,23 +710,27 @@ export default function App() {
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
           </div>
 
-          <button
-            onClick={() => {
-              setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-              setPasswordMessage({ type: "", text: "" });
-              setIsChangePasswordModalOpen(true);
-            }}
-            className="text-slate-200 hover:text-white glass-panel px-3 py-1.5 rounded-lg font-bold cursor-pointer"
-          >
-            Change Password
-          </button>
+          <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+            <button
+              onClick={() => {
+                setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                setPasswordMessage({ type: "", text: "" });
+                setIsChangePasswordModalOpen(true);
+              }}
+              className="text-slate-200 hover:text-white px-3 py-1.5 rounded-lg font-bold cursor-pointer"
+            >
+              Change Password
+            </button>
+          </GlassSurface>
 
-          <button
-            onClick={handleLogout}
-            className="text-slate-300 hover:text-red-400 glass-panel px-3 py-1.5 rounded-lg font-bold cursor-pointer"
-          >
-            Logout
-          </button>
+          <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+            <button
+              onClick={handleLogout}
+              className="text-slate-300 hover:text-red-400 px-3 py-1.5 rounded-lg font-bold cursor-pointer"
+            >
+              Logout
+            </button>
+          </GlassSurface>
         </div>
       </header>
 
@@ -755,22 +768,24 @@ export default function App() {
                   Add software companies and configure authorized Tech Lead login emails
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingCompany(null);
-                  setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
-                  setIsAddCompanyModalOpen(true);
-                }}
-                className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer shadow-lg shadow-purple-600/30"
-              >
-                + Add Software Company (Super Admin)
-              </button>
+              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+                <button
+                  onClick={() => {
+                    setEditingCompany(null);
+                    setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
+                    setIsAddCompanyModalOpen(true);
+                  }}
+                  className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-lg shadow-purple-600/30"
+                >
+                  + Add Software Company (Super Admin)
+                </button>
+              </GlassSurface>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {companies.map((comp) => (
-                <div key={comp.id} className="glass-panel rounded-xl p-5 space-y-3">
-                  <div className="flex justify-between items-center">
+                <GlassSurface key={comp.id} borderRadius={18} width="100%" height="auto" className="p-5 space-y-3">
+                  <div className="flex justify-between items-center w-full">
                     <h3 className="text-sm font-bold text-white">{comp.name}</h3>
                     <div className="flex gap-2 text-xs">
                       <button
@@ -797,7 +812,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="p-3 glass-card rounded-lg text-xs space-y-1">
+                  <div className="p-3 glass-card rounded-lg text-xs space-y-1 w-full">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">
                       Authorized Tech Lead Login Email
                     </span>
@@ -805,11 +820,11 @@ export default function App() {
                     <div className="font-mono text-indigo-300">{comp.techLeadEmail}</div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex justify-between text-xs text-slate-400">
+                  <div className="pt-2 border-t border-slate-800/80 flex justify-between text-xs text-slate-400 w-full">
                     <span>Registered: {comp.createdAt}</span>
                     <span className="text-emerald-400 font-mono text-[11px]">ACTIVE TENANT</span>
                   </div>
-                </div>
+                </GlassSurface>
               ))}
             </div>
           </div>
@@ -825,24 +840,26 @@ export default function App() {
                   Manage software projects for {userCompany?.name}
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingProject(null);
-                  setProjectForm({ key: "", name: "", description: "" });
-                  setIsAddProjectModalOpen(true);
-                }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer shadow-lg shadow-indigo-600/30"
-              >
-                + Add Project (Tech Lead)
-              </button>
+              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+                <button
+                  onClick={() => {
+                    setEditingProject(null);
+                    setProjectForm({ key: "", name: "", description: "" });
+                    setIsAddProjectModalOpen(true);
+                  }}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-lg shadow-indigo-600/30"
+                >
+                  + Add Project (Tech Lead)
+                </button>
+              </GlassSurface>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {scopedProjects.map((p) => {
                 const projBugs = bugs.filter((b) => b.projectKey === p.key && b.companyId === p.companyId);
                 return (
-                  <div key={p.id} className="glass-panel rounded-xl p-4 space-y-3">
-                    <div className="flex justify-between items-center">
+                  <GlassSurface key={p.id} borderRadius={18} width="100%" height="auto" className="p-4 space-y-3">
+                    <div className="flex justify-between items-center w-full">
                       <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                         [{p.key}]
                       </span>
@@ -866,12 +883,12 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div>
+                    <div className="w-full">
                       <h3 className="text-sm font-bold text-white">{p.name}</h3>
                       <p className="text-xs text-slate-400 mt-1">{p.description}</p>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
+                    <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs w-full">
                       <span className="text-slate-400">{projBugs.length} Total Bugs</span>
                       <button
                         onClick={() => {
@@ -883,7 +900,7 @@ export default function App() {
                         View Lifecycle -&gt;
                       </button>
                     </div>
-                  </div>
+                  </GlassSurface>
                 );
               })}
             </div>
@@ -900,19 +917,21 @@ export default function App() {
                   Add and manage authorized developer and QA emails for {userCompany?.name}
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingAssignee(null);
-                  setAssigneeForm({ name: "", email: "", password: "" });
-                  setIsAddAssigneeModalOpen(true);
-                }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer shadow-lg shadow-indigo-600/30"
-              >
-                + Add Assignee Email (Tech Lead)
-              </button>
+              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+                <button
+                  onClick={() => {
+                    setEditingAssignee(null);
+                    setAssigneeForm({ name: "", email: "", password: "" });
+                    setIsAddAssigneeModalOpen(true);
+                  }}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-lg shadow-indigo-600/30"
+                >
+                  + Add Assignee Email (Tech Lead)
+                </button>
+              </GlassSurface>
             </div>
 
-            <div className="glass-panel rounded-xl overflow-hidden text-xs">
+            <GlassSurface borderRadius={20} width="100%" height="auto" className="p-0 overflow-hidden text-xs">
               <table className="w-full text-left text-slate-300">
                 <thead className="bg-[#141a2a]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                   <tr>
@@ -959,7 +978,7 @@ export default function App() {
                   })}
                 </tbody>
               </table>
-            </div>
+            </GlassSurface>
           </div>
         )}
 
@@ -1014,12 +1033,14 @@ export default function App() {
                 </div>
               </div>
 
-              <button
-                onClick={() => setIsAddBugModalOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-indigo-600/30 cursor-pointer"
-              >
-                + Create Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
-              </button>
+              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+                <button
+                  onClick={() => setIsAddBugModalOpen(true)}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg shadow-indigo-600/30 cursor-pointer"
+                >
+                  + Create Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
+                </button>
+              </GlassSurface>
             </div>
 
             {/* JIRA STYLE KANBAN COLUMNS BOARD */}
@@ -1028,11 +1049,14 @@ export default function App() {
                 {BUG_STATUSES.map((statusKey) => {
                   const colBugs = filteredBugs.filter((b) => b.status === statusKey);
                   return (
-                    <div
+                    <GlassSurface
                       key={statusKey}
-                      className="glass-panel rounded-xl p-3 flex flex-col min-h-[520px]"
+                      borderRadius={20}
+                      width="100%"
+                      height="auto"
+                      className="p-3 flex flex-col min-h-[520px]"
                     >
-                      <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                      <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800 w-full">
                         <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
                           {statusKey}
                         </span>
@@ -1041,72 +1065,79 @@ export default function App() {
                         </span>
                       </div>
 
-                      <div className="flex-1 space-y-2.5">
+                      <div className="flex-1 space-y-2.5 w-full">
                         {colBugs.map((bug) => (
-                          <div
+                          <GlassSurface
                             key={bug.id}
-                            onClick={() => setSelectedBugDetail(bug)}
-                            className="glass-card rounded-xl p-3 cursor-pointer space-y-2.5"
+                            borderRadius={14}
+                            width="100%"
+                            height="auto"
+                            className="p-3 cursor-pointer space-y-2.5"
                           >
-                            <div className="flex items-center justify-between text-[10px]">
-                              <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
-                              <span
-                                className={`font-bold px-1.5 py-0.5 rounded ${
-                                  bug.priority.includes("P1") || bug.priority.includes("Urgent")
-                                    ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                                    : bug.priority.includes("P2") || bug.priority.includes("High")
-                                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                                    : "bg-slate-800 text-slate-300 border border-slate-700"
-                                }`}
-                              >
-                                {bug.priority}
-                              </span>
-                            </div>
-
-                            <div className="text-[10px] font-bold text-slate-400 uppercase">
-                              [{bug.category}]
-                            </div>
-
-                            <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
-                              {bug.title}
-                            </p>
-
-                            {/* SCREENSHOT THUMBNAIL ON KANBAN CARD */}
-                            {bug.evidence && bug.evidence.startsWith("data:image") && (
-                              <div
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setExpandedImageSrc(bug.evidence);
-                                }}
-                                className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in"
-                              >
-                                <img src={bug.evidence} alt="Evidence Screenshot" className="w-full h-20 object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition">
-                                  Click to Enlarge Screenshot
-                                </div>
+                            <div
+                              onClick={() => setSelectedBugDetail(bug)}
+                              className="w-full space-y-2.5"
+                            >
+                              <div className="flex items-center justify-between text-[10px] w-full">
+                                <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
+                                <span
+                                  className={`font-bold px-1.5 py-0.5 rounded ${
+                                    bug.priority.includes("P1") || bug.priority.includes("Urgent")
+                                      ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                      : bug.priority.includes("P2") || bug.priority.includes("High")
+                                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                      : "bg-slate-800 text-slate-300 border border-slate-700"
+                                  }`}
+                                >
+                                  {bug.priority}
+                                </span>
                               </div>
-                            )}
 
-                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
-                              <span className="font-mono text-indigo-300 truncate max-w-[120px]">
-                                {bug.assigneeEmail}
-                              </span>
-                              <select
-                                value={bug.status}
-                                onChange={(e) => {
-                                  e.stopPropagation();
-                                  handleUpdateBugStatus(bug.id, e.target.value);
-                                }}
-                                className="bg-slate-900 border border-slate-700 text-white rounded px-1.5 py-0.5 text-[10px] font-bold focus:outline-none"
-                              >
-                                {BUG_STATUSES.map((s) => (
-                                  <option key={s} value={s}>
-                                    {s}
-                                  </option>
-                                ))}
-                              </select>
+                              <div className="text-[10px] font-bold text-slate-400 uppercase">
+                                [{bug.category}]
+                              </div>
+
+                              <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
+                                {bug.title}
+                              </p>
+
+                              {/* SCREENSHOT THUMBNAIL ON KANBAN CARD */}
+                              {bug.evidence && bug.evidence.startsWith("data:image") && (
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setExpandedImageSrc(bug.evidence);
+                                  }}
+                                  className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in w-full"
+                                >
+                                  <img src={bug.evidence} alt="Evidence Screenshot" className="w-full h-20 object-cover" />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition">
+                                    Click to Enlarge Screenshot
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400 w-full">
+                                <span className="font-mono text-indigo-300 truncate max-w-[120px]">
+                                  {bug.assigneeEmail}
+                                </span>
+                                <select
+                                  value={bug.status}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateBugStatus(bug.id, e.target.value);
+                                  }}
+                                  className="bg-slate-900 border border-slate-700 text-white rounded px-1.5 py-0.5 text-[10px] font-bold focus:outline-none"
+                                >
+                                  {BUG_STATUSES.map((s) => (
+                                    <option key={s} value={s}>
+                                      {s}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
                             </div>
-                          </div>
+                          </GlassSurface>
                         ))}
 
                         {colBugs.length === 0 && (
@@ -1115,19 +1146,19 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </GlassSurface>
                   );
                 })}
               </div>
             ) : (
               /* COMMERCIAL TABLE REGISTER VIEW */
-              <div className="glass-panel rounded-xl overflow-hidden text-xs">
-                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]/90">
+              <GlassSurface borderRadius={20} width="100%" height="auto" className="p-0 overflow-hidden text-xs">
+                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]/90 w-full">
                   <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
                   <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto w-full">
                   <table className="w-full text-left text-slate-300 border-collapse">
                     <thead className="bg-[#182032]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                       <tr>
@@ -1214,7 +1245,7 @@ export default function App() {
                     </tbody>
                   </table>
                 </div>
-              </div>
+              </GlassSurface>
             )}
           </div>
         )}
@@ -1243,8 +1274,8 @@ export default function App() {
       {/* CHANGE PASSWORD MODAL */}
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-modal rounded-2xl w-full max-w-md p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 w-full">
               <h3 className="text-sm font-bold text-white">Change Account Password</h3>
               <button
                 onClick={() => setIsChangePasswordModalOpen(false)}
@@ -1256,7 +1287,7 @@ export default function App() {
 
             {passwordMessage.text && (
               <div
-                className={`p-3 rounded-lg text-xs font-semibold text-center ${
+                className={`p-3 rounded-lg text-xs font-semibold text-center w-full ${
                   passwordMessage.type === "success"
                     ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                     : "bg-red-500/20 text-red-300 border border-red-500/30"
@@ -1266,7 +1297,7 @@ export default function App() {
               </div>
             )}
 
-            <form onSubmit={handleChangePasswordSubmit} className="space-y-3 text-xs">
+            <form onSubmit={handleChangePasswordSubmit} className="space-y-3 text-xs w-full">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Current Password</label>
                 <input
@@ -1303,7 +1334,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 w-full">
                 <button
                   type="button"
                   onClick={() => setIsChangePasswordModalOpen(false)}
@@ -1316,15 +1347,15 @@ export default function App() {
                 </button>
               </div>
             </form>
-          </div>
+          </GlassSurface>
         </div>
       )}
 
       {/* MODAL 1: ADD COMPANY */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-modal rounded-2xl w-full max-w-md p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2 w-full">
               <h3 className="text-sm font-bold text-white">
                 {editingCompany ? "Edit Software Company" : "Add New Software Company"}
               </h3>
@@ -1333,7 +1364,7 @@ export default function App() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveCompany} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveCompany} className="space-y-3 text-xs w-full">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Software Company Name</label>
                 <input
@@ -1384,7 +1415,7 @@ export default function App() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 w-full">
                 <button type="button" onClick={() => setIsAddCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
@@ -1393,15 +1424,15 @@ export default function App() {
                 </button>
               </div>
             </form>
-          </div>
+          </GlassSurface>
         </div>
       )}
 
       {/* MODAL 2: ADD PROJECT */}
       {isAddProjectModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-modal rounded-2xl w-full max-w-md p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2 w-full">
               <h3 className="text-sm font-bold text-white">
                 {editingProject ? "Edit Project" : "Add New Project"}
               </h3>
@@ -1410,7 +1441,7 @@ export default function App() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveProject} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveProject} className="space-y-3 text-xs w-full">
               {!editingProject && (
                 <div>
                   <label className="block font-semibold text-slate-300 mb-1">Project Key (Short Code)</label>
@@ -1449,7 +1480,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 w-full">
                 <button type="button" onClick={() => setIsAddProjectModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
@@ -1458,15 +1489,15 @@ export default function App() {
                 </button>
               </div>
             </form>
-          </div>
+          </GlassSurface>
         </div>
       )}
 
       {/* MODAL 3: ADD ASSIGNEE EMAIL */}
       {isAddAssigneeModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-modal rounded-2xl w-full max-w-md p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2 w-full">
               <h3 className="text-sm font-bold text-white">
                 {editingAssignee ? "Edit Assignee Email" : "Add Team Assignee Email"}
               </h3>
@@ -1475,7 +1506,7 @@ export default function App() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveAssignee} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveAssignee} className="space-y-3 text-xs w-full">
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">Assignee Full Name</label>
                 <input
@@ -1514,7 +1545,7 @@ export default function App() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 w-full">
                 <button type="button" onClick={() => setIsAddAssigneeModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
@@ -1523,15 +1554,15 @@ export default function App() {
                 </button>
               </div>
             </form>
-          </div>
+          </GlassSurface>
         </div>
       )}
 
       {/* MODAL 4: CREATE BUG */}
       {isAddBugModalOpen && (isTechLead || isAssignee) && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-modal rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 w-full">
               <h3 className="text-sm font-bold text-white">
                 Create & Assign Commercial Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
               </h3>
@@ -1540,8 +1571,8 @@ export default function App() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveBug} className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSaveBug} className="space-y-3 text-xs w-full">
+              <div className="grid grid-cols-2 gap-3 w-full">
                 <div>
                   <label className="block font-semibold text-slate-300 mb-1">Target Project</label>
                   <select
@@ -1597,7 +1628,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 w-full">
                 <div>
                   <label className="block font-semibold text-slate-300 mb-1">Expected Result</label>
                   <textarea
@@ -1631,7 +1662,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-3 w-full">
                 <div>
                   <label className="block font-semibold text-slate-300 mb-1">Severity</label>
                   <select
@@ -1685,10 +1716,10 @@ export default function App() {
                 </label>
                 <div
                   onPaste={handleImagePaste}
-                  className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 glass-card text-center space-y-2 relative"
+                  className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 glass-card text-center space-y-2 relative w-full"
                 >
                   {bugForm.evidence ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full">
                       <img
                         src={bugForm.evidence}
                         alt="Screenshot Preview"
@@ -1707,7 +1738,7 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    <label className="cursor-pointer block space-y-1">
+                    <label className="cursor-pointer block space-y-1 w-full">
                       <div className="text-xs font-bold text-white">
                         Click to Choose Image File or Paste (Ctrl+V / Cmd+V)
                       </div>
@@ -1751,7 +1782,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800 w-full">
                 <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
@@ -1760,15 +1791,15 @@ export default function App() {
                 </button>
               </div>
             </form>
-          </div>
+          </GlassSurface>
         </div>
       )}
 
       {/* MODAL 5: BUG DETAIL */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-modal rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 w-full">
               <div className="flex items-center gap-3">
                 <span className="font-mono font-bold text-base text-indigo-400">{selectedBugDetail.id}</span>
                 <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
@@ -1781,7 +1812,7 @@ export default function App() {
               </button>
             </div>
 
-            <div className="space-y-4 text-xs">
+            <div className="space-y-4 text-xs w-full">
               <div>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
                   Title / Summary
@@ -1789,7 +1820,7 @@ export default function App() {
                 <h3 className="text-base font-bold text-white leading-snug">{selectedBugDetail.title}</h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 w-full">
                 <div className="p-3 rounded-lg glass-card space-y-1">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                     Steps to Reproduce
@@ -1813,14 +1844,14 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg glass-card">
+              <div className="p-3 rounded-lg glass-card w-full">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
                   Impact
                 </span>
                 <p className="text-slate-300">{selectedBugDetail.impact}</p>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 p-3 rounded-lg glass-panel">
+              <div className="grid grid-cols-3 gap-3 p-3 rounded-lg glass-panel w-full">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Severity</span>
                   <span className="font-bold text-red-400">{selectedBugDetail.severity}</span>
@@ -1846,14 +1877,14 @@ export default function App() {
               </div>
 
               {/* SCREENSHOT EVIDENCE BOX */}
-              <div className="p-3 rounded-lg glass-card space-y-2">
+              <div className="p-3 rounded-lg glass-card space-y-2 w-full">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                   Screenshot Evidence (Click Image to Enlarge Fullscreen)
                 </span>
                 {selectedBugDetail.evidence && selectedBugDetail.evidence.startsWith("data:image") ? (
                   <div
                     onClick={() => setExpandedImageSrc(selectedBugDetail.evidence)}
-                    className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in max-h-56 bg-slate-950 flex items-center justify-center p-2"
+                    className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in max-h-56 bg-slate-950 flex items-center justify-center p-2 w-full"
                   >
                     <img
                       src={selectedBugDetail.evidence}
@@ -1869,7 +1900,7 @@ export default function App() {
                 )}
               </div>
 
-              <div className="p-2.5 rounded-lg glass-card">
+              <div className="p-2.5 rounded-lg glass-card w-full">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
                   Assigned Email
                 </span>
@@ -1877,14 +1908,14 @@ export default function App() {
               </div>
 
               {selectedBugDetail.notes && (
-                <div className="p-2.5 rounded-lg glass-card">
+                <div className="p-2.5 rounded-lg glass-card w-full">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Notes</span>
                   <p className="text-slate-400">{selectedBugDetail.notes}</p>
                 </div>
               )}
             </div>
 
-            <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+            <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs w-full">
               {isTechLead && (
                 <button
                   onClick={() => {
@@ -1900,7 +1931,7 @@ export default function App() {
                 Done
               </button>
             </div>
-          </div>
+          </GlassSurface>
         </div>
       )}
     </div>
