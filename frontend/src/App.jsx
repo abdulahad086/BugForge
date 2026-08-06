@@ -526,12 +526,12 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: LOGIN SCREEN WITH RIPPLEGRID & FLUIDGLASS BACKGROUND
+  // SCREEN 1: LOGIN SCREEN WITH DUAL WEBGL BACKGROUND (RIPPLEGRID + FLUIDGLASS)
   // =========================================================================
   if (!currentUser) {
     return (
       <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS */}
+        {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS 3D REFRACTION */}
         <RippleGrid
           enableRainbow={false}
           gridColor="#6366f1"
@@ -545,22 +545,22 @@ export default function App() {
         <FluidGlass
           mode="lens"
           lensProps={{
-            scale: 0.35,
-            ior: 1.25,
-            thickness: 6,
-            chromaticAberration: 0.2,
-            anisotropy: 0.02,
+            scale: 0.45,
+            ior: 1.3,
+            thickness: 8,
+            chromaticAberration: 0.3,
+            anisotropy: 0.03,
           }}
         />
 
-        {/* ULTRA-PROMINENT LIQUID GLASS MODAL */}
-        <div className="w-full max-w-md glass-modal rounded-2xl p-7 space-y-6 z-10">
+        {/* ULTRA-PROMINENT FROSTED LIQUID GLASS MODAL */}
+        <div className="w-full max-w-md glass-modal rounded-2xl p-7 space-y-6 z-10 relative">
           <div className="text-center space-y-2">
-            <div className="w-11 h-11 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/50">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 font-black text-white text-base flex items-center justify-center mx-auto shadow-xl shadow-indigo-600/50 border border-indigo-400/30">
               BF
             </div>
-            <h1 className="text-xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
-            <p className="text-xs text-slate-400">Enter authorized email address and password</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
+            <p className="text-xs text-slate-300 font-medium">Enter authorized email address and password</p>
           </div>
 
           {loginError && (
@@ -596,7 +596,7 @@ export default function App() {
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-indigo-600/40 cursor-pointer"
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold py-3 rounded-lg text-xs transition shadow-xl shadow-indigo-600/40 cursor-pointer border border-indigo-400/30"
             >
               Log In to Workspace
             </button>
@@ -607,11 +607,11 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE WITH RIPPLEGRID & FLUIDGLASS BACKGROUND
+  // SCREEN 2: AUTHENTICATED WORKSPACE WITH DUAL WEBGL BACKGROUND
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden relative">
-      {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS */}
+      {/* REACT BITS DUAL ANIMATED BACKGROUND: RIPPLEGRID + FLUIDGLASS 3D REFRACTION */}
       <RippleGrid
         enableRainbow={false}
         gridColor="#4f46e5"
@@ -620,34 +620,34 @@ export default function App() {
         gridThickness={14}
         mouseInteraction={true}
         mouseInteractionRadius={1.0}
-        opacity={0.45}
+        opacity={0.5}
       />
       <FluidGlass
         mode="lens"
         lensProps={{
-          scale: 0.35,
-          ior: 1.2,
-          thickness: 5,
-          chromaticAberration: 0.15,
-          anisotropy: 0.015,
+          scale: 0.45,
+          ior: 1.25,
+          thickness: 6,
+          chromaticAberration: 0.25,
+          anisotropy: 0.02,
         }}
       />
 
       {/* GLASS HEADER */}
-      <header className="h-14 glass-header px-5 flex items-center justify-between shrink-0 z-10">
+      <header className="h-14 glass-header px-5 flex items-center justify-between shrink-0 z-10 relative">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40 border border-indigo-400/30">
               BF
             </div>
             <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
           </div>
 
-          <nav className="flex items-center gap-1 text-xs font-semibold">
+          <nav className="flex items-center gap-1.5 text-xs font-semibold">
             {isSuperAdmin && (
               <button
                 onClick={() => setActiveTab("COMPANIES")}
-                className="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold cursor-pointer shadow-md shadow-purple-600/30"
               >
                 Software Companies ({companies.length})
               </button>
@@ -657,24 +657,24 @@ export default function App() {
               <>
                 <button
                   onClick={() => setActiveTab("PROJECTS")}
-                  className={`px-3 py-1.5 rounded-lg cursor-pointer ${
-                    activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                  className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
+                    activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30" : "text-slate-300 hover:text-white glass-panel"
                   }`}
                 >
                   Projects ({scopedProjects.length})
                 </button>
                 <button
                   onClick={() => setActiveTab("BUGS")}
-                  className={`px-3 py-1.5 rounded-lg cursor-pointer ${
-                    activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                  className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
+                    activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30" : "text-slate-300 hover:text-white glass-panel"
                   }`}
                 >
                   Shared Bug Board ({scopedBugs.length})
                 </button>
                 <button
                   onClick={() => setActiveTab("ASSIGNEES")}
-                  className={`px-3 py-1.5 rounded-lg cursor-pointer ${
-                    activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                  className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
+                    activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30" : "text-slate-300 hover:text-white glass-panel"
                   }`}
                 >
                   Team Assignees ({scopedAssignees.length})
@@ -685,7 +685,7 @@ export default function App() {
             {isAssignee && (
               <button
                 onClick={() => setActiveTab("BUGS")}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer shadow-md shadow-indigo-600/30"
               >
                 Shared Team Bug Board ({scopedBugs.length})
               </button>
@@ -695,7 +695,7 @@ export default function App() {
 
         {/* IDENTITY & CHANGE PASSWORD */}
         <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2 glass-panel px-3 py-1 rounded-lg">
+          <div className="flex items-center gap-2 glass-panel px-3 py-1.5 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
             <span className="font-bold text-white">{currentUser.name}</span>
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
@@ -707,14 +707,14 @@ export default function App() {
               setPasswordMessage({ type: "", text: "" });
               setIsChangePasswordModalOpen(true);
             }}
-            className="text-slate-300 hover:text-white glass-panel px-3 py-1 rounded-lg font-bold cursor-pointer"
+            className="text-slate-200 hover:text-white glass-panel px-3 py-1.5 rounded-lg font-bold cursor-pointer"
           >
             Change Password
           </button>
 
           <button
             onClick={handleLogout}
-            className="text-slate-400 hover:text-red-400 glass-panel px-3 py-1 rounded-lg font-bold cursor-pointer"
+            className="text-slate-300 hover:text-red-400 glass-panel px-3 py-1.5 rounded-lg font-bold cursor-pointer"
           >
             Logout
           </button>
@@ -723,12 +723,12 @@ export default function App() {
 
       {/* Role Banner Notice */}
       <div
-        className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between z-10 glass-header ${
+        className={`px-5 py-2 text-xs font-semibold border-b flex items-center justify-between z-10 glass-header ${
           isSuperAdmin
             ? "text-purple-300"
             : isTechLead
             ? "text-indigo-300"
-            : "text-slate-400"
+            : "text-slate-300"
         }`}
       >
         <span>
@@ -744,7 +744,7 @@ export default function App() {
       </div>
 
       {/* MAIN WORKSPACE CONTENT CONTAINER OVERLAY */}
-      <main className="flex-1 bg-transparent overflow-y-auto p-6 z-10">
+      <main className="flex-1 bg-transparent overflow-y-auto p-6 z-10 relative">
         {/* VIEW 1: SUPER ADMIN COMPANIES */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
