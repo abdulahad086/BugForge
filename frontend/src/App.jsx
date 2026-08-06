@@ -91,7 +91,12 @@ const INITIAL_PROJECTS = [
   },
 ];
 
-// Pre-seeded Bugs matching exact 12-field schema
+// High-Res SVG Image Mock Data URLs for Screenshots
+const DEMO_SCREENSHOT_1 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='800' height='450' fill='%230f172a'/><rect x='40' y='40' width='720' height='60' rx='8' fill='%231e293b'/><text x='70' y='75' fill='%23ef4444' font-family='sans-serif' font-weight='bold' font-size='18'>HTTP 504 Gateway Timeout - Broken Navigation &amp; Connection Exhaustion</text><rect x='40' y='120' width='720' height='290' rx='8' fill='%231e293b'/><text x='70' y='160' fill='%2394a3b8' font-family='monospace' font-size='14'>StackTrace: connection slot allocation timeout after 5000ms</text><text x='70' y='190' fill='%2394a3b8' font-family='monospace' font-size='14'>at asyncpg.pool.acquire() line 142</text><text x='70' y='220' fill='%2338bdf8' font-family='monospace' font-size='14'>Status: 500 Internal Server Error [CLICK IMAGE TO ENLARGE]</text></svg>";
+
+const DEMO_SCREENSHOT_2 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='800' height='450' fill='%230b0f19'/><rect x='30' y='30' width='740' height='390' rx='10' fill='%23111827' stroke='%23374151'/><text x='60' y='80' fill='%23f59e0b' font-family='sans-serif' font-weight='bold' font-size='20'>Vector Indexing Latency Spike Trace</text><rect x='60' y='110' width='680' height='260' rx='6' fill='%231f2937'/><text x='90' y='160' fill='%2310b981' font-family='monospace' font-size='15'>Latency: 285ms (Threshold: 50ms)</text><text x='90' y='200' fill='%23ef4444' font-family='monospace' font-size='15'>Worker Thread Deadlock in AST indexing loop</text></svg>";
+
+// Pre-seeded Bugs matching exact 12-field schema with screenshot images
 const INITIAL_BUGS = [
   {
     id: "BUG-001",
@@ -106,7 +111,7 @@ const INITIAL_BUGS = [
     severity: "Low",
     priority: "P4 - Low",
     status: "To Do",
-    evidence: "Screenshot 2026-07-27 at 5.46.21 PM.png",
+    evidence: DEMO_SCREENSHOT_1,
     notes: "Requires footer navigation link target updates.",
     assigneeEmail: "david@eprecisio.com",
     createdBy: "lead@eprecisio.com",
@@ -124,7 +129,7 @@ const INITIAL_BUGS = [
     severity: "Critical",
     priority: "P1 - Urgent",
     status: "In Progress",
-    evidence: "metrics_dump_2026-08-05.log",
+    evidence: DEMO_SCREENSHOT_1,
     notes: "Requires asyncpg max_overflow increase and Redis caching.",
     assigneeEmail: "david@eprecisio.com",
     createdBy: "lead@eprecisio.com",
@@ -142,7 +147,7 @@ const INITIAL_BUGS = [
     severity: "Major",
     priority: "P2 - High",
     status: "In Review",
-    evidence: "latency_trace_8812.png",
+    evidence: DEMO_SCREENSHOT_2,
     notes: "Investigating worker thread event loop queue.",
     assigneeEmail: "john@antigravity.com",
     createdBy: "lead@antigravity.com",
@@ -188,6 +193,9 @@ export default function App() {
   const [isAddBugModalOpen, setIsAddBugModalOpen] = useState(false);
   const [selectedBugDetail, setSelectedBugDetail] = useState(null);
 
+  // Fullscreen Lightbox Modal State for Enlarged Screenshot View
+  const [expandedImageSrc, setExpandedImageSrc] = useState(null);
+
   // Change Password Modal State
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -198,7 +206,7 @@ export default function App() {
   const [projectForm, setProjectForm] = useState({ key: "", name: "", description: "" });
   const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "", password: "" });
 
-  // 12-Field Comprehensive Bug Form
+  // 12-Field Bug Form with Interactive Screenshot Dropzone
   const [bugForm, setBugForm] = useState({
     projectKey: "",
     category: "Functional",
@@ -210,7 +218,7 @@ export default function App() {
     severity: "Minor",
     priority: "P3 - Medium",
     status: "To Do",
-    evidence: "",
+    evidence: "", // Image data URL or file URL
     notes: "",
     assigneeEmail: "",
   });
@@ -274,6 +282,35 @@ export default function App() {
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
       setPasswordMessage({ type: "", text: "" });
     }, 1500);
+  };
+
+  // Handle Screenshot File Upload / Paste Box
+  const handleImageFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        setBugForm({ ...bugForm, evidence: uploadEvent.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImagePaste = (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          const file = items[i].getAsFile();
+          const reader = new FileReader();
+          reader.onload = (pasteEvent) => {
+            setBugForm({ ...bugForm, evidence: pasteEvent.target.result });
+          };
+          reader.readAsDataURL(file);
+          break;
+        }
+      }
+    }
   };
 
   // Role Checks
@@ -454,7 +491,7 @@ export default function App() {
       severity: bugForm.severity,
       priority: bugForm.priority,
       status: bugForm.status || "To Do",
-      evidence: bugForm.evidence.trim() || "No evidence file attached",
+      evidence: bugForm.evidence || DEMO_SCREENSHOT_1,
       notes: bugForm.notes.trim() || "N/A",
       assigneeEmail: targetAssignee,
       createdBy: currentUser.email,
@@ -610,7 +647,7 @@ export default function App() {
           </nav>
         </div>
 
-        {/* IDENTITY & CHANGE PASSWORD */}
+        {/* ACCOUNT IDENTITY & CHANGE PASSWORD */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
@@ -880,7 +917,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 4: BUG LIFECYCLE (JIRA KANBAN BOARD & TABLE VIEW WITH TOGGLE) */}
+        {/* VIEW 4: BUG LIFECYCLE (KANBAN & TABLE VIEWS WITH EXPANDABLE SCREENSHOTS) */}
         {activeTab === "BUGS" && (isTechLead || isAssignee) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -906,7 +943,7 @@ export default function App() {
                   className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
                 />
 
-                {/* VIEW LAYOUT TOGGLE SWITCH (JIRA KANBAN BOARD VS TABLE VIEW) */}
+                {/* VIEW LAYOUT TOGGLE */}
                 <div className="flex bg-[#141a2a] border border-slate-800 p-0.5 rounded-lg text-xs font-bold">
                   <button
                     onClick={() => setBugLayoutView("KANBAN")}
@@ -990,11 +1027,26 @@ export default function App() {
                               {bug.title}
                             </p>
 
+                            {/* SCREENSHOT THUMBNAIL ON KANBAN CARD (CLICK TO ENLARGE) */}
+                            {bug.evidence && bug.evidence.startsWith("data:image") && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedImageSrc(bug.evidence);
+                                }}
+                                className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in"
+                              >
+                                <img src={bug.evidence} alt="Evidence Screenshot" className="w-full h-20 object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition">
+                                  Click to Enlarge Screenshot
+                                </div>
+                              </div>
+                            )}
+
                             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
                               <span className="font-mono text-indigo-300 truncate max-w-[120px]">
                                 {bug.assigneeEmail}
                               </span>
-                              {/* INLINE LIFECYCLE STATUS UPDATE DROPDOWN */}
                               <select
                                 value={bug.status}
                                 onChange={(e) => {
@@ -1042,7 +1094,7 @@ export default function App() {
                         <th className="p-3 whitespace-nowrap">Priority</th>
                         <th className="p-3 whitespace-nowrap">Status (Lifecycle)</th>
                         <th className="p-3 whitespace-nowrap">Assignee</th>
-                        <th className="p-3 whitespace-nowrap">Evidence</th>
+                        <th className="p-3 whitespace-nowrap">Screenshot Evidence</th>
                         <th className="p-3 text-right whitespace-nowrap">Actions</th>
                       </tr>
                     </thead>
@@ -1085,8 +1137,17 @@ export default function App() {
                             </select>
                           </td>
                           <td className="p-3 whitespace-nowrap font-mono text-indigo-300 text-[11px]">{bug.assigneeEmail}</td>
-                          <td className="p-3 whitespace-nowrap text-slate-400 font-mono text-[10px]">
-                            {bug.evidence || "None"}
+                          <td className="p-3 whitespace-nowrap">
+                            {bug.evidence && bug.evidence.startsWith("data:image") ? (
+                              <button
+                                onClick={() => setExpandedImageSrc(bug.evidence)}
+                                className="flex items-center gap-1.5 text-indigo-400 font-bold hover:underline text-[11px]"
+                              >
+                                <span>[View Screenshot]</span>
+                              </button>
+                            ) : (
+                              <span className="text-slate-500 text-[10px]">No image</span>
+                            )}
                           </td>
                           <td className="p-3 text-right whitespace-nowrap">
                             <button
@@ -1115,7 +1176,28 @@ export default function App() {
         )}
       </main>
 
-      {/* MODALS */}
+      {/* ========================================================================= */}
+      {/* FULLSCREEN LIGHTBOX MODAL (CLICK TO ENLARGE SCREENSHOT IMAGE) */}
+      {/* ========================================================================= */}
+      {expandedImageSrc && (
+        <div
+          onClick={() => setExpandedImageSrc(null)}
+          className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 cursor-zoom-out"
+        >
+          <div className="max-w-5xl w-full max-h-[90vh] flex flex-col items-center space-y-3">
+            <div className="flex justify-between w-full text-white text-xs font-bold px-2">
+              <span>Enlarged Screenshot Evidence View</span>
+              <span>Click anywhere to close</span>
+            </div>
+            <img
+              src={expandedImageSrc}
+              alt="Enlarged Screenshot"
+              className="max-w-full max-h-[80vh] object-contain rounded-xl border border-slate-700 shadow-2xl bg-slate-900"
+            />
+          </div>
+        </div>
+      )}
+
       {/* CHANGE PASSWORD MODAL */}
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
@@ -1403,7 +1485,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: CREATE BUG */}
+      {/* MODAL 4: CREATE BUG (WITH INTERACTIVE SCREENSHOT DROPZONE) */}
       {isAddBugModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1552,32 +1634,66 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Screenshot / Evidence</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Screenshot 2026-07-27 at 5.46.21 PM.png"
-                    value={bugForm.evidence}
-                    onChange={(e) => setBugForm({ ...bugForm, evidence: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
-                  />
+              {/* LARGE INTERACTIVE SCREENSHOT UPLOAD & PASTE BOX */}
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">
+                  Screenshot Evidence (Large Drag/Drop or Paste Image Box)
+                </label>
+                <div
+                  onPaste={handleImagePaste}
+                  className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 bg-slate-900/60 text-center space-y-2 transition relative"
+                >
+                  {bugForm.evidence ? (
+                    <div className="space-y-2">
+                      <img
+                        src={bugForm.evidence}
+                        alt="Screenshot Preview"
+                        onClick={() => setExpandedImageSrc(bugForm.evidence)}
+                        className="max-h-48 mx-auto rounded-lg border border-slate-700 object-contain cursor-zoom-in"
+                      />
+                      <div className="flex justify-center gap-3 text-xs">
+                        <span className="text-emerald-400 font-bold">Screenshot Attached</span>
+                        <button
+                          type="button"
+                          onClick={() => setBugForm({ ...bugForm, evidence: "" })}
+                          className="text-red-400 font-bold hover:underline"
+                        >
+                          Remove Image
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer block space-y-1">
+                      <div className="text-xs font-bold text-white">
+                        Click to Choose Image File or Paste (Ctrl+V / Cmd+V)
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        Supports PNG, JPG, WebP screenshot evidence files
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
                 </div>
+              </div>
 
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Assignee Email</label>
-                  <select
-                    value={bugForm.assigneeEmail}
-                    onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
-                  >
-                    {scopedAssignees.map((u) => (
-                      <option key={u.id} value={u.email}>
-                        {u.name} ({u.email})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Assignee Email</label>
+                <select
+                  value={bugForm.assigneeEmail}
+                  onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
+                >
+                  {scopedAssignees.map((u) => (
+                    <option key={u.id} value={u.email}>
+                      {u.name} ({u.email})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -1604,7 +1720,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 5: BUG DETAIL (FULL 12-FIELDS DISPLAY & STATUS UPDATE) */}
+      {/* MODAL 5: BUG DETAIL (WITH SCREENSHOT CLICK TO ENLARGE) */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1685,19 +1801,35 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-[11px]">
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
-                    Screenshot / Evidence
-                  </span>
-                  <span className="font-mono text-indigo-300">{selectedBugDetail.evidence}</span>
-                </div>
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
-                    Assigned Email
-                  </span>
-                  <span className="font-mono text-indigo-300">{selectedBugDetail.assigneeEmail}</span>
-                </div>
+              {/* LARGE SCREENSHOT EVIDENCE BOX WITH CLICK TO ENLARGE */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                  Screenshot Evidence (Click Image to Enlarge Fullscreen)
+                </span>
+                {selectedBugDetail.evidence && selectedBugDetail.evidence.startsWith("data:image") ? (
+                  <div
+                    onClick={() => setExpandedImageSrc(selectedBugDetail.evidence)}
+                    className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in max-h-56 bg-slate-950 flex items-center justify-center p-2"
+                  >
+                    <img
+                      src={selectedBugDetail.evidence}
+                      alt="Bug Evidence Screenshot"
+                      className="max-h-48 object-contain rounded"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-white transition">
+                      Click to View Fullscreen Image
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-xs font-mono">{selectedBugDetail.evidence || "No screenshot attached."}</p>
+                )}
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                  Assigned Email
+                </span>
+                <span className="font-mono text-indigo-300">{selectedBugDetail.assigneeEmail}</span>
               </div>
 
               {selectedBugDetail.notes && (
