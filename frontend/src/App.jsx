@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-// Pre-seeded Companies
+// Pre-seeded Software Companies
 const INITIAL_COMPANIES = [
   {
     id: "comp-eprecisio",
@@ -18,7 +18,7 @@ const INITIAL_COMPANIES = [
   },
 ];
 
-// Pre-seeded Authorized Users (Email + Password Authentication)
+// Pre-seeded Authorized Accounts (Email & Password)
 const INITIAL_USERS = [
   // Super Admin (YOU)
   {
@@ -29,11 +29,11 @@ const INITIAL_USERS = [
     password: "password123",
     role: "SUPER_ADMIN",
   },
-  // Eprecisio Company Users
+  // Eprecisio Tech Lead & Assignees
   {
     id: "usr-ep-tl",
     companyId: "comp-eprecisio",
-    name: "Alex Vance (Tech Lead)",
+    name: "Alex Vance",
     email: "lead@eprecisio.com",
     password: "password123",
     role: "TECH_LEAD",
@@ -54,11 +54,11 @@ const INITIAL_USERS = [
     password: "password123",
     role: "ASSIGNEE",
   },
-  // Antigravity Company Users
+  // Antigravity Tech Lead & Assignees
   {
     id: "usr-ag-tl",
     companyId: "comp-antigravity",
-    name: "Sarah Connor (Tech Lead)",
+    name: "Sarah Connor",
     email: "lead@antigravity.com",
     password: "password123",
     role: "TECH_LEAD",
@@ -79,15 +79,15 @@ const INITIAL_PROJECTS = [
     id: "prj-ep1",
     companyId: "comp-eprecisio",
     key: "EPREC",
-    name: "Enterprise Core Engine",
-    description: "Backend REST API and async database pool engine",
+    name: "Enterprise Core Backend",
+    description: "High performance microservices engine",
   },
   {
     id: "prj-ag1",
     companyId: "comp-antigravity",
     key: "ANTI",
-    name: "AI Trajectory Engine",
-    description: "Agentic AI memory and LLM trajectory manager",
+    name: "AI Agentic Framework",
+    description: "Autonomous LLM trajectory engine",
   },
 ];
 
@@ -97,8 +97,8 @@ const INITIAL_BUGS = [
     id: "EPREC-101",
     companyId: "comp-eprecisio",
     projectKey: "EPREC",
-    title: "Database connection pool exhaustion under load",
-    description: "Asyncpg connection slots run out under 10k RPS peak load.",
+    title: "Database connection pool timeout under load",
+    description: "Asyncpg connection slots exhaust during peak checkout load.",
     status: "OPEN",
     priority: "CRITICAL",
     assigneeEmail: "david@eprecisio.com",
@@ -126,14 +126,14 @@ export default function App() {
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [bugs, setBugs] = useState(INITIAL_BUGS);
 
-  // Authentication State
+  // Authentication State (INITIAL STATE NULL: ALWAYS SHOW LOGIN SCREEN FIRST)
+  const [currentUser, setCurrentUser] = useState(null);
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [currentUser, setCurrentUser] = useState(null); // Null when logged out
 
-  // Active View & Filters
-  const [activeTab, setActiveTab] = useState("BUGS"); // 'COMPANIES', 'PROJECTS', 'ASSIGNEES', 'BUGS'
+  // Navigation & Search
+  const [activeTab, setActiveTab] = useState("BUGS");
   const [selectedProjectKey, setSelectedProjectKey] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -156,7 +156,7 @@ export default function App() {
   const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "", password: "" });
   const [bugForm, setBugForm] = useState({ title: "", description: "", projectKey: "", priority: "MEDIUM", assigneeEmail: "" });
 
-  // Handle Login Authentication
+  // Handle Login Submission
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setLoginError("");
@@ -167,7 +167,7 @@ export default function App() {
     );
 
     if (!foundUser) {
-      setLoginError("Invalid email address or password.");
+      setLoginError("Invalid email address or password. Please try again.");
       return;
     }
 
@@ -175,7 +175,7 @@ export default function App() {
     setAuthEmail("");
     setAuthPassword("");
 
-    // Set Default Tab per Role
+    // Automatically route to specific role page upon successful login
     if (foundUser.role === "SUPER_ADMIN") setActiveTab("COMPANIES");
     else if (foundUser.role === "TECH_LEAD") setActiveTab("PROJECTS");
     else setActiveTab("BUGS");
@@ -187,18 +187,12 @@ export default function App() {
     setLoginError("");
   };
 
-  // Quick Preset Fill for Testing Convenience
-  const fillPresetLogin = (email) => {
-    setAuthEmail(email);
-    setAuthPassword("password123");
-  };
-
   // Role Checks
   const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
   const isTechLead = currentUser?.role === "TECH_LEAD";
   const isAssignee = currentUser?.role === "ASSIGNEE";
 
-  // Data Scoping by Logged In User's Company ONLY (Strict Tenant Isolation)
+  // Strict Tenant Data Isolation Scoping
   const userCompany = companies.find((c) => c.id === currentUser?.companyId);
 
   const scopedProjects = isSuperAdmin
@@ -223,7 +217,7 @@ export default function App() {
     return matchesProj && matchesSearch;
   });
 
-  // Actions: Super Admin Software Companies
+  // Actions: Super Admin Companies (Add, Edit, Delete)
   const handleSaveCompany = (e) => {
     e.preventDefault();
     if (!isSuperAdmin) return;
@@ -272,14 +266,14 @@ export default function App() {
 
   const handleDeleteCompany = (compId) => {
     if (!isSuperAdmin) return;
-    if (!window.confirm("Delete company and all company data?")) return;
+    if (!window.confirm("Delete software company and all tenant data?")) return;
     setCompanies(companies.filter((c) => c.id !== compId));
     setUsers(users.filter((u) => u.companyId !== compId));
     setProjects(projects.filter((p) => p.companyId !== compId));
     setBugs(bugs.filter((b) => b.companyId !== compId));
   };
 
-  // Actions: Tech Lead Projects
+  // Actions: Tech Lead Projects (Add, Edit, Delete)
   const handleSaveProject = (e) => {
     e.preventDefault();
     if (!isTechLead && !isSuperAdmin) return;
@@ -311,7 +305,7 @@ export default function App() {
 
   const handleDeleteProject = (projId) => {
     if (!isTechLead && !isSuperAdmin) return;
-    if (!window.confirm("Delete project and its bugs?")) return;
+    if (!window.confirm("Delete project and associated bugs?")) return;
     const proj = projects.find((p) => p.id === projId);
     setProjects(projects.filter((p) => p.id !== projId));
     if (proj) {
@@ -319,7 +313,7 @@ export default function App() {
     }
   };
 
-  // Actions: Tech Lead Assignee Team
+  // Actions: Tech Lead Assignee Team (Add, Edit, Delete)
   const handleSaveAssignee = (e) => {
     e.preventDefault();
     if (!isTechLead && !isSuperAdmin) return;
@@ -380,7 +374,7 @@ export default function App() {
     setIsAddBugModalOpen(false);
   };
 
-  // Action: Update Bug Lifecycle Status Only (Assignees & Tech Leads)
+  // Action: Assignee Update Bug Lifecycle Status ONLY
   const handleUpdateBugStatus = (bugId, newStatus) => {
     setBugs(bugs.map((b) => (b.id === bugId ? { ...b, status: newStatus } : b)));
     if (selectedBugDetail && selectedBugDetail.id === bugId) {
@@ -389,106 +383,69 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: STRICT EMAIL & PASSWORD LOGIN PORTAL (NO DROPDOWN)
+  // SCREEN 1: CLEAN EMAIL & PASSWORD LOGIN SCREEN (DEFAULT WHEN OPENING APP)
   // =========================================================================
   if (!currentUser) {
     return (
       <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-6 shadow-2xl">
-          <div className="text-center space-y-1">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto mb-2">
+        <div className="w-full max-w-md bg-[#0f1422] border border-slate-800 rounded-2xl p-7 space-y-6 shadow-2xl">
+          <div className="text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto">
               BF
             </div>
             <h1 className="text-xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
-            <p className="text-xs text-slate-400">Enter authorized company email & password</p>
+            <p className="text-xs text-slate-400">Enter authorized email address and password</p>
           </div>
 
           {loginError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-semibold">
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-semibold text-center">
               {loginError}
             </div>
           )}
 
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block font-semibold text-slate-300 mb-1">Email Address</label>
+              <label className="block font-semibold text-slate-300 mb-1.5">Email Address</label>
               <input
                 type="email"
                 required
                 placeholder="your.email@company.com"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-300 mb-1">Password</label>
+              <label className="block font-semibold text-slate-300 mb-1.5">Password</label>
               <input
                 type="password"
                 required
-                placeholder="********"
+                placeholder="Enter password..."
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-indigo-500"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30"
             >
-              Sign In to Company Workspace
+              Log In to Workspace
             </button>
           </form>
-
-          {/* Quick Demo Presets */}
-          <div className="pt-4 border-t border-slate-800 space-y-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Quick Test Accounts (Password: password123)
-            </span>
-            <div className="space-y-1 text-[11px]">
-              <button
-                onClick={() => fillPresetLogin("ahad8641@gmail.com")}
-                className="w-full text-left p-1.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 flex justify-between"
-              >
-                <span>Super Admin (You)</span>
-                <span className="font-mono">ahad8641@gmail.com</span>
-              </button>
-              <button
-                onClick={() => fillPresetLogin("lead@eprecisio.com")}
-                className="w-full text-left p-1.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 flex justify-between"
-              >
-                <span>Eprecisio Tech Lead</span>
-                <span className="font-mono">lead@eprecisio.com</span>
-              </button>
-              <button
-                onClick={() => fillPresetLogin("david@eprecisio.com")}
-                className="w-full text-left p-1.5 rounded bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex justify-between"
-              >
-                <span>Eprecisio Assignee</span>
-                <span className="font-mono">david@eprecisio.com</span>
-              </button>
-              <button
-                onClick={() => fillPresetLogin("lead@antigravity.com")}
-                className="w-full text-left p-1.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 flex justify-between"
-              >
-                <span>Antigravity Tech Lead</span>
-                <span className="font-mono">lead@antigravity.com</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     );
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE (ISOLATED PER USER EMAIL & COMPANY)
+  // SCREEN 2: AUTHENTICATED WORKSPACE (LOCKED TO LOGGED-IN EMAIL ROLE)
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden">
-      {/* HEADER: NO ROLE DROPDOWN, ONLY LOGGED IN EMAIL & LOGOUT */}
+      {/* HEADER: NO ROLE DROPDOWN, SHOWS LOGGED IN EMAIL & LOGOUT */}
       <header className="h-14 bg-[#0f1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -543,10 +500,10 @@ export default function App() {
           </nav>
         </div>
 
-        {/* LOGGED IN ACCOUNT IDENTITY (STRICTLY LOGGED IN) */}
+        {/* LOGGED IN USER EMAIL IDENTITY */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
-            <span className="text-slate-400">Logged in:</span>
+            <span className="text-slate-400">Logged in as:</span>
             <span className="font-bold text-white">{currentUser.name}</span>
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
           </div>
@@ -585,7 +542,7 @@ export default function App() {
       {/* MAIN WORKSPACE CONTENT */}
       <main className="flex-1 bg-[#090c15] overflow-y-auto p-6">
         {/* ========================================================================= */}
-        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES (ADD, EDIT, DELETE) */}
+        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES */}
         {/* ========================================================================= */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
@@ -662,7 +619,7 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 2: TECH LEAD - PROJECTS (ADD, EDIT, DELETE) */}
+        {/* VIEW 2: TECH LEAD - PROJECTS */}
         {/* ========================================================================= */}
         {activeTab === "PROJECTS" && (isSuperAdmin || isTechLead) && (
           <div className="space-y-5">
@@ -739,7 +696,7 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 3: TECH LEAD - ASSIGNEE EMAILS (ADD, EDIT, DELETE) */}
+        {/* VIEW 3: TECH LEAD - TEAM ASSIGNEE EMAILS */}
         {/* ========================================================================= */}
         {activeTab === "ASSIGNEES" && (isSuperAdmin || isTechLead) && (
           <div className="space-y-5">
@@ -814,7 +771,7 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 4: BUG LIFECYCLE (ASSIGNEES UPDATE LIFECYCLE STATUS ONLY) */}
+        {/* VIEW 4: BUG LIFECYCLE */}
         {/* ========================================================================= */}
         {activeTab === "BUGS" && (
           <div className="space-y-4">
@@ -898,7 +855,6 @@ export default function App() {
 
                           <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
                             <span className="font-mono">Assignee: {bug.assigneeEmail}</span>
-                            {/* ASSIGNEES CAN CHANGE BUG STATUS HERE */}
                             <select
                               value={bug.status}
                               onChange={(e) => {
@@ -931,9 +887,8 @@ export default function App() {
         )}
       </main>
 
-      {/* ========================================================================= */}
-      {/* MODAL 1: SUPER ADMIN ADD/EDIT COMPANY */}
-      {/* ========================================================================= */}
+      {/* MODALS */}
+      {/* MODAL 1: ADD COMPANY (SUPER ADMIN) */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -972,7 +927,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Authorized Tech Lead Email (Login Email)</label>
+                <label className="block font-semibold text-slate-300 mb-1">Authorized Tech Lead Login Email</label>
                 <input
                   type="email"
                   required
@@ -1010,9 +965,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL 2: TECH LEAD ADD/EDIT PROJECT */}
-      {/* ========================================================================= */}
+      {/* MODAL 2: ADD PROJECT (TECH LEAD) */}
       {isAddProjectModalOpen && (isTechLead || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1077,9 +1030,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL 3: TECH LEAD ADD/EDIT ASSIGNEE EMAIL */}
-      {/* ========================================================================= */}
+      {/* MODAL 3: ADD ASSIGNEE EMAIL (TECH LEAD) */}
       {isAddAssigneeModalOpen && (isTechLead || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1144,9 +1095,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL 4: TECH LEAD CREATE BUG */}
-      {/* ========================================================================= */}
+      {/* MODAL 4: CREATE BUG (TECH LEAD) */}
       {isAddBugModalOpen && (isTechLead || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
@@ -1240,9 +1189,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL 5: BUG LIFECYCLE DETAIL MODAL (STATUS UPDATE BY ASSIGNEE) */}
-      {/* ========================================================================= */}
+      {/* MODAL 5: BUG DETAIL (STATUS UPDATE BY ASSIGNEES) */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
