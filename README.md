@@ -147,4 +147,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-<p center>Crafted with ❤️ by <b>Abdul Ahad</b> — Senior DevOps & Full Stack Software Engineer</p>
+<p center>Crafted with  by <b>Abdul Ahad</b> —  DevOps & Full Stack Software Engineer</p>
