@@ -91,7 +91,7 @@ const INITIAL_PROJECTS = [
   },
 ];
 
-// Pre-seeded Comprehensive Bugs matching user exact 12-field schema
+// Pre-seeded Bugs matching exact 12-field schema
 const INITIAL_BUGS = [
   {
     id: "BUG-001",
@@ -99,15 +99,15 @@ const INITIAL_BUGS = [
     projectKey: "EPREC",
     category: "Functional",
     title: "Broken navigation links on corporate portal footer",
-    stepsToReproduce: "1. Open homepage\n2. Scroll to footer\n3. Click the About page links and the footer social media icons.",
+    stepsToReproduce: "1. Open homepage\n2. Scroll to footer\n3. Click the About page links and footer social icons.",
     expectedResult: "Each link should open the correct page or social media profile.",
-    actualResult: "Several links (About page links, footer social icons) do not navigate anywhere.",
+    actualResult: "Several links do not navigate anywhere.",
     impact: "Users cannot reach intended pages; reduces site credibility and trust.",
     severity: "Low",
     priority: "P4 - Low",
-    status: "Closed",
+    status: "To Do",
     evidence: "Screenshot 2026-07-27 at 5.46.21 PM.png",
-    notes: "Fixed via footer menu component link target update.",
+    notes: "Requires footer navigation link target updates.",
     assigneeEmail: "david@eprecisio.com",
     createdBy: "lead@eprecisio.com",
   },
@@ -117,15 +117,15 @@ const INITIAL_BUGS = [
     projectKey: "EPREC",
     category: "Performance",
     title: "Database connection pool exhaustion under 10k RPS load",
-    stepsToReproduce: "1. Trigger JMeter load test with 10,000 concurrent threads\n2. Observe backend health check metrics endpoint.",
-    expectedResult: "Connection pool recycles slots efficiently with sub-50ms latency.",
-    actualResult: "Asyncpg pool exhausts all available slots causing 504 Gateway Timeouts.",
+    stepsToReproduce: "1. Trigger JMeter load test with 10,000 threads\n2. Observe backend health check endpoint.",
+    expectedResult: "Connection pool recycles slots with sub-50ms latency.",
+    actualResult: "Asyncpg pool exhausts slots causing 504 Gateway Timeouts.",
     impact: "Checkout API service crashes during peak traffic sales events.",
     severity: "Critical",
     priority: "P1 - Urgent",
-    status: "Open",
+    status: "In Progress",
     evidence: "metrics_dump_2026-08-05.log",
-    notes: "Requires asyncpg max_overflow increase and Redis query caching.",
+    notes: "Requires asyncpg max_overflow increase and Redis caching.",
     assigneeEmail: "david@eprecisio.com",
     createdBy: "lead@eprecisio.com",
   },
@@ -135,13 +135,13 @@ const INITIAL_BUGS = [
     projectKey: "ANTI",
     category: "Backend/API",
     title: "Vector database indexing latency delay",
-    stepsToReproduce: "1. Send trajectory batch payload to agent engine\n2. Query vector index within 100ms.",
+    stepsToReproduce: "1. Send trajectory batch payload\n2. Query vector index within 100ms.",
     expectedResult: "Vector index updates synchronously.",
     actualResult: "Redis vector store indexing delays response by 250ms.",
     impact: "Agent trajectory memory lookup times out.",
     severity: "Major",
     priority: "P2 - High",
-    status: "In Progress",
+    status: "In Review",
     evidence: "latency_trace_8812.png",
     notes: "Investigating worker thread event loop queue.",
     assigneeEmail: "john@antigravity.com",
@@ -152,7 +152,7 @@ const INITIAL_BUGS = [
 const BUG_CATEGORIES = ["Functional", "UI/UX", "Security", "Performance", "Backend/API", "Integration", "Database"];
 const SEVERITY_LEVELS = ["Blocker", "Critical", "Major", "Minor", "Low"];
 const PRIORITY_LEVELS = ["P1 - Urgent", "P2 - High", "P3 - Medium", "P4 - Low"];
-const BUG_STATUSES = ["Open", "In Progress", "In Review", "Resolved", "Closed"];
+const BUG_STATUSES = ["To Do", "In Progress", "In Review", "Resolved", "Closed"];
 
 export default function App() {
   // Master State
@@ -167,8 +167,11 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
+  // View Layout State: 'KANBAN' vs 'TABLE'
+  const [bugLayoutView, setBugLayoutView] = useState("KANBAN");
+
   // Navigation & Search
-  const [activeTab, setActiveTab] = useState("COMPANIES"); // 'COMPANIES', 'PROJECTS', 'ASSIGNEES', 'BUGS'
+  const [activeTab, setActiveTab] = useState("COMPANIES");
   const [selectedProjectKey, setSelectedProjectKey] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -206,7 +209,7 @@ export default function App() {
     impact: "",
     severity: "Minor",
     priority: "P3 - Medium",
-    status: "Open",
+    status: "To Do",
     evidence: "",
     notes: "",
     assigneeEmail: "",
@@ -242,7 +245,7 @@ export default function App() {
     setLoginError("");
   };
 
-  // Change Password Action for Tech Lead & Users
+  // Change Password Action
   const handleChangePasswordSubmit = (e) => {
     e.preventDefault();
     setPasswordMessage({ type: "", text: "" });
@@ -260,7 +263,6 @@ export default function App() {
       return;
     }
 
-    // Update password in users state
     setUsers(
       users.map((u) => (u.id === currentUser.id ? { ...u, password: passwordForm.newPassword } : u))
     );
@@ -279,7 +281,7 @@ export default function App() {
   const isTechLead = currentUser?.role === "TECH_LEAD";
   const isAssignee = currentUser?.role === "ASSIGNEE";
 
-  // Data Isolation: Strict Scoping per Company
+  // Data Isolation Scoping
   const userCompany = companies.find((c) => c.id === currentUser?.companyId);
 
   const scopedProjects = projects.filter((p) => p.companyId === currentUser?.companyId);
@@ -298,7 +300,7 @@ export default function App() {
     return matchesProj && matchesSearch;
   });
 
-  // Super Admin Company Actions
+  // Actions: Super Admin Companies
   const handleSaveCompany = (e) => {
     e.preventDefault();
     if (!isSuperAdmin) return;
@@ -354,7 +356,7 @@ export default function App() {
     setBugs(bugs.filter((b) => b.companyId !== compId));
   };
 
-  // Tech Lead Projects Actions
+  // Actions: Tech Lead Projects
   const handleSaveProject = (e) => {
     e.preventDefault();
     if (!isTechLead) return;
@@ -394,7 +396,7 @@ export default function App() {
     }
   };
 
-  // Tech Lead Assignee Team Actions
+  // Actions: Tech Lead Assignee Team
   const handleSaveAssignee = (e) => {
     e.preventDefault();
     if (!isTechLead) return;
@@ -430,7 +432,7 @@ export default function App() {
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  // Tech Lead Create 12-Field Bug Action
+  // Actions: Tech Lead Create 12-Field Bug
   const handleSaveBug = (e) => {
     e.preventDefault();
     if (!isTechLead) return;
@@ -451,7 +453,7 @@ export default function App() {
       impact: bugForm.impact.trim(),
       severity: bugForm.severity,
       priority: bugForm.priority,
-      status: bugForm.status || "Open",
+      status: bugForm.status || "To Do",
       evidence: bugForm.evidence.trim() || "No evidence file attached",
       notes: bugForm.notes.trim() || "N/A",
       assigneeEmail: targetAssignee,
@@ -469,7 +471,7 @@ export default function App() {
       impact: "",
       severity: "Minor",
       priority: "P3 - Medium",
-      status: "Open",
+      status: "To Do",
       evidence: "",
       notes: "",
       assigneeEmail: "",
@@ -477,7 +479,7 @@ export default function App() {
     setIsAddBugModalOpen(false);
   };
 
-  // Assignee Update Bug Lifecycle Status ONLY
+  // Assignee Update Bug Status
   const handleUpdateBugStatus = (bugId, newStatus) => {
     setBugs(bugs.map((b) => (b.id === bugId ? { ...b, status: newStatus } : b)));
     if (selectedBugDetail && selectedBugDetail.id === bugId) {
@@ -486,7 +488,7 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: STRICT LOGIN SCREEN
+  // SCREEN 1: LOGIN SCREEN
   // =========================================================================
   if (!currentUser) {
     return (
@@ -548,7 +550,7 @@ export default function App() {
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden">
-      {/* HEADER: USER IDENTITY, CHANGE PASSWORD, LOGOUT */}
+      {/* HEADER */}
       <header className="h-14 bg-[#0f1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -608,7 +610,7 @@ export default function App() {
           </nav>
         </div>
 
-        {/* ACCOUNT IDENTITY & CHANGE PASSWORD BUTTON */}
+        {/* IDENTITY & CHANGE PASSWORD */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
@@ -660,7 +662,7 @@ export default function App() {
 
       {/* MAIN WORKSPACE CONTENT */}
       <main className="flex-1 bg-[#090c15] overflow-y-auto p-6">
-        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES */}
+        {/* VIEW 1: SUPER ADMIN COMPANIES */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
@@ -730,7 +732,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 2: TECH LEAD - PROJECTS */}
+        {/* VIEW 2: TECH LEAD PROJECTS */}
         {activeTab === "PROJECTS" && isTechLead && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
@@ -805,7 +807,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 3: TECH LEAD - TEAM ASSIGNEE EMAILS */}
+        {/* VIEW 3: TECH LEAD ASSIGNEE EMAILS */}
         {activeTab === "ASSIGNEES" && isTechLead && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
@@ -878,7 +880,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 4: COMPREHENSIVE BUG LIFECYCLE TABLE & CARDS */}
+        {/* VIEW 4: BUG LIFECYCLE (JIRA KANBAN BOARD & TABLE VIEW WITH TOGGLE) */}
         {activeTab === "BUGS" && (isTechLead || isAssignee) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -901,8 +903,32 @@ export default function App() {
                   placeholder="Search by ID, Title, Category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-72"
+                  className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
                 />
+
+                {/* VIEW LAYOUT TOGGLE SWITCH (JIRA KANBAN BOARD VS TABLE VIEW) */}
+                <div className="flex bg-[#141a2a] border border-slate-800 p-0.5 rounded-lg text-xs font-bold">
+                  <button
+                    onClick={() => setBugLayoutView("KANBAN")}
+                    className={`px-3 py-1 rounded-md transition ${
+                      bugLayoutView === "KANBAN"
+                        ? "bg-indigo-600 text-white"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    Jira Kanban Board
+                  </button>
+                  <button
+                    onClick={() => setBugLayoutView("TABLE")}
+                    className={`px-3 py-1 rounded-md transition ${
+                      bugLayoutView === "TABLE"
+                        ? "bg-indigo-600 text-white"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    Data Table Register
+                  </button>
+                </div>
               </div>
 
               {isTechLead && (
@@ -915,100 +941,182 @@ export default function App() {
               )}
             </div>
 
-            {/* Bugs Data Table View */}
-            <div className="bg-[#0f1422] border border-slate-800 rounded-xl overflow-hidden text-xs">
-              <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]">
-                <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
-                <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
+            {/* JIRA STYLE KANBAN COLUMNS BOARD */}
+            {bugLayoutView === "KANBAN" ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {BUG_STATUSES.map((statusKey) => {
+                  const colBugs = filteredBugs.filter((b) => b.status === statusKey);
+                  return (
+                    <div
+                      key={statusKey}
+                      className="bg-[#0f1422] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[520px]"
+                    >
+                      <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                        <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
+                          {statusKey}
+                        </span>
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                          {colBugs.length}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 space-y-2.5">
+                        {colBugs.map((bug) => (
+                          <div
+                            key={bug.id}
+                            onClick={() => setSelectedBugDetail(bug)}
+                            className="bg-[#141a2a] border border-slate-800 hover:border-indigo-500/60 rounded-xl p-3 cursor-pointer transition space-y-2.5 shadow-lg"
+                          >
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
+                              <span
+                                className={`font-bold px-1.5 py-0.5 rounded ${
+                                  bug.priority.includes("P1") || bug.priority.includes("Urgent")
+                                    ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                    : bug.priority.includes("P2") || bug.priority.includes("High")
+                                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                    : "bg-slate-800 text-slate-300 border border-slate-700"
+                                }`}
+                              >
+                                {bug.priority}
+                              </span>
+                            </div>
+
+                            <div className="text-[10px] font-bold text-slate-400 uppercase">
+                              [{bug.category}]
+                            </div>
+
+                            <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
+                              {bug.title}
+                            </p>
+
+                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                              <span className="font-mono text-indigo-300 truncate max-w-[120px]">
+                                {bug.assigneeEmail}
+                              </span>
+                              {/* INLINE LIFECYCLE STATUS UPDATE DROPDOWN */}
+                              <select
+                                value={bug.status}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  handleUpdateBugStatus(bug.id, e.target.value);
+                                }}
+                                className="bg-slate-900 border border-slate-700 text-white rounded px-1.5 py-0.5 text-[10px] font-bold focus:outline-none"
+                              >
+                                {BUG_STATUSES.map((s) => (
+                                  <option key={s} value={s}>
+                                    {s}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        ))}
+
+                        {colBugs.length === 0 && (
+                          <div className="h-28 border border-dashed border-slate-800 rounded-xl flex items-center justify-center text-[11px] text-slate-600 font-medium">
+                            No bugs in {statusKey}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            ) : (
+              /* COMMERCIAL TABLE REGISTER VIEW */
+              <div className="bg-[#0f1422] border border-slate-800 rounded-xl overflow-hidden text-xs">
+                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]">
+                  <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
+                  <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
+                </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-slate-300 border-collapse">
-                  <thead className="bg-[#182032] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
-                    <tr>
-                      <th className="p-3 whitespace-nowrap">Bug ID</th>
-                      <th className="p-3 whitespace-nowrap">Category</th>
-                      <th className="p-3 whitespace-nowrap">Title / Summary</th>
-                      <th className="p-3 whitespace-nowrap">Severity</th>
-                      <th className="p-3 whitespace-nowrap">Priority</th>
-                      <th className="p-3 whitespace-nowrap">Status (Lifecycle)</th>
-                      <th className="p-3 whitespace-nowrap">Assignee</th>
-                      <th className="p-3 whitespace-nowrap">Evidence</th>
-                      <th className="p-3 text-right whitespace-nowrap">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {filteredBugs.map((bug) => (
-                      <tr key={bug.id} className="hover:bg-slate-800/40 transition">
-                        <td className="p-3 font-mono font-bold text-indigo-400 whitespace-nowrap">{bug.id}</td>
-                        <td className="p-3 whitespace-nowrap font-medium text-slate-300">{bug.category}</td>
-                        <td className="p-3 max-w-xs font-semibold text-white">
-                          <button
-                            onClick={() => setSelectedBugDetail(bug)}
-                            className="hover:text-indigo-300 text-left line-clamp-1"
-                          >
-                            {bug.title}
-                          </button>
-                        </td>
-                        <td className="p-3 whitespace-nowrap">
-                          <span
-                            className={`font-bold px-2 py-0.5 rounded text-[10px] ${
-                              bug.severity === "Blocker" || bug.severity === "Critical"
-                                ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                                : "bg-slate-800 text-slate-300 border border-slate-700"
-                            }`}
-                          >
-                            {bug.severity}
-                          </span>
-                        </td>
-                        <td className="p-3 whitespace-nowrap font-bold text-slate-300 text-[11px]">{bug.priority}</td>
-                        <td className="p-3 whitespace-nowrap">
-                          {/* STATUS UPDATE DROPDOWN */}
-                          <select
-                            value={bug.status}
-                            onChange={(e) => handleUpdateBugStatus(bug.id, e.target.value)}
-                            className="bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 text-[11px] font-bold focus:outline-none"
-                          >
-                            {BUG_STATUSES.map((st) => (
-                              <option key={st} value={st}>
-                                {st}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="p-3 whitespace-nowrap font-mono text-indigo-300 text-[11px]">{bug.assigneeEmail}</td>
-                        <td className="p-3 whitespace-nowrap text-slate-400 font-mono text-[10px]">
-                          {bug.evidence || "None"}
-                        </td>
-                        <td className="p-3 text-right whitespace-nowrap">
-                          <button
-                            onClick={() => setSelectedBugDetail(bug)}
-                            className="text-indigo-400 font-bold hover:underline"
-                          >
-                            View Full 12 Fields
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-
-                    {filteredBugs.length === 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-slate-300 border-collapse">
+                    <thead className="bg-[#182032] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                       <tr>
-                        <td colSpan={9} className="p-8 text-center text-slate-500 text-xs">
-                          No bugs found.
-                        </td>
+                        <th className="p-3 whitespace-nowrap">Bug ID</th>
+                        <th className="p-3 whitespace-nowrap">Category</th>
+                        <th className="p-3 whitespace-nowrap">Title / Summary</th>
+                        <th className="p-3 whitespace-nowrap">Severity</th>
+                        <th className="p-3 whitespace-nowrap">Priority</th>
+                        <th className="p-3 whitespace-nowrap">Status (Lifecycle)</th>
+                        <th className="p-3 whitespace-nowrap">Assignee</th>
+                        <th className="p-3 whitespace-nowrap">Evidence</th>
+                        <th className="p-3 text-right whitespace-nowrap">Actions</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {filteredBugs.map((bug) => (
+                        <tr key={bug.id} className="hover:bg-slate-800/40 transition">
+                          <td className="p-3 font-mono font-bold text-indigo-400 whitespace-nowrap">{bug.id}</td>
+                          <td className="p-3 whitespace-nowrap font-medium text-slate-300">{bug.category}</td>
+                          <td className="p-3 max-w-xs font-semibold text-white">
+                            <button
+                              onClick={() => setSelectedBugDetail(bug)}
+                              className="hover:text-indigo-300 text-left line-clamp-1"
+                            >
+                              {bug.title}
+                            </button>
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            <span
+                              className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                                bug.severity === "Blocker" || bug.severity === "Critical"
+                                  ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                  : "bg-slate-800 text-slate-300 border border-slate-700"
+                              }`}
+                            >
+                              {bug.severity}
+                            </span>
+                          </td>
+                          <td className="p-3 whitespace-nowrap font-bold text-slate-300 text-[11px]">{bug.priority}</td>
+                          <td className="p-3 whitespace-nowrap">
+                            <select
+                              value={bug.status}
+                              onChange={(e) => handleUpdateBugStatus(bug.id, e.target.value)}
+                              className="bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 text-[11px] font-bold focus:outline-none"
+                            >
+                              {BUG_STATUSES.map((st) => (
+                                <option key={st} value={st}>
+                                  {st}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="p-3 whitespace-nowrap font-mono text-indigo-300 text-[11px]">{bug.assigneeEmail}</td>
+                          <td className="p-3 whitespace-nowrap text-slate-400 font-mono text-[10px]">
+                            {bug.evidence || "None"}
+                          </td>
+                          <td className="p-3 text-right whitespace-nowrap">
+                            <button
+                              onClick={() => setSelectedBugDetail(bug)}
+                              className="text-indigo-400 font-bold hover:underline"
+                            >
+                              View Full 12 Fields
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {filteredBugs.length === 0 && (
+                        <tr>
+                          <td colSpan={9} className="p-8 text-center text-slate-500 text-xs">
+                            No bugs found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </main>
 
-      {/* ========================================================================= */}
-      {/* MODAL: CHANGE PASSWORD MODAL */}
-      {/* ========================================================================= */}
+      {/* MODALS */}
+      {/* CHANGE PASSWORD MODAL */}
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
@@ -1088,7 +1196,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 1: ADD COMPANY (SUPER ADMIN) */}
+      {/* MODAL 1: ADD COMPANY */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1165,7 +1273,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 2: ADD PROJECT (TECH LEAD) */}
+      {/* MODAL 2: ADD PROJECT */}
       {isAddProjectModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1230,7 +1338,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: ADD ASSIGNEE EMAIL (TECH LEAD) */}
+      {/* MODAL 3: ADD ASSIGNEE EMAIL */}
       {isAddAssigneeModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1295,7 +1403,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: CREATE BUG MODAL (WITH ALL 12 EXACT FIELDS) */}
+      {/* MODAL 4: CREATE BUG */}
       {isAddBugModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1496,7 +1604,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 5: BUG DETAIL (FULL 12-FIELDS DISPLAY & ASSIGNEE STATUS UPDATE) */}
+      {/* MODAL 5: BUG DETAIL (FULL 12-FIELDS DISPLAY & STATUS UPDATE) */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
