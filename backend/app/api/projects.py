@@ -24,7 +24,7 @@ async def list_projects(
 @router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_project(
     data: ProjectCreate,
-    current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.MANAGER])),
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.TECH_LEAD])),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new project (Admin/Manager only)."""
@@ -56,7 +56,7 @@ async def get_project(
 async def update_project(
     project_id: uuid.UUID,
     data: ProjectUpdate,
-    current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.MANAGER])),
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.TECH_LEAD])),
     db: AsyncSession = Depends(get_db),
 ):
     """Update project metadata."""
@@ -70,7 +70,7 @@ async def update_project(
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(
     project_id: uuid.UUID,
-    current_user: User = Depends(require_role([UserRole.ADMIN])),
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.TECH_LEAD])),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete project (Admin only)."""

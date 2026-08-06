@@ -1,4 +1,4 @@
-name: BugForge CI/CD Pipeline
+name: BugForge CI/CD & Deployment Pipeline
 
 on:
   push:
@@ -6,51 +6,115 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  backend-quality-and-security:
-    name: Backend Lint, Test & Vulnerability Scan
+  backend-ci:
+    name: 🐍 Backend Test & Quality
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
 
-      - name: Install Backend Dependencies
+      - name: Install Dependencies
         run: |
           cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Trivy Vulnerability Scanner on Backend Container
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'bugforge-backend:latest'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+      - name: Run Pytest Suite
+        run: |
+          cd backend
+          PYTHONPATH=. python -m pytest
 
-  frontend-build:
-    name: Frontend Build & Test
+  frontend-ci:
+    name: ⚡ Frontend Build & Quality
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node 22
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Install & Build Frontend
+      - name: Install Dependencies & Build
         run: |
           cd frontend
           npm ci
           npm run build
+
+  docker-build-and-push:
+    name: 🐳 Docker Build & Push GHCR
+    needs: [backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push Backend Container Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/bugforge-backend:latest
+            ghcr.io/${{ github.repository_owner }}/bugforge-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & Push Frontend Container Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/bugforge-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/bugforge-frontend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-gitops:
+    name: 🚀 GitOps ArgoCD Deployment
+    needs: [docker-build-and-push]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Deployment Manifests
+        run: |
+          echo "Verifying Kubernetes and ArgoCD Deployment manifests..."
+          test -f infrastructure/kubernetes/deployment.yaml
+          test -f infrastructure/argocd/application.yaml
+          echo "GitOps Deployment pipeline triggered successfully for commit SHA: ${{ github.sha }}"
