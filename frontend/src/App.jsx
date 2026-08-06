@@ -73,7 +73,7 @@ const INITIAL_USERS = [
   },
 ];
 
-// Pre-seeded Projects
+// Pre-seeded Projects (Private to respective company)
 const INITIAL_PROJECTS = [
   {
     id: "prj-ep1",
@@ -91,7 +91,7 @@ const INITIAL_PROJECTS = [
   },
 ];
 
-// Pre-seeded Bugs / Issues
+// Pre-seeded Bugs / Issues (Private to respective company)
 const INITIAL_BUGS = [
   {
     id: "EPREC-101",
@@ -126,14 +126,14 @@ export default function App() {
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [bugs, setBugs] = useState(INITIAL_BUGS);
 
-  // Authentication State (INITIAL STATE NULL: ALWAYS SHOW LOGIN SCREEN FIRST)
-  const [currentUser, setCurrentUser] = useState(null);
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(null); // Default null: always show Login Screen first
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
   // Navigation & Search
-  const [activeTab, setActiveTab] = useState("BUGS");
+  const [activeTab, setActiveTab] = useState("COMPANIES"); // 'COMPANIES', 'PROJECTS', 'ASSIGNEES', 'BUGS'
   const [selectedProjectKey, setSelectedProjectKey] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -156,7 +156,7 @@ export default function App() {
   const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "", password: "" });
   const [bugForm, setBugForm] = useState({ title: "", description: "", projectKey: "", priority: "MEDIUM", assigneeEmail: "" });
 
-  // Handle Login Submission
+  // Handle Login Authentication
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setLoginError("");
@@ -175,7 +175,7 @@ export default function App() {
     setAuthEmail("");
     setAuthPassword("");
 
-    // Automatically route to specific role page upon successful login
+    // Set Default Tab per Role
     if (foundUser.role === "SUPER_ADMIN") setActiveTab("COMPANIES");
     else if (foundUser.role === "TECH_LEAD") setActiveTab("PROJECTS");
     else setActiveTab("BUGS");
@@ -192,20 +192,17 @@ export default function App() {
   const isTechLead = currentUser?.role === "TECH_LEAD";
   const isAssignee = currentUser?.role === "ASSIGNEE";
 
-  // Strict Tenant Data Isolation Scoping
+  // Data Isolation: Strict Scoping per Company
   const userCompany = companies.find((c) => c.id === currentUser?.companyId);
 
-  const scopedProjects = isSuperAdmin
-    ? projects
-    : projects.filter((p) => p.companyId === currentUser?.companyId);
+  // Projects strictly scoped to company (Super Admin does not view internal projects)
+  const scopedProjects = projects.filter((p) => p.companyId === currentUser?.companyId);
 
-  const scopedAssignees = isSuperAdmin
-    ? users.filter((u) => u.role === "ASSIGNEE")
-    : users.filter((u) => u.companyId === currentUser?.companyId && u.role === "ASSIGNEE");
+  // Assignees strictly scoped to company
+  const scopedAssignees = users.filter((u) => u.companyId === currentUser?.companyId && u.role === "ASSIGNEE");
 
-  const scopedBugs = isSuperAdmin
-    ? bugs
-    : isAssignee
+  // Bugs strictly scoped to company & assignee
+  const scopedBugs = isAssignee
     ? bugs.filter((b) => b.companyId === currentUser?.companyId && b.assigneeEmail.toLowerCase() === currentUser?.email.toLowerCase())
     : bugs.filter((b) => b.companyId === currentUser?.companyId);
 
@@ -217,7 +214,7 @@ export default function App() {
     return matchesProj && matchesSearch;
   });
 
-  // Actions: Super Admin Companies (Add, Edit, Delete)
+  // Actions: Super Admin Software Companies (Add, Edit, Delete)
   const handleSaveCompany = (e) => {
     e.preventDefault();
     if (!isSuperAdmin) return;
@@ -266,7 +263,7 @@ export default function App() {
 
   const handleDeleteCompany = (compId) => {
     if (!isSuperAdmin) return;
-    if (!window.confirm("Delete software company and all tenant data?")) return;
+    if (!window.confirm("Delete software company and all associated data?")) return;
     setCompanies(companies.filter((c) => c.id !== compId));
     setUsers(users.filter((u) => u.companyId !== compId));
     setProjects(projects.filter((p) => p.companyId !== compId));
@@ -276,7 +273,7 @@ export default function App() {
   // Actions: Tech Lead Projects (Add, Edit, Delete)
   const handleSaveProject = (e) => {
     e.preventDefault();
-    if (!isTechLead && !isSuperAdmin) return;
+    if (!isTechLead) return;
 
     if (editingProject) {
       setProjects(
@@ -304,8 +301,8 @@ export default function App() {
   };
 
   const handleDeleteProject = (projId) => {
-    if (!isTechLead && !isSuperAdmin) return;
-    if (!window.confirm("Delete project and associated bugs?")) return;
+    if (!isTechLead) return;
+    if (!window.confirm("Delete project and its bugs?")) return;
     const proj = projects.find((p) => p.id === projId);
     setProjects(projects.filter((p) => p.id !== projId));
     if (proj) {
@@ -316,7 +313,7 @@ export default function App() {
   // Actions: Tech Lead Assignee Team (Add, Edit, Delete)
   const handleSaveAssignee = (e) => {
     e.preventDefault();
-    if (!isTechLead && !isSuperAdmin) return;
+    if (!isTechLead) return;
 
     if (editingAssignee) {
       setUsers(
@@ -344,7 +341,7 @@ export default function App() {
   };
 
   const handleDeleteAssignee = (userId) => {
-    if (!isTechLead && !isSuperAdmin) return;
+    if (!isTechLead) return;
     if (!window.confirm("Remove assignee email from company?")) return;
     setUsers(users.filter((u) => u.id !== userId));
   };
@@ -352,7 +349,7 @@ export default function App() {
   // Actions: Tech Lead Create Bug
   const handleSaveBug = (e) => {
     e.preventDefault();
-    if (!isTechLead && !isSuperAdmin) return;
+    if (!isTechLead) return;
 
     const targetProjKey = bugForm.projectKey || (scopedProjects[0]?.key || "EPREC");
     const targetAssignee = bugForm.assigneeEmail || (scopedAssignees[0]?.email || currentUser.email);
@@ -383,7 +380,7 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: CLEAN EMAIL & PASSWORD LOGIN SCREEN (DEFAULT WHEN OPENING APP)
+  // SCREEN 1: STRICT EMAIL & PASSWORD LOGIN SCREEN
   // =========================================================================
   if (!currentUser) {
     return (
@@ -441,11 +438,11 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE (LOCKED TO LOGGED-IN EMAIL ROLE)
+  // SCREEN 2: AUTHENTICATED WORKSPACE (STRICTLY ROLE-SCOPED VIEW)
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden">
-      {/* HEADER: NO ROLE DROPDOWN, SHOWS LOGGED IN EMAIL & LOGOUT */}
+      {/* HEADER: STRICT ROLE NAVIGATION */}
       <header className="h-14 bg-[#0f1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -456,51 +453,59 @@ export default function App() {
           </div>
 
           <nav className="flex items-center gap-1 text-xs font-semibold">
+            {/* SUPER ADMIN: ONLY Software Companies Panel */}
             {isSuperAdmin && (
               <button
                 onClick={() => setActiveTab("COMPANIES")}
-                className={`px-3 py-1.5 rounded-lg ${
-                  activeTab === "COMPANIES" ? "bg-purple-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
-                }`}
+                className="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold"
               >
                 Software Companies ({companies.length})
               </button>
             )}
 
-            {(isSuperAdmin || isTechLead) && (
-              <button
-                onClick={() => setActiveTab("PROJECTS")}
-                className={`px-3 py-1.5 rounded-lg ${
-                  activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                Projects ({scopedProjects.length})
-              </button>
+            {/* TECH LEAD: Projects, Bug Lifecycle, Assignees */}
+            {isTechLead && (
+              <>
+                <button
+                  onClick={() => setActiveTab("PROJECTS")}
+                  className={`px-3 py-1.5 rounded-lg ${
+                    activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  Projects ({scopedProjects.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab("BUGS")}
+                  className={`px-3 py-1.5 rounded-lg ${
+                    activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  Bug Lifecycle ({scopedBugs.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab("ASSIGNEES")}
+                  className={`px-3 py-1.5 rounded-lg ${
+                    activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  Team Assignees ({scopedAssignees.length})
+                </button>
+              </>
             )}
 
-            <button
-              onClick={() => setActiveTab("BUGS")}
-              className={`px-3 py-1.5 rounded-lg ${
-                activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              Bug Lifecycle ({scopedBugs.length})
-            </button>
-
-            {(isSuperAdmin || isTechLead) && (
+            {/* ASSIGNEE: Bug Lifecycle ONLY */}
+            {isAssignee && (
               <button
-                onClick={() => setActiveTab("ASSIGNEES")}
-                className={`px-3 py-1.5 rounded-lg ${
-                  activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
-                }`}
+                onClick={() => setActiveTab("BUGS")}
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold"
               >
-                Team Assignees ({scopedAssignees.length})
+                My Bug Lifecycle ({scopedBugs.length})
               </button>
             )}
           </nav>
         </div>
 
-        {/* LOGGED IN USER EMAIL IDENTITY */}
+        {/* LOGGED IN ACCOUNT IDENTITY */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
@@ -529,9 +534,9 @@ export default function App() {
       >
         <span>
           {isSuperAdmin
-            ? "SUPER ADMIN WORKSPACE (ahad8641@gmail.com): Add software companies & set authorized Tech Lead login emails."
+            ? "SUPER ADMIN WORKSPACE (ahad8641@gmail.com): Software company management ONLY. Internal tenant data is private."
             : isTechLead
-            ? `TECH LEAD WORKSPACE (${userCompany?.name}): Manage projects, add team assignee emails, create & assign bugs.`
+            ? `TECH LEAD WORKSPACE (${userCompany?.name}): Projects, team assignee emails, bug creation & assignment.`
             : `ASSIGNEE WORKSPACE (${currentUser.email}): View assigned bugs & update bug lifecycle status ONLY.`}
         </span>
         <span className="font-mono text-[10px] uppercase font-bold">
@@ -542,7 +547,7 @@ export default function App() {
       {/* MAIN WORKSPACE CONTENT */}
       <main className="flex-1 bg-[#090c15] overflow-y-auto p-6">
         {/* ========================================================================= */}
-        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES */}
+        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES ONLY */}
         {/* ========================================================================= */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
@@ -566,54 +571,49 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {companies.map((comp) => {
-                const compProjs = projects.filter((p) => p.companyId === comp.id).length;
-                const compDevs = users.filter((u) => u.companyId === comp.id && u.role === "ASSIGNEE").length;
-
-                return (
-                  <div key={comp.id} className="bg-[#0f1422] border border-slate-800 rounded-xl p-5 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-bold text-white">{comp.name}</h3>
-                      <div className="flex gap-2 text-xs">
-                        <button
-                          onClick={() => {
-                            setEditingCompany(comp);
-                            setCompanyForm({
-                              name: comp.name,
-                              techLeadName: comp.techLeadName,
-                              techLeadEmail: comp.techLeadEmail,
-                              techLeadPassword: "",
-                            });
-                            setIsAddCompanyModalOpen(true);
-                          }}
-                          className="text-indigo-400 font-bold hover:underline"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCompany(comp.id)}
-                          className="text-red-400 font-bold hover:underline"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-[#141a2a] border border-slate-800 rounded-lg text-xs space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">
-                        Authorized Tech Lead Login Email
-                      </span>
-                      <div className="font-bold text-white">{comp.techLeadName}</div>
-                      <div className="font-mono text-indigo-300">{comp.techLeadEmail}</div>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-800/80 flex justify-between text-xs text-slate-400">
-                      <span>Projects: {compProjs}</span>
-                      <span>Assignees: {compDevs}</span>
+              {companies.map((comp) => (
+                <div key={comp.id} className="bg-[#0f1422] border border-slate-800 rounded-xl p-5 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-bold text-white">{comp.name}</h3>
+                    <div className="flex gap-2 text-xs">
+                      <button
+                        onClick={() => {
+                          setEditingCompany(comp);
+                          setCompanyForm({
+                            name: comp.name,
+                            techLeadName: comp.techLeadName,
+                            techLeadEmail: comp.techLeadEmail,
+                            techLeadPassword: "",
+                          });
+                          setIsAddCompanyModalOpen(true);
+                        }}
+                        className="text-indigo-400 font-bold hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCompany(comp.id)}
+                        className="text-red-400 font-bold hover:underline"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                );
-              })}
+
+                  <div className="p-3 bg-[#141a2a] border border-slate-800 rounded-lg text-xs space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">
+                      Authorized Tech Lead Login Email
+                    </span>
+                    <div className="font-bold text-white">{comp.techLeadName}</div>
+                    <div className="font-mono text-indigo-300">{comp.techLeadEmail}</div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800/80 flex justify-between text-xs text-slate-400">
+                    <span>Registered: {comp.createdAt}</span>
+                    <span className="text-emerald-400 font-mono text-[11px]">ACTIVE TENANT</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -621,7 +621,7 @@ export default function App() {
         {/* ========================================================================= */}
         {/* VIEW 2: TECH LEAD - PROJECTS */}
         {/* ========================================================================= */}
-        {activeTab === "PROJECTS" && (isSuperAdmin || isTechLead) && (
+        {activeTab === "PROJECTS" && isTechLead && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div>
@@ -698,7 +698,7 @@ export default function App() {
         {/* ========================================================================= */}
         {/* VIEW 3: TECH LEAD - TEAM ASSIGNEE EMAILS */}
         {/* ========================================================================= */}
-        {activeTab === "ASSIGNEES" && (isSuperAdmin || isTechLead) && (
+        {activeTab === "ASSIGNEES" && isTechLead && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div>
@@ -771,9 +771,9 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 4: BUG LIFECYCLE */}
+        {/* VIEW 4: BUG LIFECYCLE (TECH LEAD & ASSIGNEES) */}
         {/* ========================================================================= */}
-        {activeTab === "BUGS" && (
+        {activeTab === "BUGS" && (isTechLead || isAssignee) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -799,7 +799,7 @@ export default function App() {
                 />
               </div>
 
-              {(isSuperAdmin || isTechLead) && (
+              {isTechLead && (
                 <button
                   onClick={() => setIsAddBugModalOpen(true)}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
@@ -855,6 +855,7 @@ export default function App() {
 
                           <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
                             <span className="font-mono">Assignee: {bug.assigneeEmail}</span>
+                            {/* STATUS UPDATE DROPDOWN */}
                             <select
                               value={bug.status}
                               onChange={(e) => {
@@ -888,7 +889,7 @@ export default function App() {
       </main>
 
       {/* MODALS */}
-      {/* MODAL 1: ADD COMPANY (SUPER ADMIN) */}
+      {/* MODAL 1: ADD/EDIT SOFTWARE COMPANY (SUPER ADMIN ONLY) */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -927,7 +928,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Authorized Tech Lead Login Email</label>
+                <label className="block font-semibold text-slate-300 mb-1">Authorized Tech Lead Email (Login Email)</label>
                 <input
                   type="email"
                   required
@@ -965,8 +966,8 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 2: ADD PROJECT (TECH LEAD) */}
-      {isAddProjectModalOpen && (isTechLead || isSuperAdmin) && (
+      {/* MODAL 2: ADD/EDIT PROJECT (TECH LEAD ONLY) */}
+      {isAddProjectModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -1030,8 +1031,8 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: ADD ASSIGNEE EMAIL (TECH LEAD) */}
-      {isAddAssigneeModalOpen && (isTechLead || isSuperAdmin) && (
+      {/* MODAL 3: ADD/EDIT ASSIGNEE EMAIL (TECH LEAD ONLY) */}
+      {isAddAssigneeModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -1095,8 +1096,8 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: CREATE BUG (TECH LEAD) */}
-      {isAddBugModalOpen && (isTechLead || isSuperAdmin) && (
+      {/* MODAL 4: CREATE BUG (TECH LEAD ONLY) */}
+      {isAddBugModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -1189,7 +1190,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 5: BUG DETAIL (STATUS UPDATE BY ASSIGNEES) */}
+      {/* MODAL 5: BUG DETAIL (STATUS UPDATE BY ASSIGNEES & TECH LEADS) */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
@@ -1236,7 +1237,7 @@ export default function App() {
             </div>
 
             <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
-              {(isTechLead || isSuperAdmin) && (
+              {isTechLead && (
                 <button
                   onClick={() => {
                     setBugs(bugs.filter((b) => b.id !== selectedBugDetail.id));
