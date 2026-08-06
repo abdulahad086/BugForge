@@ -12,7 +12,7 @@ const GlassSurface = ({
   opacity = 0.93,
   blur = 11,
   displace = 0,
-  backgroundOpacity = 0.35,
+  backgroundOpacity = 0.4,
   saturation = 1.8,
   distortionScale = -180,
   redOffset = 0,
@@ -24,8 +24,7 @@ const GlassSurface = ({
   className = '',
   style = {}
 }) => {
-  const rawId = useId();
-  const uniqueId = rawId.replace(/:/g, '-');
+  const uniqueId = useId().replace(/:/g, '-');
   const filterId = `glass-filter-${uniqueId}`;
   const redGradId = `red-grad-${uniqueId}`;
   const blueGradId = `blue-grad-${uniqueId}`;
@@ -60,7 +59,7 @@ const GlassSurface = ({
         <rect x="0" y="0" width="${actualWidth}" height="${actualHeight}" fill="black"></rect>
         <rect x="0" y="0" width="${actualWidth}" height="${actualHeight}" rx="${borderRadius}" fill="url(#${redGradId})" />
         <rect x="0" y="0" width="${actualWidth}" height="${actualHeight}" rx="${borderRadius}" fill="url(#${blueGradId})" style="mix-blend-mode: ${mixBlendMode}" />
-        <rect x="${edgeSize}" y="${edgeSize}" width="${Math.max(1, actualWidth - edgeSize * 2)}" height="${Math.max(1, actualHeight - edgeSize * 2)}" rx="${borderRadius}" fill="hsl(0 0% ${brightness}% / ${opacity})" style="filter:blur(${blur}px)" />
+        <rect x="${edgeSize}" y="${edgeSize}" width="${actualWidth - edgeSize * 2}" height="${actualHeight - edgeSize * 2}" rx="${borderRadius}" fill="hsl(0 0% ${brightness}% / ${opacity})" style="filter:blur(${blur}px)" />
       </svg>
     `;
 

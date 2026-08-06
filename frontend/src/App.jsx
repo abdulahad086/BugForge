@@ -526,115 +526,127 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: LOGIN SCREEN WITH HIGH PERFORMANCE ANIMATED RIPPLEGRID BACKGROUND
+  // SCREEN 1: LOGIN SCREEN WITH HIGH-CONTRAST VISIBLE RIPPLEGRID & GLASS SURFACE
   // =========================================================================
   if (!currentUser) {
     return (
       <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* REACT BITS HIGH PERFORMANCE ANIMATED RIPPLEGRID BACKGROUND */}
-        <div className="fixed inset-0 w-full h-full pointer-events-auto z-0">
+        {/* REACT BITS HIGH-CONTRAST SMOOTH RIPPLEGRID BACKGROUND */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
           <RippleGrid
             enableRainbow={false}
             gridColor="#6366f1"
             rippleIntensity={0.08}
             gridSize={12}
-            gridThickness={16}
+            gridThickness={18}
             mouseInteraction={true}
-            mouseInteractionRadius={1.2}
-            opacity={0.8}
+            mouseInteractionRadius={1.5}
+            opacity={0.75}
           />
         </div>
 
-        {/* REACT BITS <GlassSurface /> COMPONENT WRAPPER FOR LOGIN MODAL */}
-        <GlassSurface
-          width="100%"
-          height="auto"
-          borderRadius={24}
-          distortionScale={-160}
-          redOffset={4}
-          greenOffset={12}
-          blueOffset={20}
-          brightness={55}
-          opacity={0.92}
-          className="max-w-md p-7 space-y-6 z-10 relative"
-        >
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600 font-black text-white text-base flex items-center justify-center mx-auto shadow-xl shadow-indigo-600/50 border border-indigo-400/30">
-              BF
-            </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
-            <p className="text-xs text-slate-300 font-medium">Enter authorized email address and password</p>
-          </div>
+        {/* REACT BITS GLASSSURFACE WATER DROPLET / MIRROR DISTORTION CONTAINER */}
+        <div className="w-full max-w-md z-10">
+          <GlassSurface
+            width="100%"
+            height="auto"
+            borderRadius={24}
+            displace={10}
+            distortionScale={-160}
+            redOffset={4}
+            greenOffset={12}
+            blueOffset={24}
+            brightness={60}
+            opacity={0.8}
+            backgroundOpacity={0.25}
+            saturation={2}
+          >
+            <div className="w-full p-6 space-y-6">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 font-black text-white text-base flex items-center justify-center mx-auto shadow-xl shadow-indigo-600/50 border border-indigo-400/40">
+                  BF
+                </div>
+                <h1 className="text-2xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
+                <p className="text-xs text-slate-300 font-medium">Enter authorized email address and password</p>
+              </div>
 
-          {loginError && (
-            <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/40 text-red-200 text-xs font-semibold text-center">
-              {loginError}
-            </div>
-          )}
+              {loginError && (
+                <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/40 text-red-200 text-xs font-semibold text-center">
+                  {loginError}
+                </div>
+              )}
 
-          <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1.5">Email Address</label>
-              <input
-                type="email"
-                required
-                placeholder="your.email@company.com"
-                value={authEmail}
-                onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full glass-input rounded-lg p-2.5 text-white font-mono text-xs focus:outline-none"
-              />
-            </div>
+              <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1.5">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="your.email@company.com"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    className="w-full glass-input rounded-lg p-3 text-white font-mono text-xs focus:outline-none"
+                  />
+                </div>
 
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1.5">Password</label>
-              <input
-                type="password"
-                required
-                placeholder="Enter password..."
-                value={authPassword}
-                onChange={(e) => setAuthPassword(e.target.value)}
-                className="w-full glass-input rounded-lg p-2.5 text-white text-xs focus:outline-none"
-              />
-            </div>
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1.5">Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter password..."
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    className="w-full glass-input rounded-lg p-3 text-white text-xs focus:outline-none"
+                  />
+                </div>
 
-            <GlassSurface borderRadius={12} width="100%" height="auto" className="p-0">
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-xl shadow-indigo-600/40 cursor-pointer border border-indigo-400/30"
-              >
-                Log In to Workspace
-              </button>
-            </GlassSurface>
-          </form>
-        </GlassSurface>
+                <GlassSurface
+                  width="100%"
+                  height={44}
+                  borderRadius={12}
+                  backgroundOpacity={0.5}
+                  distortionScale={-80}
+                >
+                  <button
+                    type="submit"
+                    className="w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs cursor-pointer rounded-xl flex items-center justify-center"
+                  >
+                    Log In to Workspace
+                  </button>
+                </GlassSurface>
+              </form>
+            </div>
+          </GlassSurface>
+        </div>
       </div>
     );
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE WITH HIGH PERFORMANCE ANIMATED RIPPLEGRID & GLASS SURFACES
+  // SCREEN 2: AUTHENTICATED WORKSPACE WITH VISIBLE RIPPLEGRID & GLASSSURFACE
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden relative">
-      {/* REACT BITS HIGH PERFORMANCE ANIMATED RIPPLEGRID BACKGROUND */}
-      <div className="fixed inset-0 w-full h-full pointer-events-auto z-0">
+      {/* REACT BITS HIGH-CONTRAST VISIBLE RIPPLEGRID BACKGROUND */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
         <RippleGrid
           enableRainbow={false}
-          gridColor="#4f46e5"
+          gridColor="#6366f1"
           rippleIntensity={0.06}
           gridSize={14}
-          gridThickness={14}
+          gridThickness={16}
           mouseInteraction={true}
-          mouseInteractionRadius={1.0}
+          mouseInteractionRadius={1.2}
           opacity={0.65}
         />
       </div>
 
-      {/* GLASS HEADER WITH WATER DROPLET REFRACTION */}
+      {/* GLASS HEADER */}
       <header className="h-16 glass-header px-5 flex items-center justify-between shrink-0 z-10 relative">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40 border border-indigo-400/30">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40 border border-indigo-400/40">
               BF
             </div>
             <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
@@ -642,10 +654,10 @@ export default function App() {
 
           <nav className="flex items-center gap-2 text-xs font-semibold">
             {isSuperAdmin && (
-              <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+              <GlassSurface width="auto" height={36} borderRadius={10} backgroundOpacity={0.4}>
                 <button
                   onClick={() => setActiveTab("COMPANIES")}
-                  className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold cursor-pointer shadow-md shadow-purple-600/30"
+                  className="px-3.5 py-1 text-white font-bold cursor-pointer"
                 >
                   Software Companies ({companies.length})
                 </button>
@@ -654,33 +666,46 @@ export default function App() {
 
             {isTechLead && (
               <>
-                <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                <GlassSurface
+                  width="auto"
+                  height={36}
+                  borderRadius={10}
+                  backgroundOpacity={activeTab === "PROJECTS" ? 0.6 : 0.2}
+                >
                   <button
                     onClick={() => setActiveTab("PROJECTS")}
-                    className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
-                      activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:text-white"
+                    className={`px-3.5 py-1 cursor-pointer font-bold ${
+                      activeTab === "PROJECTS" ? "text-white" : "text-slate-300 hover:text-white"
                     }`}
                   >
                     Projects ({scopedProjects.length})
                   </button>
                 </GlassSurface>
-
-                <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                <GlassSurface
+                  width="auto"
+                  height={36}
+                  borderRadius={10}
+                  backgroundOpacity={activeTab === "BUGS" ? 0.6 : 0.2}
+                >
                   <button
                     onClick={() => setActiveTab("BUGS")}
-                    className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
-                      activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:text-white"
+                    className={`px-3.5 py-1 cursor-pointer font-bold ${
+                      activeTab === "BUGS" ? "text-white" : "text-slate-300 hover:text-white"
                     }`}
                   >
                     Shared Bug Board ({scopedBugs.length})
                   </button>
                 </GlassSurface>
-
-                <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+                <GlassSurface
+                  width="auto"
+                  height={36}
+                  borderRadius={10}
+                  backgroundOpacity={activeTab === "ASSIGNEES" ? 0.6 : 0.2}
+                >
                   <button
                     onClick={() => setActiveTab("ASSIGNEES")}
-                    className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition ${
-                      activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-300 hover:text-white"
+                    className={`px-3.5 py-1 cursor-pointer font-bold ${
+                      activeTab === "ASSIGNEES" ? "text-white" : "text-slate-300 hover:text-white"
                     }`}
                   >
                     Team Assignees ({scopedAssignees.length})
@@ -690,10 +715,10 @@ export default function App() {
             )}
 
             {isAssignee && (
-              <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+              <GlassSurface width="auto" height={36} borderRadius={10} backgroundOpacity={0.6}>
                 <button
                   onClick={() => setActiveTab("BUGS")}
-                  className="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer"
+                  className="px-3.5 py-1 text-white font-bold cursor-pointer"
                 >
                   Shared Team Bug Board ({scopedBugs.length})
                 </button>
@@ -710,23 +735,23 @@ export default function App() {
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
           </div>
 
-          <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+          <GlassSurface width="auto" height={34} borderRadius={8} backgroundOpacity={0.3}>
             <button
               onClick={() => {
                 setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
                 setPasswordMessage({ type: "", text: "" });
                 setIsChangePasswordModalOpen(true);
               }}
-              className="text-slate-200 hover:text-white px-3 py-1.5 rounded-lg font-bold cursor-pointer"
+              className="px-3 py-1 text-slate-200 hover:text-white font-bold cursor-pointer"
             >
               Change Password
             </button>
           </GlassSurface>
 
-          <GlassSurface borderRadius={10} width="auto" height="auto" className="p-0">
+          <GlassSurface width="auto" height={34} borderRadius={8} backgroundOpacity={0.3}>
             <button
               onClick={handleLogout}
-              className="text-slate-300 hover:text-red-400 px-3 py-1.5 rounded-lg font-bold cursor-pointer"
+              className="px-3 py-1 text-slate-300 hover:text-red-400 font-bold cursor-pointer"
             >
               Logout
             </button>
@@ -768,14 +793,14 @@ export default function App() {
                   Add software companies and configure authorized Tech Lead login emails
                 </p>
               </div>
-              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+              <GlassSurface width="auto" height={38} borderRadius={10} backgroundOpacity={0.5}>
                 <button
                   onClick={() => {
                     setEditingCompany(null);
                     setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
                     setIsAddCompanyModalOpen(true);
                   }}
-                  className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-lg shadow-purple-600/30"
+                  className="px-4 py-1.5 text-purple-200 font-bold text-xs cursor-pointer"
                 >
                   + Add Software Company (Super Admin)
                 </button>
@@ -784,45 +809,47 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {companies.map((comp) => (
-                <GlassSurface key={comp.id} borderRadius={18} width="100%" height="auto" className="p-5 space-y-3">
-                  <div className="flex justify-between items-center w-full">
-                    <h3 className="text-sm font-bold text-white">{comp.name}</h3>
-                    <div className="flex gap-2 text-xs">
-                      <button
-                        onClick={() => {
-                          setEditingCompany(comp);
-                          setCompanyForm({
-                            name: comp.name,
-                            techLeadName: comp.techLeadName,
-                            techLeadEmail: comp.techLeadEmail,
-                            techLeadPassword: "",
-                          });
-                          setIsAddCompanyModalOpen(true);
-                        }}
-                        className="text-indigo-400 font-bold hover:underline cursor-pointer"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCompany(comp.id)}
-                        className="text-red-400 font-bold hover:underline cursor-pointer"
-                      >
-                        Delete
-                      </button>
+                <GlassSurface key={comp.id} width="100%" height="auto" borderRadius={18} backgroundOpacity={0.3}>
+                  <div className="w-full p-5 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-sm font-bold text-white">{comp.name}</h3>
+                      <div className="flex gap-2 text-xs">
+                        <button
+                          onClick={() => {
+                            setEditingCompany(comp);
+                            setCompanyForm({
+                              name: comp.name,
+                              techLeadName: comp.techLeadName,
+                              techLeadEmail: comp.techLeadEmail,
+                              techLeadPassword: "",
+                            });
+                            setIsAddCompanyModalOpen(true);
+                          }}
+                          className="text-indigo-400 font-bold hover:underline cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCompany(comp.id)}
+                          className="text-red-400 font-bold hover:underline cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="p-3 glass-card rounded-lg text-xs space-y-1 w-full">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">
-                      Authorized Tech Lead Login Email
-                    </span>
-                    <div className="font-bold text-white">{comp.techLeadName}</div>
-                    <div className="font-mono text-indigo-300">{comp.techLeadEmail}</div>
-                  </div>
+                    <div className="p-3 glass-card rounded-lg text-xs space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Authorized Tech Lead Login Email
+                      </span>
+                      <div className="font-bold text-white">{comp.techLeadName}</div>
+                      <div className="font-mono text-indigo-300">{comp.techLeadEmail}</div>
+                    </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex justify-between text-xs text-slate-400 w-full">
-                    <span>Registered: {comp.createdAt}</span>
-                    <span className="text-emerald-400 font-mono text-[11px]">ACTIVE TENANT</span>
+                    <div className="pt-2 border-t border-slate-800/80 flex justify-between text-xs text-slate-400">
+                      <span>Registered: {comp.createdAt}</span>
+                      <span className="text-emerald-400 font-mono text-[11px]">ACTIVE TENANT</span>
+                    </div>
                   </div>
                 </GlassSurface>
               ))}
@@ -840,14 +867,14 @@ export default function App() {
                   Manage software projects for {userCompany?.name}
                 </p>
               </div>
-              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+              <GlassSurface width="auto" height={38} borderRadius={10} backgroundOpacity={0.5}>
                 <button
                   onClick={() => {
                     setEditingProject(null);
                     setProjectForm({ key: "", name: "", description: "" });
                     setIsAddProjectModalOpen(true);
                   }}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-lg shadow-indigo-600/30"
+                  className="px-4 py-1.5 text-indigo-200 font-bold text-xs cursor-pointer"
                 >
                   + Add Project (Tech Lead)
                 </button>
@@ -858,47 +885,49 @@ export default function App() {
               {scopedProjects.map((p) => {
                 const projBugs = bugs.filter((b) => b.projectKey === p.key && b.companyId === p.companyId);
                 return (
-                  <GlassSurface key={p.id} borderRadius={18} width="100%" height="auto" className="p-4 space-y-3">
-                    <div className="flex justify-between items-center w-full">
-                      <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                        [{p.key}]
-                      </span>
-                      <div className="flex gap-2 text-xs">
+                  <GlassSurface key={p.id} width="100%" height="auto" borderRadius={18} backgroundOpacity={0.3}>
+                    <div className="w-full p-4 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                          [{p.key}]
+                        </span>
+                        <div className="flex gap-2 text-xs">
+                          <button
+                            onClick={() => {
+                              setEditingProject(p);
+                              setProjectForm({ key: p.key, name: p.name, description: p.description });
+                              setIsAddProjectModalOpen(true);
+                            }}
+                            className="text-indigo-400 font-bold hover:underline cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProject(p.id)}
+                            className="text-red-400 font-bold hover:underline cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-sm font-bold text-white">{p.name}</h3>
+                        <p className="text-xs text-slate-400 mt-1">{p.description}</p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span className="text-slate-400">{projBugs.length} Total Bugs</span>
                         <button
                           onClick={() => {
-                            setEditingProject(p);
-                            setProjectForm({ key: p.key, name: p.name, description: p.description });
-                            setIsAddProjectModalOpen(true);
+                            setSelectedProjectKey(p.key);
+                            setActiveTab("BUGS");
                           }}
                           className="text-indigo-400 font-bold hover:underline cursor-pointer"
                         >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProject(p.id)}
-                          className="text-red-400 font-bold hover:underline cursor-pointer"
-                        >
-                          Delete
+                          View Lifecycle -&gt;
                         </button>
                       </div>
-                    </div>
-
-                    <div className="w-full">
-                      <h3 className="text-sm font-bold text-white">{p.name}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{p.description}</p>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs w-full">
-                      <span className="text-slate-400">{projBugs.length} Total Bugs</span>
-                      <button
-                        onClick={() => {
-                          setSelectedProjectKey(p.key);
-                          setActiveTab("BUGS");
-                        }}
-                        className="text-indigo-400 font-bold hover:underline cursor-pointer"
-                      >
-                        View Lifecycle -&gt;
-                      </button>
                     </div>
                   </GlassSurface>
                 );
@@ -917,67 +946,69 @@ export default function App() {
                   Add and manage authorized developer and QA emails for {userCompany?.name}
                 </p>
               </div>
-              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+              <GlassSurface width="auto" height={38} borderRadius={10} backgroundOpacity={0.5}>
                 <button
                   onClick={() => {
                     setEditingAssignee(null);
                     setAssigneeForm({ name: "", email: "", password: "" });
                     setIsAddAssigneeModalOpen(true);
                   }}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-lg shadow-indigo-600/30"
+                  className="px-4 py-1.5 text-indigo-200 font-bold text-xs cursor-pointer"
                 >
                   + Add Assignee Email (Tech Lead)
                 </button>
               </GlassSurface>
             </div>
 
-            <GlassSurface borderRadius={20} width="100%" height="auto" className="p-0 overflow-hidden text-xs">
-              <table className="w-full text-left text-slate-300">
-                <thead className="bg-[#141a2a]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
-                  <tr>
-                    <th className="p-3">Assignee Name</th>
-                    <th className="p-3">Authorized Login Email</th>
-                    <th className="p-3">Role</th>
-                    <th className="p-3">Assigned Bugs</th>
-                    <th className="p-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {scopedAssignees.map((u) => {
-                    const assignedCount = bugs.filter((b) => b.assigneeEmail.toLowerCase() === u.email.toLowerCase()).length;
-                    return (
-                      <tr key={u.id} className="hover:bg-slate-800/40">
-                        <td className="p-3 font-bold text-white">{u.name}</td>
-                        <td className="p-3 font-mono text-indigo-300">{u.email}</td>
-                        <td className="p-3">
-                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                            {u.role}
-                          </span>
-                        </td>
-                        <td className="p-3 font-bold">{assignedCount} bugs</td>
-                        <td className="p-3 text-right space-x-2">
-                          <button
-                            onClick={() => {
-                              setEditingAssignee(u);
-                              setAssigneeForm({ name: u.name, email: u.email, password: "" });
-                              setIsAddAssigneeModalOpen(true);
-                            }}
-                            className="text-indigo-400 font-bold hover:underline cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteAssignee(u.id)}
-                            className="text-red-400 font-bold hover:underline cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <GlassSurface width="100%" height="auto" borderRadius={18} backgroundOpacity={0.3}>
+              <div className="w-full overflow-hidden text-xs">
+                <table className="w-full text-left text-slate-300">
+                  <thead className="bg-[#141a2a]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3">Assignee Name</th>
+                      <th className="p-3">Authorized Login Email</th>
+                      <th className="p-3">Role</th>
+                      <th className="p-3">Assigned Bugs</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {scopedAssignees.map((u) => {
+                      const assignedCount = bugs.filter((b) => b.assigneeEmail.toLowerCase() === u.email.toLowerCase()).length;
+                      return (
+                        <tr key={u.id} className="hover:bg-slate-800/40">
+                          <td className="p-3 font-bold text-white">{u.name}</td>
+                          <td className="p-3 font-mono text-indigo-300">{u.email}</td>
+                          <td className="p-3">
+                            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="p-3 font-bold">{assignedCount} bugs</td>
+                          <td className="p-3 text-right space-x-2">
+                            <button
+                              onClick={() => {
+                                setEditingAssignee(u);
+                                setAssigneeForm({ name: u.name, email: u.email, password: "" });
+                                setIsAddAssigneeModalOpen(true);
+                              }}
+                              className="text-indigo-400 font-bold hover:underline cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAssignee(u.id)}
+                              className="text-red-400 font-bold hover:underline cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </GlassSurface>
           </div>
         )}
@@ -990,7 +1021,7 @@ export default function App() {
                 <select
                   value={selectedProjectKey}
                   onChange={(e) => setSelectedProjectKey(e.target.value)}
-                  className="glass-input rounded px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="glass-input rounded px-3 py-2 text-xs text-white focus:outline-none"
                 >
                   <option value="ALL">All Company Projects ({scopedProjects.length})</option>
                   {scopedProjects.map((p) => (
@@ -1005,38 +1036,40 @@ export default function App() {
                   placeholder="Search by ID, Title, Category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="glass-input rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
+                  className="glass-input rounded px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
                 />
 
                 {/* VIEW LAYOUT TOGGLE */}
-                <div className="flex glass-panel p-0.5 rounded-lg text-xs font-bold">
-                  <button
-                    onClick={() => setBugLayoutView("KANBAN")}
-                    className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                      bugLayoutView === "KANBAN"
-                        ? "bg-indigo-600 text-white"
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    Jira Kanban Board
-                  </button>
-                  <button
-                    onClick={() => setBugLayoutView("TABLE")}
-                    className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                      bugLayoutView === "TABLE"
-                        ? "bg-indigo-600 text-white"
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    Data Table Register
-                  </button>
-                </div>
+                <GlassSurface width="auto" height={36} borderRadius={10} backgroundOpacity={0.3}>
+                  <div className="flex items-center p-0.5 text-xs font-bold gap-1">
+                    <button
+                      onClick={() => setBugLayoutView("KANBAN")}
+                      className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                        bugLayoutView === "KANBAN"
+                          ? "bg-indigo-600 text-white"
+                          : "text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      Jira Kanban Board
+                    </button>
+                    <button
+                      onClick={() => setBugLayoutView("TABLE")}
+                      className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                        bugLayoutView === "TABLE"
+                          ? "bg-indigo-600 text-white"
+                          : "text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      Data Table Register
+                    </button>
+                  </div>
+                </GlassSurface>
               </div>
 
-              <GlassSurface borderRadius={12} width="auto" height="auto" className="p-0">
+              <GlassSurface width="auto" height={38} borderRadius={10} backgroundOpacity={0.5}>
                 <button
                   onClick={() => setIsAddBugModalOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg shadow-indigo-600/30 cursor-pointer"
+                  className="px-4 py-1.5 text-indigo-200 font-bold text-xs cursor-pointer"
                 >
                   + Create Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
                 </button>
@@ -1049,102 +1082,99 @@ export default function App() {
                 {BUG_STATUSES.map((statusKey) => {
                   const colBugs = filteredBugs.filter((b) => b.status === statusKey);
                   return (
-                    <GlassSurface
-                      key={statusKey}
-                      borderRadius={20}
-                      width="100%"
-                      height="auto"
-                      className="p-3 flex flex-col min-h-[520px]"
-                    >
-                      <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800 w-full">
-                        <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
-                          {statusKey}
-                        </span>
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
-                          {colBugs.length}
-                        </span>
-                      </div>
+                    <GlassSurface key={statusKey} width="100%" height="auto" borderRadius={18} backgroundOpacity={0.25}>
+                      <div className="w-full p-3 flex flex-col min-h-[520px]">
+                        <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                          <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
+                            {statusKey}
+                          </span>
+                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                            {colBugs.length}
+                          </span>
+                        </div>
 
-                      <div className="flex-1 space-y-2.5 w-full">
-                        {colBugs.map((bug) => (
-                          <GlassSurface
-                            key={bug.id}
-                            borderRadius={14}
-                            width="100%"
-                            height="auto"
-                            className="p-3 cursor-pointer space-y-2.5"
-                          >
-                            <div
-                              onClick={() => setSelectedBugDetail(bug)}
-                              className="w-full space-y-2.5"
+                        <div className="flex-1 space-y-2.5">
+                          {colBugs.map((bug) => (
+                            <GlassSurface
+                              key={bug.id}
+                              width="100%"
+                              height="auto"
+                              borderRadius={12}
+                              backgroundOpacity={0.4}
+                              distortionScale={-90}
                             >
-                              <div className="flex items-center justify-between text-[10px] w-full">
-                                <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
-                                <span
-                                  className={`font-bold px-1.5 py-0.5 rounded ${
-                                    bug.priority.includes("P1") || bug.priority.includes("Urgent")
-                                      ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                                      : bug.priority.includes("P2") || bug.priority.includes("High")
-                                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                                      : "bg-slate-800 text-slate-300 border border-slate-700"
-                                  }`}
-                                >
-                                  {bug.priority}
-                                </span>
-                              </div>
-
-                              <div className="text-[10px] font-bold text-slate-400 uppercase">
-                                [{bug.category}]
-                              </div>
-
-                              <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
-                                {bug.title}
-                              </p>
-
-                              {/* SCREENSHOT THUMBNAIL ON KANBAN CARD */}
-                              {bug.evidence && bug.evidence.startsWith("data:image") && (
-                                <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setExpandedImageSrc(bug.evidence);
-                                  }}
-                                  className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in w-full"
-                                >
-                                  <img src={bug.evidence} alt="Evidence Screenshot" className="w-full h-20 object-cover" />
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition">
-                                    Click to Enlarge Screenshot
-                                  </div>
+                              <div
+                                onClick={() => setSelectedBugDetail(bug)}
+                                className="w-full p-3 cursor-pointer space-y-2.5"
+                              >
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
+                                  <span
+                                    className={`font-bold px-1.5 py-0.5 rounded ${
+                                      bug.priority.includes("P1") || bug.priority.includes("Urgent")
+                                        ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                        : bug.priority.includes("P2") || bug.priority.includes("High")
+                                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                        : "bg-slate-800 text-slate-300 border border-slate-700"
+                                    }`}
+                                  >
+                                    {bug.priority}
+                                  </span>
                                 </div>
-                              )}
 
-                              <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400 w-full">
-                                <span className="font-mono text-indigo-300 truncate max-w-[120px]">
-                                  {bug.assigneeEmail}
-                                </span>
-                                <select
-                                  value={bug.status}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleUpdateBugStatus(bug.id, e.target.value);
-                                  }}
-                                  className="bg-slate-900 border border-slate-700 text-white rounded px-1.5 py-0.5 text-[10px] font-bold focus:outline-none"
-                                >
-                                  {BUG_STATUSES.map((s) => (
-                                    <option key={s} value={s}>
-                                      {s}
-                                    </option>
-                                  ))}
-                                </select>
+                                <div className="text-[10px] font-bold text-slate-400 uppercase">
+                                  [{bug.category}]
+                                </div>
+
+                                <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
+                                  {bug.title}
+                                </p>
+
+                                {/* SCREENSHOT THUMBNAIL ON KANBAN CARD */}
+                                {bug.evidence && bug.evidence.startsWith("data:image") && (
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedImageSrc(bug.evidence);
+                                    }}
+                                    className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in"
+                                  >
+                                    <img src={bug.evidence} alt="Evidence Screenshot" className="w-full h-20 object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-white transition">
+                                      Click to Enlarge Screenshot
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                                  <span className="font-mono text-indigo-300 truncate max-w-[120px]">
+                                    {bug.assigneeEmail}
+                                  </span>
+                                  <select
+                                    value={bug.status}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      handleUpdateBugStatus(bug.id, e.target.value);
+                                    }}
+                                    className="bg-slate-900 border border-slate-700 text-white rounded px-1.5 py-0.5 text-[10px] font-bold focus:outline-none"
+                                  >
+                                    {BUG_STATUSES.map((s) => (
+                                      <option key={s} value={s}>
+                                        {s}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
                               </div>
-                            </div>
-                          </GlassSurface>
-                        ))}
+                            </GlassSurface>
+                          ))}
 
-                        {colBugs.length === 0 && (
-                          <div className="h-28 border border-dashed border-slate-800 rounded-xl flex items-center justify-center text-[11px] text-slate-600 font-medium">
-                            No bugs in {statusKey}
-                          </div>
-                        )}
+                          {colBugs.length === 0 && (
+                            <div className="h-28 border border-dashed border-slate-800 rounded-xl flex items-center justify-center text-[11px] text-slate-600 font-medium">
+                              No bugs in {statusKey}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </GlassSurface>
                   );
@@ -1152,98 +1182,100 @@ export default function App() {
               </div>
             ) : (
               /* COMMERCIAL TABLE REGISTER VIEW */
-              <GlassSurface borderRadius={20} width="100%" height="auto" className="p-0 overflow-hidden text-xs">
-                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]/90 w-full">
-                  <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
-                  <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
-                </div>
+              <GlassSurface width="100%" height="auto" borderRadius={18} backgroundOpacity={0.3}>
+                <div className="w-full overflow-hidden text-xs">
+                  <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]/90">
+                    <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
+                    <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
+                  </div>
 
-                <div className="overflow-x-auto w-full">
-                  <table className="w-full text-left text-slate-300 border-collapse">
-                    <thead className="bg-[#182032]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
-                      <tr>
-                        <th className="p-3 whitespace-nowrap">Bug ID</th>
-                        <th className="p-3 whitespace-nowrap">Category</th>
-                        <th className="p-3 whitespace-nowrap">Title / Summary</th>
-                        <th className="p-3 whitespace-nowrap">Severity</th>
-                        <th className="p-3 whitespace-nowrap">Priority</th>
-                        <th className="p-3 whitespace-nowrap">Status (Lifecycle)</th>
-                        <th className="p-3 whitespace-nowrap">Assignee</th>
-                        <th className="p-3 whitespace-nowrap">Screenshot Evidence</th>
-                        <th className="p-3 text-right whitespace-nowrap">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {filteredBugs.map((bug) => (
-                        <tr key={bug.id} className="hover:bg-slate-800/40 transition">
-                          <td className="p-3 font-mono font-bold text-indigo-400 whitespace-nowrap">{bug.id}</td>
-                          <td className="p-3 whitespace-nowrap font-medium text-slate-300">{bug.category}</td>
-                          <td className="p-3 max-w-xs font-semibold text-white">
-                            <button
-                              onClick={() => setSelectedBugDetail(bug)}
-                              className="hover:text-indigo-300 text-left line-clamp-1 cursor-pointer"
-                            >
-                              {bug.title}
-                            </button>
-                          </td>
-                          <td className="p-3 whitespace-nowrap">
-                            <span
-                              className={`font-bold px-2 py-0.5 rounded text-[10px] ${
-                                bug.severity === "Blocker" || bug.severity === "Critical"
-                                  ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                                  : "bg-slate-800 text-slate-300 border border-slate-700"
-                              }`}
-                            >
-                              {bug.severity}
-                            </span>
-                          </td>
-                          <td className="p-3 whitespace-nowrap font-bold text-slate-300 text-[11px]">{bug.priority}</td>
-                          <td className="p-3 whitespace-nowrap">
-                            <select
-                              value={bug.status}
-                              onChange={(e) => handleUpdateBugStatus(bug.id, e.target.value)}
-                              className="bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 text-[11px] font-bold focus:outline-none"
-                            >
-                              {BUG_STATUSES.map((st) => (
-                                <option key={st} value={st}>
-                                  {st}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="p-3 whitespace-nowrap font-mono text-indigo-300 text-[11px]">{bug.assigneeEmail}</td>
-                          <td className="p-3 whitespace-nowrap">
-                            {bug.evidence && bug.evidence.startsWith("data:image") ? (
-                              <button
-                                onClick={() => setExpandedImageSrc(bug.evidence)}
-                                className="flex items-center gap-1.5 text-indigo-400 font-bold hover:underline text-[11px] cursor-pointer"
-                              >
-                                <span>[View Screenshot]</span>
-                              </button>
-                            ) : (
-                              <span className="text-slate-500 text-[10px]">No image</span>
-                            )}
-                          </td>
-                          <td className="p-3 text-right whitespace-nowrap">
-                            <button
-                              onClick={() => setSelectedBugDetail(bug)}
-                              className="text-indigo-400 font-bold hover:underline cursor-pointer"
-                            >
-                              View Full 12 Fields
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-
-                      {filteredBugs.length === 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-slate-300 border-collapse">
+                      <thead className="bg-[#182032]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                         <tr>
-                          <td colSpan={9} className="p-8 text-center text-slate-500 text-xs">
-                            No bugs found.
-                          </td>
+                          <th className="p-3 whitespace-nowrap">Bug ID</th>
+                          <th className="p-3 whitespace-nowrap">Category</th>
+                          <th className="p-3 whitespace-nowrap">Title / Summary</th>
+                          <th className="p-3 whitespace-nowrap">Severity</th>
+                          <th className="p-3 whitespace-nowrap">Priority</th>
+                          <th className="p-3 whitespace-nowrap">Status (Lifecycle)</th>
+                          <th className="p-3 whitespace-nowrap">Assignee</th>
+                          <th className="p-3 whitespace-nowrap">Screenshot Evidence</th>
+                          <th className="p-3 text-right whitespace-nowrap">Actions</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {filteredBugs.map((bug) => (
+                          <tr key={bug.id} className="hover:bg-slate-800/40 transition">
+                            <td className="p-3 font-mono font-bold text-indigo-400 whitespace-nowrap">{bug.id}</td>
+                            <td className="p-3 whitespace-nowrap font-medium text-slate-300">{bug.category}</td>
+                            <td className="p-3 max-w-xs font-semibold text-white">
+                              <button
+                                onClick={() => setSelectedBugDetail(bug)}
+                                className="hover:text-indigo-300 text-left line-clamp-1 cursor-pointer"
+                              >
+                                {bug.title}
+                              </button>
+                            </td>
+                            <td className="p-3 whitespace-nowrap">
+                              <span
+                                className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                                  bug.severity === "Blocker" || bug.severity === "Critical"
+                                    ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                    : "bg-slate-800 text-slate-300 border border-slate-700"
+                                }`}
+                              >
+                                {bug.severity}
+                              </span>
+                            </td>
+                            <td className="p-3 whitespace-nowrap font-bold text-slate-300 text-[11px]">{bug.priority}</td>
+                            <td className="p-3 whitespace-nowrap">
+                              <select
+                                value={bug.status}
+                                onChange={(e) => handleUpdateBugStatus(bug.id, e.target.value)}
+                                className="bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 text-[11px] font-bold focus:outline-none"
+                              >
+                                {BUG_STATUSES.map((st) => (
+                                  <option key={st} value={st}>
+                                    {st}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="p-3 whitespace-nowrap font-mono text-indigo-300 text-[11px]">{bug.assigneeEmail}</td>
+                            <td className="p-3 whitespace-nowrap">
+                              {bug.evidence && bug.evidence.startsWith("data:image") ? (
+                                <button
+                                  onClick={() => setExpandedImageSrc(bug.evidence)}
+                                  className="flex items-center gap-1.5 text-indigo-400 font-bold hover:underline text-[11px] cursor-pointer"
+                                >
+                                  <span>[View Screenshot]</span>
+                                </button>
+                              ) : (
+                                <span className="text-slate-500 text-[10px]">No image</span>
+                              )}
+                            </td>
+                            <td className="p-3 text-right whitespace-nowrap">
+                              <button
+                                onClick={() => setSelectedBugDetail(bug)}
+                                className="text-indigo-400 font-bold hover:underline cursor-pointer"
+                              >
+                                View Full 12 Fields
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+
+                        {filteredBugs.length === 0 && (
+                          <tr>
+                            <td colSpan={9} className="p-8 text-center text-slate-500 text-xs">
+                              No bugs found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </GlassSurface>
             )}
@@ -1274,79 +1306,81 @@ export default function App() {
       {/* CHANGE PASSWORD MODAL */}
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 w-full">
-              <h3 className="text-sm font-bold text-white">Change Account Password</h3>
-              <button
-                onClick={() => setIsChangePasswordModalOpen(false)}
-                className="text-slate-400 hover:text-white font-bold cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-
-            {passwordMessage.text && (
-              <div
-                className={`p-3 rounded-lg text-xs font-semibold text-center w-full ${
-                  passwordMessage.type === "success"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                    : "bg-red-500/20 text-red-300 border border-red-500/30"
-                }`}
-              >
-                {passwordMessage.text}
-              </div>
-            )}
-
-            <form onSubmit={handleChangePasswordSubmit} className="space-y-3 text-xs w-full">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Current Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Enter current password..."
-                  value={passwordForm.currentPassword}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">New Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="At least 6 characters..."
-                  value={passwordForm.newPassword}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Confirm New Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Re-enter new password..."
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 w-full">
+          <GlassSurface width={420} height="auto" borderRadius={20} backgroundOpacity={0.4}>
+            <div className="w-full p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-white">Change Account Password</h3>
                 <button
-                  type="button"
                   onClick={() => setIsChangePasswordModalOpen(false)}
-                  className="px-3 py-1.5 text-slate-400 cursor-pointer"
+                  className="text-slate-400 hover:text-white font-bold cursor-pointer"
                 >
-                  Cancel
-                </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">
-                  Update Password
+                  Close
                 </button>
               </div>
-            </form>
+
+              {passwordMessage.text && (
+                <div
+                  className={`p-3 rounded-lg text-xs font-semibold text-center ${
+                    passwordMessage.type === "success"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-red-500/20 text-red-300 border border-red-500/30"
+                  }`}
+                >
+                  {passwordMessage.text}
+                </div>
+              )}
+
+              <form onSubmit={handleChangePasswordSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Current Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter current password..."
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">New Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="At least 6 characters..."
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Re-enter new password..."
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsChangePasswordModalOpen(false)}
+                    className="px-3 py-1.5 text-slate-400 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </div>
           </GlassSurface>
         </div>
       )}
@@ -1354,76 +1388,78 @@ export default function App() {
       {/* MODAL 1: ADD COMPANY */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2 w-full">
-              <h3 className="text-sm font-bold text-white">
-                {editingCompany ? "Edit Software Company" : "Add New Software Company"}
-              </h3>
-              <button onClick={() => setIsAddCompanyModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
-                Close
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveCompany} className="space-y-3 text-xs w-full">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Software Company Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Eprecisio Technologies"
-                  value={companyForm.name}
-                  onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
+          <GlassSurface width={440} height="auto" borderRadius={20} backgroundOpacity={0.4}>
+            <div className="w-full p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold text-white">
+                  {editingCompany ? "Edit Software Company" : "Add New Software Company"}
+                </h3>
+                <button onClick={() => setIsAddCompanyModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
+                  Close
+                </button>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Tech Lead Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Alex Vance"
-                  value={companyForm.techLeadName}
-                  onChange={(e) => setCompanyForm({ ...companyForm, techLeadName: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Authorized Tech Lead Email (Login Email)</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="lead@eprecisio.com"
-                  value={companyForm.techLeadEmail}
-                  onChange={(e) => setCompanyForm({ ...companyForm, techLeadEmail: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
-                />
-              </div>
-
-              {!editingCompany && (
+              <form onSubmit={handleSaveCompany} className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Tech Lead Initial Password</label>
+                  <label className="block font-semibold text-slate-300 mb-1">Software Company Name</label>
                   <input
                     type="text"
                     required
-                    placeholder="password123"
-                    value={companyForm.techLeadPassword}
-                    onChange={(e) => setCompanyForm({ ...companyForm, techLeadPassword: e.target.value })}
+                    placeholder="e.g. Eprecisio Technologies"
+                    value={companyForm.name}
+                    onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Tech Lead Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Alex Vance"
+                    value={companyForm.techLeadName}
+                    onChange={(e) => setCompanyForm({ ...companyForm, techLeadName: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Authorized Tech Lead Email (Login Email)</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="lead@eprecisio.com"
+                    value={companyForm.techLeadEmail}
+                    onChange={(e) => setCompanyForm({ ...companyForm, techLeadEmail: e.target.value })}
                     className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
                   />
                 </div>
-              )}
 
-              <div className="flex justify-end gap-2 pt-2 w-full">
-                <button type="button" onClick={() => setIsAddCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
-                  Cancel
-                </button>
-                <button type="submit" className="bg-purple-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
-                  {editingCompany ? "Update Company" : "Save Company"}
-                </button>
-              </div>
-            </form>
+                {!editingCompany && (
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Tech Lead Initial Password</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="password123"
+                      value={companyForm.techLeadPassword}
+                      onChange={(e) => setCompanyForm({ ...companyForm, techLeadPassword: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setIsAddCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
+                    Cancel
+                  </button>
+                  <button type="submit" className="bg-purple-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
+                    {editingCompany ? "Update Company" : "Save Company"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </GlassSurface>
         </div>
       )}
@@ -1431,64 +1467,66 @@ export default function App() {
       {/* MODAL 2: ADD PROJECT */}
       {isAddProjectModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2 w-full">
-              <h3 className="text-sm font-bold text-white">
-                {editingProject ? "Edit Project" : "Add New Project"}
-              </h3>
-              <button onClick={() => setIsAddProjectModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
-                Close
-              </button>
-            </div>
+          <GlassSurface width={440} height="auto" borderRadius={20} backgroundOpacity={0.4}>
+            <div className="w-full p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold text-white">
+                  {editingProject ? "Edit Project" : "Add New Project"}
+                </h3>
+                <button onClick={() => setIsAddProjectModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
+                  Close
+                </button>
+              </div>
 
-            <form onSubmit={handleSaveProject} className="space-y-3 text-xs w-full">
-              {!editingProject && (
+              <form onSubmit={handleSaveProject} className="space-y-3 text-xs">
+                {!editingProject && (
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Project Key (Short Code)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. EPREC"
+                      maxLength={10}
+                      value={projectForm.key}
+                      onChange={(e) => setProjectForm({ ...projectForm, key: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white font-mono uppercase focus:outline-none"
+                    />
+                  </div>
+                )}
+
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Project Key (Short Code)</label>
+                  <label className="block font-semibold text-slate-300 mb-1">Project Name</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. EPREC"
-                    maxLength={10}
-                    value={projectForm.key}
-                    onChange={(e) => setProjectForm({ ...projectForm, key: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white font-mono uppercase focus:outline-none"
+                    placeholder="e.g. Enterprise Core Engine"
+                    value={projectForm.name}
+                    onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
                   />
                 </div>
-              )}
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Project Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Enterprise Core Engine"
-                  value={projectForm.name}
-                  onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Description</label>
+                  <textarea
+                    rows="3"
+                    placeholder="Project details..."
+                    value={projectForm.description}
+                    onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Description</label>
-                <textarea
-                  rows="3"
-                  placeholder="Project details..."
-                  value={projectForm.description}
-                  onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 w-full">
-                <button type="button" onClick={() => setIsAddProjectModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
-                  Cancel
-                </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
-                  {editingProject ? "Update Project" : "Create Project"}
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setIsAddProjectModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
+                    Cancel
+                  </button>
+                  <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
+                    {editingProject ? "Update Project" : "Create Project"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </GlassSurface>
         </div>
       )}
@@ -1496,64 +1534,66 @@ export default function App() {
       {/* MODAL 3: ADD ASSIGNEE EMAIL */}
       {isAddAssigneeModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-md p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2 w-full">
-              <h3 className="text-sm font-bold text-white">
-                {editingAssignee ? "Edit Assignee Email" : "Add Team Assignee Email"}
-              </h3>
-              <button onClick={() => setIsAddAssigneeModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
-                Close
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveAssignee} className="space-y-3 text-xs w-full">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Assignee Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. David Kim"
-                  value={assigneeForm.name}
-                  onChange={(e) => setAssigneeForm({ ...assigneeForm, name: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
+          <GlassSurface width={440} height="auto" borderRadius={20} backgroundOpacity={0.4}>
+            <div className="w-full p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold text-white">
+                  {editingAssignee ? "Edit Assignee Email" : "Add Team Assignee Email"}
+                </h3>
+                <button onClick={() => setIsAddAssigneeModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
+                  Close
+                </button>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Authorized Assignee Email (Login Email)</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="david@eprecisio.com"
-                  value={assigneeForm.email}
-                  onChange={(e) => setAssigneeForm({ ...assigneeForm, email: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
-                />
-              </div>
-
-              {!editingAssignee && (
+              <form onSubmit={handleSaveAssignee} className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Initial Password</label>
+                  <label className="block font-semibold text-slate-300 mb-1">Assignee Full Name</label>
                   <input
                     type="text"
                     required
-                    placeholder="password123"
-                    value={assigneeForm.password}
-                    onChange={(e) => setAssigneeForm({ ...assigneeForm, password: e.target.value })}
+                    placeholder="e.g. David Kim"
+                    value={assigneeForm.name}
+                    onChange={(e) => setAssigneeForm({ ...assigneeForm, name: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Authorized Assignee Email (Login Email)</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="david@eprecisio.com"
+                    value={assigneeForm.email}
+                    onChange={(e) => setAssigneeForm({ ...assigneeForm, email: e.target.value })}
                     className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
                   />
                 </div>
-              )}
 
-              <div className="flex justify-end gap-2 pt-2 w-full">
-                <button type="button" onClick={() => setIsAddAssigneeModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
-                  Cancel
-                </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
-                  {editingAssignee ? "Update Assignee" : "Add Assignee"}
-                </button>
-              </div>
-            </form>
+                {!editingAssignee && (
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Initial Password</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="password123"
+                      value={assigneeForm.password}
+                      onChange={(e) => setAssigneeForm({ ...assigneeForm, password: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white font-mono focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setIsAddAssigneeModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
+                    Cancel
+                  </button>
+                  <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
+                    {editingAssignee ? "Update Assignee" : "Add Assignee"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </GlassSurface>
         </div>
       )}
@@ -1561,236 +1601,238 @@ export default function App() {
       {/* MODAL 4: CREATE BUG */}
       {isAddBugModalOpen && (isTechLead || isAssignee) && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 w-full">
-              <h3 className="text-sm font-bold text-white">
-                Create & Assign Commercial Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
-              </h3>
-              <button onClick={() => setIsAddBugModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
-                Close
-              </button>
+          <GlassSurface width={650} height="auto" borderRadius={24} backgroundOpacity={0.4}>
+            <div className="w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-white">
+                  Create & Assign Commercial Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
+                </h3>
+                <button onClick={() => setIsAddBugModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
+                  Close
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveBug} className="space-y-3 text-xs">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Target Project</label>
+                    <select
+                      value={bugForm.projectKey}
+                      onChange={(e) => setBugForm({ ...bugForm, projectKey: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                    >
+                      {scopedProjects.map((p) => (
+                        <option key={p.key} value={p.key}>
+                          [{p.key}] {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Category</label>
+                    <select
+                      value={bugForm.category}
+                      onChange={(e) => setBugForm({ ...bugForm, category: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                    >
+                      {BUG_CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Title / Summary</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Broken navigation links on corporate portal footer"
+                    value={bugForm.title}
+                    onChange={(e) => setBugForm({ ...bugForm, title: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Steps to Reproduce</label>
+                  <textarea
+                    rows="3"
+                    required
+                    placeholder="1. Open homepage&#10;2. Scroll to footer&#10;3. Click link..."
+                    value={bugForm.stepsToReproduce}
+                    onChange={(e) => setBugForm({ ...bugForm, stepsToReproduce: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Expected Result</label>
+                    <textarea
+                      rows="2"
+                      placeholder="Each link should open the correct page..."
+                      value={bugForm.expectedResult}
+                      onChange={(e) => setBugForm({ ...bugForm, expectedResult: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Actual Result</label>
+                    <textarea
+                      rows="2"
+                      placeholder="Links do not navigate anywhere..."
+                      value={bugForm.actualResult}
+                      onChange={(e) => setBugForm({ ...bugForm, actualResult: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Impact</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Users cannot reach intended pages; reduces site credibility"
+                    value={bugForm.impact}
+                    onChange={(e) => setBugForm({ ...bugForm, impact: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Severity</label>
+                    <select
+                      value={bugForm.severity}
+                      onChange={(e) => setBugForm({ ...bugForm, severity: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                    >
+                      {SEVERITY_LEVELS.map((sev) => (
+                        <option key={sev} value={sev}>
+                          {sev}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Priority</label>
+                    <select
+                      value={bugForm.priority}
+                      onChange={(e) => setBugForm({ ...bugForm, priority: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                    >
+                      {PRIORITY_LEVELS.map((pri) => (
+                        <option key={pri} value={pri}>
+                          {pri}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Status (Lifecycle)</label>
+                    <select
+                      value={bugForm.status}
+                      onChange={(e) => setBugForm({ ...bugForm, status: e.target.value })}
+                      className="w-full glass-input rounded-lg p-2 text-white focus:outline-none font-bold"
+                    >
+                      {BUG_STATUSES.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* LARGE SCREENSHOT DROPZONE */}
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">
+                    Screenshot Evidence (Large Drag/Drop or Paste Image Box)
+                  </label>
+                  <div
+                    onPaste={handleImagePaste}
+                    className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 glass-card text-center space-y-2 relative"
+                  >
+                    {bugForm.evidence ? (
+                      <div className="space-y-2">
+                        <img
+                          src={bugForm.evidence}
+                          alt="Screenshot Preview"
+                          onClick={() => setExpandedImageSrc(bugForm.evidence)}
+                          className="max-h-48 mx-auto rounded-lg border border-slate-700 object-contain cursor-zoom-in"
+                        />
+                        <div className="flex justify-center gap-3 text-xs">
+                          <span className="text-emerald-400 font-bold">Screenshot Attached</span>
+                          <button
+                            type="button"
+                            onClick={() => setBugForm({ ...bugForm, evidence: "" })}
+                            className="text-red-400 font-bold hover:underline cursor-pointer"
+                          >
+                            Remove Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer block space-y-1">
+                        <div className="text-xs font-bold text-white">
+                          Click to Choose Image File or Paste (Ctrl+V / Cmd+V)
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                          Supports PNG, JPG, WebP screenshot evidence files
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Assign to Team Assignee Email</label>
+                  <select
+                    value={bugForm.assigneeEmail}
+                    onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
+                  >
+                    {scopedAssignees.map((u) => (
+                      <option key={u.id} value={u.email}>
+                        {u.name} ({u.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Notes</label>
+                  <input
+                    type="text"
+                    placeholder="Additional technical notes..."
+                    value={bugForm.notes}
+                    onChange={(e) => setBugForm({ ...bugForm, notes: e.target.value })}
+                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                  <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
+                    Cancel
+                  </button>
+                  <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">
+                    Create & Assign Bug
+                  </button>
+                </div>
+              </form>
             </div>
-
-            <form onSubmit={handleSaveBug} className="space-y-3 text-xs w-full">
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Target Project</label>
-                  <select
-                    value={bugForm.projectKey}
-                    onChange={(e) => setBugForm({ ...bugForm, projectKey: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                  >
-                    {scopedProjects.map((p) => (
-                      <option key={p.key} value={p.key}>
-                        [{p.key}] {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Category</label>
-                  <select
-                    value={bugForm.category}
-                    onChange={(e) => setBugForm({ ...bugForm, category: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                  >
-                    {BUG_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Title / Summary</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Broken navigation links on corporate portal footer"
-                  value={bugForm.title}
-                  onChange={(e) => setBugForm({ ...bugForm, title: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Steps to Reproduce</label>
-                <textarea
-                  rows="3"
-                  required
-                  placeholder="1. Open homepage&#10;2. Scroll to footer&#10;3. Click link..."
-                  value={bugForm.stepsToReproduce}
-                  onChange={(e) => setBugForm({ ...bugForm, stepsToReproduce: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2.5 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Expected Result</label>
-                  <textarea
-                    rows="2"
-                    placeholder="Each link should open the correct page..."
-                    value={bugForm.expectedResult}
-                    onChange={(e) => setBugForm({ ...bugForm, expectedResult: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Actual Result</label>
-                  <textarea
-                    rows="2"
-                    placeholder="Links do not navigate anywhere..."
-                    value={bugForm.actualResult}
-                    onChange={(e) => setBugForm({ ...bugForm, actualResult: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Impact</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Users cannot reach intended pages; reduces site credibility"
-                  value={bugForm.impact}
-                  onChange={(e) => setBugForm({ ...bugForm, impact: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 w-full">
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Severity</label>
-                  <select
-                    value={bugForm.severity}
-                    onChange={(e) => setBugForm({ ...bugForm, severity: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                  >
-                    {SEVERITY_LEVELS.map((sev) => (
-                      <option key={sev} value={sev}>
-                        {sev}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Priority</label>
-                  <select
-                    value={bugForm.priority}
-                    onChange={(e) => setBugForm({ ...bugForm, priority: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                  >
-                    {PRIORITY_LEVELS.map((pri) => (
-                      <option key={pri} value={pri}>
-                        {pri}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Status (Lifecycle)</label>
-                  <select
-                    value={bugForm.status}
-                    onChange={(e) => setBugForm({ ...bugForm, status: e.target.value })}
-                    className="w-full glass-input rounded-lg p-2 text-white focus:outline-none font-bold"
-                  >
-                    {BUG_STATUSES.map((st) => (
-                      <option key={st} value={st}>
-                        {st}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* LARGE SCREENSHOT DROPZONE */}
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">
-                  Screenshot Evidence (Large Drag/Drop or Paste Image Box)
-                </label>
-                <div
-                  onPaste={handleImagePaste}
-                  className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 glass-card text-center space-y-2 relative w-full"
-                >
-                  {bugForm.evidence ? (
-                    <div className="space-y-2 w-full">
-                      <img
-                        src={bugForm.evidence}
-                        alt="Screenshot Preview"
-                        onClick={() => setExpandedImageSrc(bugForm.evidence)}
-                        className="max-h-48 mx-auto rounded-lg border border-slate-700 object-contain cursor-zoom-in"
-                      />
-                      <div className="flex justify-center gap-3 text-xs">
-                        <span className="text-emerald-400 font-bold">Screenshot Attached</span>
-                        <button
-                          type="button"
-                          onClick={() => setBugForm({ ...bugForm, evidence: "" })}
-                          className="text-red-400 font-bold hover:underline cursor-pointer"
-                        >
-                          Remove Image
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block space-y-1 w-full">
-                      <div className="text-xs font-bold text-white">
-                        Click to Choose Image File or Paste (Ctrl+V / Cmd+V)
-                      </div>
-                      <p className="text-[11px] text-slate-400">
-                        Supports PNG, JPG, WebP screenshot evidence files
-                      </p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageFileChange}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Assign to Team Assignee Email</label>
-                <select
-                  value={bugForm.assigneeEmail}
-                  onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
-                >
-                  {scopedAssignees.map((u) => (
-                    <option key={u.id} value={u.email}>
-                      {u.name} ({u.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Notes</label>
-                <input
-                  type="text"
-                  placeholder="Additional technical notes..."
-                  value={bugForm.notes}
-                  onChange={(e) => setBugForm({ ...bugForm, notes: e.target.value })}
-                  className="w-full glass-input rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800 w-full">
-                <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
-                  Cancel
-                </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">
-                  Create & Assign Bug
-                </button>
-              </div>
-            </form>
           </GlassSurface>
         </div>
       )}
@@ -1798,138 +1840,140 @@ export default function App() {
       {/* MODAL 5: BUG DETAIL */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <GlassSurface borderRadius={24} width="100%" height="auto" className="max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 w-full">
-              <div className="flex items-center gap-3">
-                <span className="font-mono font-bold text-base text-indigo-400">{selectedBugDetail.id}</span>
-                <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
-                  Category: {selectedBugDetail.category}
-                </span>
-                <span className="text-xs text-slate-400 font-mono">[{selectedBugDetail.projectKey}]</span>
-              </div>
-              <button onClick={() => setSelectedBugDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs cursor-pointer">
-                Close
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs w-full">
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                  Title / Summary
-                </span>
-                <h3 className="text-base font-bold text-white leading-snug">{selectedBugDetail.title}</h3>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <div className="p-3 rounded-lg glass-card space-y-1">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                    Steps to Reproduce
+          <GlassSurface width={650} height="auto" borderRadius={24} backgroundOpacity={0.4}>
+            <div className="w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono font-bold text-base text-indigo-400">{selectedBugDetail.id}</span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
+                    Category: {selectedBugDetail.category}
                   </span>
-                  <p className="whitespace-pre-line text-slate-300 leading-relaxed">{selectedBugDetail.stepsToReproduce}</p>
+                  <span className="text-xs text-slate-400 font-mono">[{selectedBugDetail.projectKey}]</span>
+                </div>
+                <button onClick={() => setSelectedBugDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs cursor-pointer">
+                  Close
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    Title / Summary
+                  </span>
+                  <h3 className="text-base font-bold text-white leading-snug">{selectedBugDetail.title}</h3>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="p-2.5 rounded-lg glass-card">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
-                      Expected Result
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg glass-card space-y-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                      Steps to Reproduce
                     </span>
-                    <p className="text-slate-300">{selectedBugDetail.expectedResult}</p>
+                    <p className="whitespace-pre-line text-slate-300 leading-relaxed">{selectedBugDetail.stepsToReproduce}</p>
                   </div>
-                  <div className="p-2.5 rounded-lg glass-card">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
-                      Actual Result
-                    </span>
-                    <p className="text-slate-300">{selectedBugDetail.actualResult}</p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="p-3 rounded-lg glass-card w-full">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
-                  Impact
-                </span>
-                <p className="text-slate-300">{selectedBugDetail.impact}</p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 p-3 rounded-lg glass-panel w-full">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Severity</span>
-                  <span className="font-bold text-red-400">{selectedBugDetail.severity}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Priority</span>
-                  <span className="font-bold text-amber-400">{selectedBugDetail.priority}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status (Lifecycle)</span>
-                  <select
-                    value={selectedBugDetail.status}
-                    onChange={(e) => handleUpdateBugStatus(selectedBugDetail.id, e.target.value)}
-                    className="w-full glass-input rounded px-2 py-1 font-bold text-indigo-300 focus:outline-none"
-                  >
-                    {BUG_STATUSES.map((st) => (
-                      <option key={st} value={st}>
-                        {st}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* SCREENSHOT EVIDENCE BOX */}
-              <div className="p-3 rounded-lg glass-card space-y-2 w-full">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                  Screenshot Evidence (Click Image to Enlarge Fullscreen)
-                </span>
-                {selectedBugDetail.evidence && selectedBugDetail.evidence.startsWith("data:image") ? (
-                  <div
-                    onClick={() => setExpandedImageSrc(selectedBugDetail.evidence)}
-                    className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in max-h-56 bg-slate-950 flex items-center justify-center p-2 w-full"
-                  >
-                    <img
-                      src={selectedBugDetail.evidence}
-                      alt="Bug Evidence Screenshot"
-                      className="max-h-48 object-contain rounded"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-white transition">
-                      Click to View Fullscreen Image
+                  <div className="space-y-2">
+                    <div className="p-2.5 rounded-lg glass-card">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                        Expected Result
+                      </span>
+                      <p className="text-slate-300">{selectedBugDetail.expectedResult}</p>
+                    </div>
+                    <div className="p-2.5 rounded-lg glass-card">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                        Actual Result
+                      </span>
+                      <p className="text-slate-300">{selectedBugDetail.actualResult}</p>
                     </div>
                   </div>
-                ) : (
-                  <p className="text-slate-400 text-xs font-mono">{selectedBugDetail.evidence || "No screenshot attached."}</p>
+                </div>
+
+                <div className="p-3 rounded-lg glass-card">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                    Impact
+                  </span>
+                  <p className="text-slate-300">{selectedBugDetail.impact}</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 p-3 rounded-lg glass-panel">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Severity</span>
+                    <span className="font-bold text-red-400">{selectedBugDetail.severity}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Priority</span>
+                    <span className="font-bold text-amber-400">{selectedBugDetail.priority}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status (Lifecycle)</span>
+                    <select
+                      value={selectedBugDetail.status}
+                      onChange={(e) => handleUpdateBugStatus(selectedBugDetail.id, e.target.value)}
+                      className="w-full glass-input rounded px-2 py-1 font-bold text-indigo-300 focus:outline-none"
+                    >
+                      {BUG_STATUSES.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* SCREENSHOT EVIDENCE BOX */}
+                <div className="p-3 rounded-lg glass-card space-y-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                    Screenshot Evidence (Click Image to Enlarge Fullscreen)
+                  </span>
+                  {selectedBugDetail.evidence && selectedBugDetail.evidence.startsWith("data:image") ? (
+                    <div
+                      onClick={() => setExpandedImageSrc(selectedBugDetail.evidence)}
+                      className="relative rounded-lg overflow-hidden border border-slate-700 group cursor-zoom-in max-h-56 bg-slate-950 flex items-center justify-center p-2"
+                    >
+                      <img
+                        src={selectedBugDetail.evidence}
+                        alt="Bug Evidence Screenshot"
+                        className="max-h-48 object-contain rounded"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-white transition">
+                        Click to View Fullscreen Image
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-slate-400 text-xs font-mono">{selectedBugDetail.evidence || "No screenshot attached."}</p>
+                  )}
+                </div>
+
+                <div className="p-2.5 rounded-lg glass-card">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                    Assigned Email
+                  </span>
+                  <span className="font-mono text-indigo-300">{selectedBugDetail.assigneeEmail}</span>
+                </div>
+
+                {selectedBugDetail.notes && (
+                  <div className="p-2.5 rounded-lg glass-card">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Notes</span>
+                    <p className="text-slate-400">{selectedBugDetail.notes}</p>
+                  </div>
                 )}
               </div>
 
-              <div className="p-2.5 rounded-lg glass-card w-full">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
-                  Assigned Email
-                </span>
-                <span className="font-mono text-indigo-300">{selectedBugDetail.assigneeEmail}</span>
-              </div>
-
-              {selectedBugDetail.notes && (
-                <div className="p-2.5 rounded-lg glass-card w-full">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Notes</span>
-                  <p className="text-slate-400">{selectedBugDetail.notes}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs w-full">
-              {isTechLead && (
-                <button
-                  onClick={() => {
-                    setBugs(bugs.filter((b) => b.id !== selectedBugDetail.id));
-                    setSelectedBugDetail(null);
-                  }}
-                  className="text-red-400 font-bold hover:underline cursor-pointer"
-                >
-                  Delete Bug (Tech Lead)
+              <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+                {isTechLead && (
+                  <button
+                    onClick={() => {
+                      setBugs(bugs.filter((b) => b.id !== selectedBugDetail.id));
+                      setSelectedBugDetail(null);
+                    }}
+                    className="text-red-400 font-bold hover:underline cursor-pointer"
+                  >
+                    Delete Bug (Tech Lead)
+                  </button>
+                )}
+                <button onClick={() => setSelectedBugDetail(null)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold ml-auto cursor-pointer">
+                  Done
                 </button>
-              )}
-              <button onClick={() => setSelectedBugDetail(null)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold ml-auto cursor-pointer">
-                Done
-              </button>
+              </div>
             </div>
           </GlassSurface>
         </div>
