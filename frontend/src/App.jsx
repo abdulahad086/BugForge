@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import RippleGrid from "./RippleGrid";
 
 // Pre-seeded Software Companies
 const INITIAL_COMPANIES = [
@@ -324,7 +325,7 @@ export default function App() {
   const scopedProjects = projects.filter((p) => p.companyId === currentUser?.companyId);
   const scopedAssignees = users.filter((u) => u.companyId === currentUser?.companyId && u.role === "ASSIGNEE");
 
-  // ALL TEAM MEMBERS (TECH LEAD & ASSIGNEES/DEVS/QA) IN THE COMPANY SEE THE SAME SHARED PROJECT BUGS BOARD!
+  // SHARED COMPANY PROJECT BUGS BOARD
   const scopedBugs = bugs.filter((b) => b.companyId === currentUser?.companyId);
 
   const filteredBugs = scopedBugs.filter((b) => {
@@ -468,7 +469,7 @@ export default function App() {
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  // Actions: Create Bug (ALLOWED FOR BOTH TECH LEADS AND ASSIGNEES/DEVS/QA!)
+  // Actions: Create Bug
   const handleSaveBug = (e) => {
     e.preventDefault();
     if (!isTechLead && !isAssignee) return;
@@ -515,7 +516,7 @@ export default function App() {
     setIsAddBugModalOpen(false);
   };
 
-  // Assignee & Tech Lead Update Bug Status
+  // Status Update
   const handleUpdateBugStatus = (bugId, newStatus) => {
     setBugs(bugs.map((b) => (b.id === bugId ? { ...b, status: newStatus } : b)));
     if (selectedBugDetail && selectedBugDetail.id === bugId) {
@@ -524,14 +525,26 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: LOGIN SCREEN
+  // SCREEN 1: LOGIN SCREEN WITH ANIMATED RIPPLEGRID BACKGROUND
   // =========================================================================
   if (!currentUser) {
     return (
-      <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#0f1422] border border-slate-800 rounded-2xl p-7 space-y-6 shadow-2xl">
+      <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* REACT BITS ANIMATED RIPPLEGRID BACKGROUND */}
+        <RippleGrid
+          enableRainbow={false}
+          gridColor="#6366f1"
+          rippleIntensity={0.06}
+          gridSize={12}
+          gridThickness={16}
+          mouseInteraction={true}
+          mouseInteractionRadius={1.2}
+          opacity={0.7}
+        />
+
+        <div className="w-full max-w-md bg-[#0f1422]/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-7 space-y-6 shadow-2xl z-10">
           <div className="text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/40">
               BF
             </div>
             <h1 className="text-xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
@@ -553,7 +566,7 @@ export default function App() {
                 placeholder="your.email@company.com"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
               />
             </div>
 
@@ -565,13 +578,13 @@ export default function App() {
                 placeholder="Enter password..."
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-indigo-500"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30 cursor-pointer"
             >
               Log In to Workspace
             </button>
@@ -582,15 +595,27 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE
+  // SCREEN 2: AUTHENTICATED WORKSPACE WITH ANIMATED RIPPLEGRID BACKGROUND
   // =========================================================================
   return (
-    <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden">
+    <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden relative">
+      {/* REACT BITS ANIMATED RIPPLEGRID BACKGROUND */}
+      <RippleGrid
+        enableRainbow={false}
+        gridColor="#4f46e5"
+        rippleIntensity={0.04}
+        gridSize={14}
+        gridThickness={14}
+        mouseInteraction={true}
+        mouseInteractionRadius={1.0}
+        opacity={0.4}
+      />
+
       {/* HEADER */}
-      <header className="h-14 bg-[#0f1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
+      <header className="h-14 bg-[#0f1422]/90 backdrop-blur-md border-b border-slate-800 px-5 flex items-center justify-between shrink-0 z-10">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-md shadow-indigo-600/40">
               BF
             </div>
             <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
@@ -600,7 +625,7 @@ export default function App() {
             {isSuperAdmin && (
               <button
                 onClick={() => setActiveTab("COMPANIES")}
-                className="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold"
+                className="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold cursor-pointer"
               >
                 Software Companies ({companies.length})
               </button>
@@ -610,7 +635,7 @@ export default function App() {
               <>
                 <button
                   onClick={() => setActiveTab("PROJECTS")}
-                  className={`px-3 py-1.5 rounded-lg ${
+                  className={`px-3 py-1.5 rounded-lg cursor-pointer ${
                     activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -618,7 +643,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab("BUGS")}
-                  className={`px-3 py-1.5 rounded-lg ${
+                  className={`px-3 py-1.5 rounded-lg cursor-pointer ${
                     activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -626,7 +651,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab("ASSIGNEES")}
-                  className={`px-3 py-1.5 rounded-lg ${
+                  className={`px-3 py-1.5 rounded-lg cursor-pointer ${
                     activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -638,7 +663,7 @@ export default function App() {
             {isAssignee && (
               <button
                 onClick={() => setActiveTab("BUGS")}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold"
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer"
               >
                 Shared Team Bug Board ({scopedBugs.length})
               </button>
@@ -648,7 +673,7 @@ export default function App() {
 
         {/* IDENTITY & CHANGE PASSWORD */}
         <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
+          <div className="flex items-center gap-2 bg-[#141a2a]/80 backdrop-blur-md border border-slate-700 px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
             <span className="font-bold text-white">{currentUser.name}</span>
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
@@ -660,14 +685,14 @@ export default function App() {
               setPasswordMessage({ type: "", text: "" });
               setIsChangePasswordModalOpen(true);
             }}
-            className="text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1 rounded-lg font-bold"
+            className="text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 px-3 py-1 rounded-lg font-bold cursor-pointer"
           >
             Change Password
           </button>
 
           <button
             onClick={handleLogout}
-            className="text-slate-400 hover:text-red-400 border border-slate-800 px-3 py-1 rounded-lg font-bold"
+            className="text-slate-400 hover:text-red-400 border border-slate-800 px-3 py-1 rounded-lg font-bold cursor-pointer"
           >
             Logout
           </button>
@@ -676,12 +701,12 @@ export default function App() {
 
       {/* Role Banner Notice */}
       <div
-        className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between ${
+        className={`px-5 py-1.5 text-xs font-semibold border-b flex items-center justify-between z-10 backdrop-blur-md ${
           isSuperAdmin
-            ? "bg-purple-950/50 border-purple-800/60 text-purple-300"
+            ? "bg-purple-950/60 border-purple-800/60 text-purple-300"
             : isTechLead
-            ? "bg-indigo-950/40 border-indigo-800/60 text-indigo-300"
-            : "bg-slate-900 border-slate-800 text-slate-400"
+            ? "bg-indigo-950/50 border-indigo-800/60 text-indigo-300"
+            : "bg-slate-900/70 border-slate-800 text-slate-400"
         }`}
       >
         <span>
@@ -696,8 +721,8 @@ export default function App() {
         </span>
       </div>
 
-      {/* MAIN WORKSPACE CONTENT */}
-      <main className="flex-1 bg-[#090c15] overflow-y-auto p-6">
+      {/* MAIN WORKSPACE CONTENT CONTAINER OVERLAY */}
+      <main className="flex-1 bg-transparent overflow-y-auto p-6 z-10">
         {/* VIEW 1: SUPER ADMIN COMPANIES */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
@@ -714,7 +739,7 @@ export default function App() {
                   setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
                   setIsAddCompanyModalOpen(true);
                 }}
-                className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
+                className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
               >
                 + Add Software Company (Super Admin)
               </button>
@@ -722,7 +747,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {companies.map((comp) => (
-                <div key={comp.id} className="bg-[#0f1422] border border-slate-800 rounded-xl p-5 space-y-3">
+                <div key={comp.id} className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl p-5 space-y-3 shadow-xl">
                   <div className="flex justify-between items-center">
                     <h3 className="text-sm font-bold text-white">{comp.name}</h3>
                     <div className="flex gap-2 text-xs">
@@ -737,20 +762,20 @@ export default function App() {
                           });
                           setIsAddCompanyModalOpen(true);
                         }}
-                        className="text-indigo-400 font-bold hover:underline"
+                        className="text-indigo-400 font-bold hover:underline cursor-pointer"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteCompany(comp.id)}
-                        className="text-red-400 font-bold hover:underline"
+                        className="text-red-400 font-bold hover:underline cursor-pointer"
                       >
                         Delete
                       </button>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#141a2a] border border-slate-800 rounded-lg text-xs space-y-1">
+                  <div className="p-3 bg-[#141a2a]/90 border border-slate-800 rounded-lg text-xs space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">
                       Authorized Tech Lead Login Email
                     </span>
@@ -784,7 +809,7 @@ export default function App() {
                   setProjectForm({ key: "", name: "", description: "" });
                   setIsAddProjectModalOpen(true);
                 }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
               >
                 + Add Project (Tech Lead)
               </button>
@@ -794,7 +819,7 @@ export default function App() {
               {scopedProjects.map((p) => {
                 const projBugs = bugs.filter((b) => b.projectKey === p.key && b.companyId === p.companyId);
                 return (
-                  <div key={p.id} className="bg-[#0f1422] border border-slate-800 rounded-xl p-4 space-y-3">
+                  <div key={p.id} className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl p-4 space-y-3 shadow-xl">
                     <div className="flex justify-between items-center">
                       <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                         [{p.key}]
@@ -806,13 +831,13 @@ export default function App() {
                             setProjectForm({ key: p.key, name: p.name, description: p.description });
                             setIsAddProjectModalOpen(true);
                           }}
-                          className="text-indigo-400 font-bold hover:underline"
+                          className="text-indigo-400 font-bold hover:underline cursor-pointer"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteProject(p.id)}
-                          className="text-red-400 font-bold hover:underline"
+                          className="text-red-400 font-bold hover:underline cursor-pointer"
                         >
                           Delete
                         </button>
@@ -831,7 +856,7 @@ export default function App() {
                           setSelectedProjectKey(p.key);
                           setActiveTab("BUGS");
                         }}
-                        className="text-indigo-400 font-bold hover:underline"
+                        className="text-indigo-400 font-bold hover:underline cursor-pointer"
                       >
                         View Lifecycle -&gt;
                       </button>
@@ -859,15 +884,15 @@ export default function App() {
                   setAssigneeForm({ name: "", email: "", password: "" });
                   setIsAddAssigneeModalOpen(true);
                 }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
               >
                 + Add Assignee Email (Tech Lead)
               </button>
             </div>
 
-            <div className="bg-[#0f1422] border border-slate-800 rounded-xl overflow-hidden text-xs">
+            <div className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl overflow-hidden text-xs shadow-xl">
               <table className="w-full text-left text-slate-300">
-                <thead className="bg-[#141a2a] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
+                <thead className="bg-[#141a2a]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                   <tr>
                     <th className="p-3">Assignee Name</th>
                     <th className="p-3">Authorized Login Email</th>
@@ -896,13 +921,13 @@ export default function App() {
                               setAssigneeForm({ name: u.name, email: u.email, password: "" });
                               setIsAddAssigneeModalOpen(true);
                             }}
-                            className="text-indigo-400 font-bold hover:underline"
+                            className="text-indigo-400 font-bold hover:underline cursor-pointer"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteAssignee(u.id)}
-                            className="text-red-400 font-bold hover:underline"
+                            className="text-red-400 font-bold hover:underline cursor-pointer"
                           >
                             Delete
                           </button>
@@ -916,7 +941,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 4: SHARED COMPANY BUG BOARD (ACCESSIBLE TO ALL TEAM MEMBERS: TECH LEAD & ASSIGNEES/DEVS/QA!) */}
+        {/* VIEW 4: SHARED COMPANY BUG BOARD */}
         {activeTab === "BUGS" && (isTechLead || isAssignee) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -924,7 +949,7 @@ export default function App() {
                 <select
                   value={selectedProjectKey}
                   onChange={(e) => setSelectedProjectKey(e.target.value)}
-                  className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="bg-[#0f1422]/85 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
                 >
                   <option value="ALL">All Company Projects ({scopedProjects.length})</option>
                   {scopedProjects.map((p) => (
@@ -939,14 +964,14 @@ export default function App() {
                   placeholder="Search by ID, Title, Category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
+                  className="bg-[#0f1422]/85 border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
                 />
 
                 {/* VIEW LAYOUT TOGGLE */}
-                <div className="flex bg-[#141a2a] border border-slate-800 p-0.5 rounded-lg text-xs font-bold">
+                <div className="flex bg-[#141a2a]/90 backdrop-blur-md border border-slate-800 p-0.5 rounded-lg text-xs font-bold">
                   <button
                     onClick={() => setBugLayoutView("KANBAN")}
-                    className={`px-3 py-1 rounded-md transition ${
+                    className={`px-3 py-1 rounded-md transition cursor-pointer ${
                       bugLayoutView === "KANBAN"
                         ? "bg-indigo-600 text-white"
                         : "text-slate-400 hover:text-slate-200"
@@ -956,7 +981,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => setBugLayoutView("TABLE")}
-                    className={`px-3 py-1 rounded-md transition ${
+                    className={`px-3 py-1 rounded-md transition cursor-pointer ${
                       bugLayoutView === "TABLE"
                         ? "bg-indigo-600 text-white"
                         : "text-slate-400 hover:text-slate-200"
@@ -967,10 +992,9 @@ export default function App() {
                 </div>
               </div>
 
-              {/* BOTH TECH LEADS AND ASSIGNEES (DEVS / QA) CAN CREATE & REPORT BUGS! */}
               <button
                 onClick={() => setIsAddBugModalOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-indigo-600/30"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-indigo-600/30 cursor-pointer"
               >
                 + Create Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
               </button>
@@ -984,7 +1008,7 @@ export default function App() {
                   return (
                     <div
                       key={statusKey}
-                      className="bg-[#0f1422] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[520px]"
+                      className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl p-3 flex flex-col min-h-[520px] shadow-xl"
                     >
                       <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
                         <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
@@ -1000,7 +1024,7 @@ export default function App() {
                           <div
                             key={bug.id}
                             onClick={() => setSelectedBugDetail(bug)}
-                            className="bg-[#141a2a] border border-slate-800 hover:border-indigo-500/60 rounded-xl p-3 cursor-pointer transition space-y-2.5 shadow-lg"
+                            className="bg-[#141a2a]/90 border border-slate-800 hover:border-indigo-500/60 rounded-xl p-3 cursor-pointer transition space-y-2.5 shadow-lg"
                           >
                             <div className="flex items-center justify-between text-[10px]">
                               <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
@@ -1045,7 +1069,6 @@ export default function App() {
                               <span className="font-mono text-indigo-300 truncate max-w-[120px]">
                                 {bug.assigneeEmail}
                               </span>
-                              {/* STATUS UPDATE DROPDOWN */}
                               <select
                                 value={bug.status}
                                 onChange={(e) => {
@@ -1076,15 +1099,15 @@ export default function App() {
               </div>
             ) : (
               /* COMMERCIAL TABLE REGISTER VIEW */
-              <div className="bg-[#0f1422] border border-slate-800 rounded-xl overflow-hidden text-xs">
-                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]">
+              <div className="bg-[#0f1422]/85 backdrop-blur-xl border border-slate-800 rounded-xl overflow-hidden text-xs shadow-xl">
+                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]/90">
                   <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
                   <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-slate-300 border-collapse">
-                    <thead className="bg-[#182032] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
+                    <thead className="bg-[#182032]/90 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                       <tr>
                         <th className="p-3 whitespace-nowrap">Bug ID</th>
                         <th className="p-3 whitespace-nowrap">Category</th>
@@ -1105,7 +1128,7 @@ export default function App() {
                           <td className="p-3 max-w-xs font-semibold text-white">
                             <button
                               onClick={() => setSelectedBugDetail(bug)}
-                              className="hover:text-indigo-300 text-left line-clamp-1"
+                              className="hover:text-indigo-300 text-left line-clamp-1 cursor-pointer"
                             >
                               {bug.title}
                             </button>
@@ -1140,7 +1163,7 @@ export default function App() {
                             {bug.evidence && bug.evidence.startsWith("data:image") ? (
                               <button
                                 onClick={() => setExpandedImageSrc(bug.evidence)}
-                                className="flex items-center gap-1.5 text-indigo-400 font-bold hover:underline text-[11px]"
+                                className="flex items-center gap-1.5 text-indigo-400 font-bold hover:underline text-[11px] cursor-pointer"
                               >
                                 <span>[View Screenshot]</span>
                               </button>
@@ -1151,7 +1174,7 @@ export default function App() {
                           <td className="p-3 text-right whitespace-nowrap">
                             <button
                               onClick={() => setSelectedBugDetail(bug)}
-                              className="text-indigo-400 font-bold hover:underline"
+                              className="text-indigo-400 font-bold hover:underline cursor-pointer"
                             >
                               View Full 12 Fields
                             </button>
@@ -1179,7 +1202,7 @@ export default function App() {
       {expandedImageSrc && (
         <div
           onClick={() => setExpandedImageSrc(null)}
-          className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 cursor-zoom-out"
+          className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 cursor-zoom-out backdrop-blur-sm"
         >
           <div className="max-w-5xl w-full max-h-[90vh] flex flex-col items-center space-y-3">
             <div className="flex justify-between w-full text-white text-xs font-bold px-2">
@@ -1197,13 +1220,13 @@ export default function App() {
 
       {/* CHANGE PASSWORD MODAL */}
       {isChangePasswordModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-white">Change Account Password</h3>
               <button
                 onClick={() => setIsChangePasswordModalOpen(false)}
-                className="text-slate-400 hover:text-white font-bold"
+                className="text-slate-400 hover:text-white font-bold cursor-pointer"
               >
                 Close
               </button>
@@ -1262,11 +1285,11 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setIsChangePasswordModalOpen(false)}
-                  className="px-3 py-1.5 text-slate-400"
+                  className="px-3 py-1.5 text-slate-400 cursor-pointer"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg">
+                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">
                   Update Password
                 </button>
               </div>
@@ -1277,13 +1300,13 @@ export default function App() {
 
       {/* MODAL 1: ADD COMPANY */}
       {isAddCompanyModalOpen && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-sm font-bold text-white">
                 {editingCompany ? "Edit Software Company" : "Add New Software Company"}
               </h3>
-              <button onClick={() => setIsAddCompanyModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
+              <button onClick={() => setIsAddCompanyModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
                 Close
               </button>
             </div>
@@ -1340,10 +1363,10 @@ export default function App() {
               )}
 
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsAddCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400">
+                <button type="button" onClick={() => setIsAddCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
-                <button type="submit" className="bg-purple-600 text-white font-bold px-4 py-1.5 rounded-lg">
+                <button type="submit" className="bg-purple-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
                   {editingCompany ? "Update Company" : "Save Company"}
                 </button>
               </div>
@@ -1354,13 +1377,13 @@ export default function App() {
 
       {/* MODAL 2: ADD PROJECT */}
       {isAddProjectModalOpen && isTechLead && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-sm font-bold text-white">
                 {editingProject ? "Edit Project" : "Add New Project"}
               </h3>
-              <button onClick={() => setIsAddProjectModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
+              <button onClick={() => setIsAddProjectModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
                 Close
               </button>
             </div>
@@ -1405,10 +1428,10 @@ export default function App() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsAddProjectModalOpen(false)} className="px-3 py-1.5 text-slate-400">
+                <button type="button" onClick={() => setIsAddProjectModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg">
+                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
                   {editingProject ? "Update Project" : "Create Project"}
                 </button>
               </div>
@@ -1419,13 +1442,13 @@ export default function App() {
 
       {/* MODAL 3: ADD ASSIGNEE EMAIL */}
       {isAddAssigneeModalOpen && isTechLead && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-sm font-bold text-white">
                 {editingAssignee ? "Edit Assignee Email" : "Add Team Assignee Email"}
               </h3>
-              <button onClick={() => setIsAddAssigneeModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
+              <button onClick={() => setIsAddAssigneeModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
                 Close
               </button>
             </div>
@@ -1470,10 +1493,10 @@ export default function App() {
               )}
 
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsAddAssigneeModalOpen(false)} className="px-3 py-1.5 text-slate-400">
+                <button type="button" onClick={() => setIsAddAssigneeModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg">
+                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg cursor-pointer">
                   {editingAssignee ? "Update Assignee" : "Add Assignee"}
                 </button>
               </div>
@@ -1482,15 +1505,15 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: CREATE BUG (ALLOWED FOR BOTH TECH LEADS AND ASSIGNEES/DEVS/QA!) */}
+      {/* MODAL 4: CREATE BUG */}
       {isAddBugModalOpen && (isTechLead || isAssignee) && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-white">
                 Create & Assign Commercial Bug Ticket ({isTechLead ? "Tech Lead" : "Dev / QA"})
               </h3>
-              <button onClick={() => setIsAddBugModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
+              <button onClick={() => setIsAddBugModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">
                 Close
               </button>
             </div>
@@ -1633,7 +1656,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* LARGE INTERACTIVE SCREENSHOT UPLOAD & PASTE BOX */}
+              {/* LARGE SCREENSHOT DROPZONE */}
               <div>
                 <label className="block font-semibold text-slate-300 mb-1">
                   Screenshot Evidence (Large Drag/Drop or Paste Image Box)
@@ -1655,7 +1678,7 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => setBugForm({ ...bugForm, evidence: "" })}
-                          className="text-red-400 font-bold hover:underline"
+                          className="text-red-400 font-bold hover:underline cursor-pointer"
                         >
                           Remove Image
                         </button>
@@ -1707,10 +1730,10 @@ export default function App() {
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400">
+                <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400 cursor-pointer">
                   Cancel
                 </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg">
+                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">
                   Create & Assign Bug
                 </button>
               </div>
@@ -1721,7 +1744,7 @@ export default function App() {
 
       {/* MODAL 5: BUG DETAIL */}
       {selectedBugDetail && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-3">
@@ -1731,7 +1754,7 @@ export default function App() {
                 </span>
                 <span className="text-xs text-slate-400 font-mono">[{selectedBugDetail.projectKey}]</span>
               </div>
-              <button onClick={() => setSelectedBugDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs">
+              <button onClick={() => setSelectedBugDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs cursor-pointer">
                 Close
               </button>
             </div>
@@ -1846,12 +1869,12 @@ export default function App() {
                     setBugs(bugs.filter((b) => b.id !== selectedBugDetail.id));
                     setSelectedBugDetail(null);
                   }}
-                  className="text-red-400 font-bold hover:underline"
+                  className="text-red-400 font-bold hover:underline cursor-pointer"
                 >
                   Delete Bug (Tech Lead)
                 </button>
               )}
-              <button onClick={() => setSelectedBugDetail(null)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold ml-auto">
+              <button onClick={() => setSelectedBugDetail(null)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold ml-auto cursor-pointer">
                 Done
               </button>
             </div>
