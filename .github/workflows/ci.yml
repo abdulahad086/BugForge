@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   backend-ci:
-    name: 🐍 Backend Test & Quality
+    name:  Backend Test & Quality
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +38,7 @@ jobs:
           PYTHONPATH=. python -m pytest
 
   frontend-ci:
-    name: ⚡ Frontend Build & Quality
+    name:  Frontend Build & Quality
     runs-on: ubuntu-latest
 
     steps:
@@ -59,7 +59,7 @@ jobs:
           npm run build
 
   docker-build-and-push:
-    name: 🐳 Docker Build & Push GHCR
+    name:  Docker Build & Push GHCR
     needs: [backend-ci, frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -103,7 +103,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-gitops:
-    name: 🚀 GitOps ArgoCD Deployment
+    name:  GitOps ArgoCD Deployment
     needs: [docker-build-and-push]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
