@@ -1,98 +1,104 @@
 import React, { useState } from "react";
 
-// Initial Seeded Software Companies
+// Pre-seeded Companies
 const INITIAL_COMPANIES = [
   {
-    id: "comp-1",
+    id: "comp-eprecisio",
     name: "Eprecisio Technologies",
     techLeadEmail: "lead@eprecisio.com",
-    techLeadName: "Alex Vance (Tech Lead)",
+    techLeadName: "Alex Vance",
     createdAt: "2026-08-01",
   },
   {
-    id: "comp-2",
+    id: "comp-antigravity",
     name: "Antigravity Systems",
     techLeadEmail: "lead@antigravity.com",
-    techLeadName: "Sarah Connor (Tech Lead)",
+    techLeadName: "Sarah Connor",
     createdAt: "2026-08-02",
   },
 ];
 
-// Initial Seeded Users
+// Pre-seeded Authorized Users (Email + Password Authentication)
 const INITIAL_USERS = [
   // Super Admin (YOU)
   {
     id: "usr-super",
     companyId: null,
-    name: "Super Admin (You)",
+    name: "Super Administrator",
     email: "ahad8641@gmail.com",
+    password: "password123",
     role: "SUPER_ADMIN",
   },
-  // Eprecisio Tech Lead & Assignees
+  // Eprecisio Company Users
   {
-    id: "usr-ep1",
-    companyId: "comp-1",
-    name: "Alex Vance",
+    id: "usr-ep-tl",
+    companyId: "comp-eprecisio",
+    name: "Alex Vance (Tech Lead)",
     email: "lead@eprecisio.com",
+    password: "password123",
     role: "TECH_LEAD",
   },
   {
-    id: "usr-ep2",
-    companyId: "comp-1",
+    id: "usr-ep-dev1",
+    companyId: "comp-eprecisio",
     name: "David Kim",
     email: "david@eprecisio.com",
+    password: "password123",
     role: "ASSIGNEE",
   },
   {
-    id: "usr-ep3",
-    companyId: "comp-1",
+    id: "usr-ep-dev2",
+    companyId: "comp-eprecisio",
     name: "Maria Garcia",
     email: "maria@eprecisio.com",
+    password: "password123",
     role: "ASSIGNEE",
   },
-  // Antigravity Tech Lead & Assignees
+  // Antigravity Company Users
   {
-    id: "usr-ag1",
-    companyId: "comp-2",
-    name: "Sarah Connor",
+    id: "usr-ag-tl",
+    companyId: "comp-antigravity",
+    name: "Sarah Connor (Tech Lead)",
     email: "lead@antigravity.com",
+    password: "password123",
     role: "TECH_LEAD",
   },
   {
-    id: "usr-ag2",
-    companyId: "comp-2",
+    id: "usr-ag-dev1",
+    companyId: "comp-antigravity",
     name: "John Reese",
     email: "john@antigravity.com",
+    password: "password123",
     role: "ASSIGNEE",
   },
 ];
 
-// Initial Seeded Projects
+// Pre-seeded Projects
 const INITIAL_PROJECTS = [
   {
     id: "prj-ep1",
-    companyId: "comp-1",
+    companyId: "comp-eprecisio",
     key: "EPREC",
-    name: "Enterprise Core Backend",
-    description: "High performance microservices backend engine",
+    name: "Enterprise Core Engine",
+    description: "Backend REST API and async database pool engine",
   },
   {
     id: "prj-ag1",
-    companyId: "comp-2",
+    companyId: "comp-antigravity",
     key: "ANTI",
-    name: "AI Agentic Framework",
-    description: "Autonomous LLM trajectory engine",
+    name: "AI Trajectory Engine",
+    description: "Agentic AI memory and LLM trajectory manager",
   },
 ];
 
-// Initial Seeded Issues / Bugs
+// Pre-seeded Bugs / Issues
 const INITIAL_BUGS = [
   {
     id: "EPREC-101",
-    companyId: "comp-1",
+    companyId: "comp-eprecisio",
     projectKey: "EPREC",
-    title: "Database connection pool timeout under 10k RPS",
-    description: "Asyncpg connection slots exhaust during peak checkout load.",
+    title: "Database connection pool exhaustion under load",
+    description: "Asyncpg connection slots run out under 10k RPS peak load.",
     status: "OPEN",
     priority: "CRITICAL",
     assigneeEmail: "david@eprecisio.com",
@@ -100,10 +106,10 @@ const INITIAL_BUGS = [
   },
   {
     id: "ANTI-201",
-    companyId: "comp-2",
+    companyId: "comp-antigravity",
     projectKey: "ANTI",
-    title: "Agent trajectory memory cache sync latency",
-    description: "Redis vector store indexing delays response by 250ms.",
+    title: "Vector database indexing latency delay",
+    description: "Redis vector store indexing delays agent response.",
     status: "IN_PROGRESS",
     priority: "HIGH",
     assigneeEmail: "john@antigravity.com",
@@ -114,18 +120,20 @@ const INITIAL_BUGS = [
 const BUG_STATUSES = ["OPEN", "IN_PROGRESS", "IN_REVIEW", "RESOLVED", "CLOSED"];
 
 export default function App() {
-  // Master App State
+  // Master State
   const [companies, setCompanies] = useState(INITIAL_COMPANIES);
   const [users, setUsers] = useState(INITIAL_USERS);
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [bugs, setBugs] = useState(INITIAL_BUGS);
 
   // Authentication State
-  const [currentUser, setCurrentUser] = useState(INITIAL_USERS[0]); // Default Super Admin
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [currentUser, setCurrentUser] = useState(null); // Null when logged out
 
-  // View & Filter States
-  const [activeTab, setActiveTab] = useState("COMPANIES"); // 'COMPANIES', 'PROJECTS', 'BUGS', 'ASSIGNEES'
+  // Active View & Filters
+  const [activeTab, setActiveTab] = useState("BUGS"); // 'COMPANIES', 'PROJECTS', 'ASSIGNEES', 'BUGS'
   const [selectedProjectKey, setSelectedProjectKey] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -142,35 +150,72 @@ export default function App() {
   const [isAddBugModalOpen, setIsAddBugModalOpen] = useState(false);
   const [selectedBugDetail, setSelectedBugDetail] = useState(null);
 
-  // Form Input States
-  const [companyForm, setCompanyForm] = useState({ name: "", techLeadName: "", techLeadEmail: "" });
+  // Form Inputs
+  const [companyForm, setCompanyForm] = useState({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
   const [projectForm, setProjectForm] = useState({ key: "", name: "", description: "" });
-  const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "" });
+  const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "", password: "" });
   const [bugForm, setBugForm] = useState({ title: "", description: "", projectKey: "", priority: "MEDIUM", assigneeEmail: "" });
 
-  // Role Helpers
-  const isSuperAdmin = currentUser.role === "SUPER_ADMIN";
-  const isTechLead = currentUser.role === "TECH_LEAD";
-  const isAssignee = currentUser.role === "ASSIGNEE";
+  // Handle Login Authentication
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    setLoginError("");
 
-  // Data Scoping
-  const currentCompany = companies.find((c) => c.id === currentUser.companyId) || companies[0];
+    const inputEmail = authEmail.trim().toLowerCase();
+    const foundUser = users.find(
+      (u) => u.email.toLowerCase() === inputEmail && u.password === authPassword
+    );
 
-  const companyProjects = isSuperAdmin
+    if (!foundUser) {
+      setLoginError("Invalid email address or password.");
+      return;
+    }
+
+    setCurrentUser(foundUser);
+    setAuthEmail("");
+    setAuthPassword("");
+
+    // Set Default Tab per Role
+    if (foundUser.role === "SUPER_ADMIN") setActiveTab("COMPANIES");
+    else if (foundUser.role === "TECH_LEAD") setActiveTab("PROJECTS");
+    else setActiveTab("BUGS");
+  };
+
+  // Handle Logout
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setLoginError("");
+  };
+
+  // Quick Preset Fill for Testing Convenience
+  const fillPresetLogin = (email) => {
+    setAuthEmail(email);
+    setAuthPassword("password123");
+  };
+
+  // Role Checks
+  const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
+  const isTechLead = currentUser?.role === "TECH_LEAD";
+  const isAssignee = currentUser?.role === "ASSIGNEE";
+
+  // Data Scoping by Logged In User's Company ONLY (Strict Tenant Isolation)
+  const userCompany = companies.find((c) => c.id === currentUser?.companyId);
+
+  const scopedProjects = isSuperAdmin
     ? projects
-    : projects.filter((p) => p.companyId === currentUser.companyId);
+    : projects.filter((p) => p.companyId === currentUser?.companyId);
 
-  const companyAssignees = isSuperAdmin
+  const scopedAssignees = isSuperAdmin
     ? users.filter((u) => u.role === "ASSIGNEE")
-    : users.filter((u) => u.companyId === currentUser.companyId && u.role === "ASSIGNEE");
+    : users.filter((u) => u.companyId === currentUser?.companyId && u.role === "ASSIGNEE");
 
-  const companyBugs = isSuperAdmin
+  const scopedBugs = isSuperAdmin
     ? bugs
     : isAssignee
-    ? bugs.filter((b) => b.companyId === currentUser.companyId && b.assigneeEmail === currentUser.email)
-    : bugs.filter((b) => b.companyId === currentUser.companyId);
+    ? bugs.filter((b) => b.companyId === currentUser?.companyId && b.assigneeEmail.toLowerCase() === currentUser?.email.toLowerCase())
+    : bugs.filter((b) => b.companyId === currentUser?.companyId);
 
-  const filteredBugs = companyBugs.filter((b) => {
+  const filteredBugs = scopedBugs.filter((b) => {
     const matchesProj = selectedProjectKey === "ALL" || b.projectKey === selectedProjectKey;
     const matchesSearch =
       b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -178,15 +223,12 @@ export default function App() {
     return matchesProj && matchesSearch;
   });
 
-  // =========================================================================
-  // 1. SUPER ADMIN ACTIONS: SOFTWARE COMPANIES (ADD, UPDATE, DELETE)
-  // =========================================================================
+  // Actions: Super Admin Software Companies
   const handleSaveCompany = (e) => {
     e.preventDefault();
     if (!isSuperAdmin) return;
 
     if (editingCompany) {
-      // Update Company
       setCompanies(
         companies.map((c) =>
           c.id === editingCompany.id
@@ -194,7 +236,6 @@ export default function App() {
             : c
         )
       );
-      // Update Tech Lead User record
       setUsers(
         users.map((u) =>
           u.companyId === editingCompany.id && u.role === "TECH_LEAD"
@@ -203,7 +244,6 @@ export default function App() {
         )
       );
     } else {
-      // Create Company & Auto-Add Tech Lead Authorized Email
       const compId = `comp-${companies.length + 1}`;
       const newComp = {
         id: compId,
@@ -217,6 +257,7 @@ export default function App() {
         companyId: compId,
         name: companyForm.techLeadName.trim(),
         email: companyForm.techLeadEmail.trim().toLowerCase(),
+        password: companyForm.techLeadPassword || "password123",
         role: "TECH_LEAD",
       };
 
@@ -224,23 +265,21 @@ export default function App() {
       setUsers([...users, newTechLeadUser]);
     }
 
-    setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "" });
+    setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
     setEditingCompany(null);
     setIsAddCompanyModalOpen(false);
   };
 
   const handleDeleteCompany = (compId) => {
     if (!isSuperAdmin) return;
-    if (!window.confirm("Super Admin Warning: Delete company and all associated projects/bugs?")) return;
+    if (!window.confirm("Delete company and all company data?")) return;
     setCompanies(companies.filter((c) => c.id !== compId));
     setUsers(users.filter((u) => u.companyId !== compId));
     setProjects(projects.filter((p) => p.companyId !== compId));
     setBugs(bugs.filter((b) => b.companyId !== compId));
   };
 
-  // =========================================================================
-  // 2. TECH LEAD ACTIONS: PROJECTS & ASSIGNEES (ADD, UPDATE, DELETE)
-  // =========================================================================
+  // Actions: Tech Lead Projects
   const handleSaveProject = (e) => {
     e.preventDefault();
     if (!isTechLead && !isSuperAdmin) return;
@@ -257,7 +296,7 @@ export default function App() {
       const keyUpper = projectForm.key.toUpperCase().trim();
       const newProj = {
         id: `prj-${projects.length + 1}`,
-        companyId: currentUser.companyId || companies[0].id,
+        companyId: currentUser.companyId,
         key: keyUpper,
         name: projectForm.name.trim(),
         description: projectForm.description.trim(),
@@ -272,7 +311,7 @@ export default function App() {
 
   const handleDeleteProject = (projId) => {
     if (!isTechLead && !isSuperAdmin) return;
-    if (!window.confirm("Delete project and all associated bugs?")) return;
+    if (!window.confirm("Delete project and its bugs?")) return;
     const proj = projects.find((p) => p.id === projId);
     setProjects(projects.filter((p) => p.id !== projId));
     if (proj) {
@@ -280,7 +319,7 @@ export default function App() {
     }
   };
 
-  // Tech Lead: Add/Update Assignee Email
+  // Actions: Tech Lead Assignee Team
   const handleSaveAssignee = (e) => {
     e.preventDefault();
     if (!isTechLead && !isSuperAdmin) return;
@@ -296,36 +335,37 @@ export default function App() {
     } else {
       const newAssignee = {
         id: `usr-asg-${users.length + 1}`,
-        companyId: currentUser.companyId || companies[0].id,
+        companyId: currentUser.companyId,
         name: assigneeForm.name.trim(),
         email: assigneeForm.email.trim().toLowerCase(),
+        password: assigneeForm.password || "password123",
         role: "ASSIGNEE",
       };
       setUsers([...users, newAssignee]);
     }
 
-    setAssigneeForm({ name: "", email: "" });
+    setAssigneeForm({ name: "", email: "", password: "" });
     setEditingAssignee(null);
     setIsAddAssigneeModalOpen(false);
   };
 
   const handleDeleteAssignee = (userId) => {
     if (!isTechLead && !isSuperAdmin) return;
-    if (!window.confirm("Remove assignee from company?")) return;
+    if (!window.confirm("Remove assignee email from company?")) return;
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  // Tech Lead: Create Bug & Assign
+  // Actions: Tech Lead Create Bug
   const handleSaveBug = (e) => {
     e.preventDefault();
     if (!isTechLead && !isSuperAdmin) return;
 
-    const targetProjKey = bugForm.projectKey || (companyProjects[0]?.key || "EPREC");
-    const targetAssignee = bugForm.assigneeEmail || (companyAssignees[0]?.email || currentUser.email);
+    const targetProjKey = bugForm.projectKey || (scopedProjects[0]?.key || "EPREC");
+    const targetAssignee = bugForm.assigneeEmail || (scopedAssignees[0]?.email || currentUser.email);
 
     const newBug = {
-      id: `${targetProjKey}-${100 + companyBugs.length + 1}`,
-      companyId: currentUser.companyId || companies[0].id,
+      id: `${targetProjKey}-${100 + scopedBugs.length + 1}`,
+      companyId: currentUser.companyId,
       projectKey: targetProjKey,
       title: bugForm.title.trim(),
       description: bugForm.description.trim(),
@@ -340,9 +380,7 @@ export default function App() {
     setIsAddBugModalOpen(false);
   };
 
-  // =========================================================================
-  // 3. ASSIGNEE ACTION: UPDATE BUG LIFECYCLE / STATUS ONLY
-  // =========================================================================
+  // Action: Update Bug Lifecycle Status Only (Assignees & Tech Leads)
   const handleUpdateBugStatus = (bugId, newStatus) => {
     setBugs(bugs.map((b) => (b.id === bugId ? { ...b, status: newStatus } : b)));
     if (selectedBugDetail && selectedBugDetail.id === bugId) {
@@ -350,63 +388,107 @@ export default function App() {
     }
   };
 
-  // Login Portal Screen
-  if (!isLoggedIn) {
+  // =========================================================================
+  // SCREEN 1: STRICT EMAIL & PASSWORD LOGIN PORTAL (NO DROPDOWN)
+  // =========================================================================
+  if (!currentUser) {
     return (
       <div className="w-full h-screen bg-[#090c15] text-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-5 shadow-2xl">
+        <div className="w-full max-w-md bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-6 shadow-2xl">
           <div className="text-center space-y-1">
-            <h1 className="text-xl font-bold text-white tracking-tight">BugForge SaaS Login</h1>
-            <p className="text-xs text-slate-400">Select account email to log into system</p>
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 font-black text-white text-sm flex items-center justify-center mx-auto mb-2">
+              BF
+            </div>
+            <h1 className="text-xl font-bold text-white tracking-tight">BugForge Enterprise Login</h1>
+            <p className="text-xs text-slate-400">Enter authorized company email & password</p>
           </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-            {users.map((u) => {
-              const uComp = companies.find((c) => c.id === u.companyId);
-              return (
-                <button
-                  key={u.id}
-                  onClick={() => {
-                    setCurrentUser(u);
-                    setIsLoggedIn(true);
-                    if (u.role === "SUPER_ADMIN") setActiveTab("COMPANIES");
-                    else if (u.role === "TECH_LEAD") setActiveTab("PROJECTS");
-                    else setActiveTab("BUGS");
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-[#141a2a] hover:bg-slate-800 text-left transition"
-                >
-                  <div>
-                    <div className="text-xs font-bold text-white">{u.name}</div>
-                    <div className="text-[11px] text-slate-400 font-mono">{u.email}</div>
-                    <div className="text-[10px] text-slate-500">
-                      Company: {u.role === "SUPER_ADMIN" ? "GLOBAL SYSTEM" : uComp ? uComp.name : "N/A"}
-                    </div>
-                  </div>
-                  <span
-                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                      u.role === "SUPER_ADMIN"
-                        ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
-                        : u.role === "TECH_LEAD"
-                        ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
-                        : "bg-slate-800 text-slate-300 border-slate-700"
-                    }`}
-                  >
-                    {u.role}
-                  </span>
-                </button>
-              );
-            })}
+          {loginError && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-semibold">
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1">Email Address</label>
+              <input
+                type="email"
+                required
+                placeholder="your.email@company.com"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                placeholder="********"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition"
+            >
+              Sign In to Company Workspace
+            </button>
+          </form>
+
+          {/* Quick Demo Presets */}
+          <div className="pt-4 border-t border-slate-800 space-y-2">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              Quick Test Accounts (Password: password123)
+            </span>
+            <div className="space-y-1 text-[11px]">
+              <button
+                onClick={() => fillPresetLogin("ahad8641@gmail.com")}
+                className="w-full text-left p-1.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 flex justify-between"
+              >
+                <span>Super Admin (You)</span>
+                <span className="font-mono">ahad8641@gmail.com</span>
+              </button>
+              <button
+                onClick={() => fillPresetLogin("lead@eprecisio.com")}
+                className="w-full text-left p-1.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 flex justify-between"
+              >
+                <span>Eprecisio Tech Lead</span>
+                <span className="font-mono">lead@eprecisio.com</span>
+              </button>
+              <button
+                onClick={() => fillPresetLogin("david@eprecisio.com")}
+                className="w-full text-left p-1.5 rounded bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex justify-between"
+              >
+                <span>Eprecisio Assignee</span>
+                <span className="font-mono">david@eprecisio.com</span>
+              </button>
+              <button
+                onClick={() => fillPresetLogin("lead@antigravity.com")}
+                className="w-full text-left p-1.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 flex justify-between"
+              >
+                <span>Antigravity Tech Lead</span>
+                <span className="font-mono">lead@antigravity.com</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  // =========================================================================
+  // SCREEN 2: AUTHENTICATED WORKSPACE (ISOLATED PER USER EMAIL & COMPANY)
+  // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden">
-      {/* ========================================================================= */}
-      {/* TOP HEADER & ROLE SWITCHER */}
-      {/* ========================================================================= */}
+      {/* HEADER: NO ROLE DROPDOWN, ONLY LOGGED IN EMAIL & LOGOUT */}
       <header className="h-14 bg-[#0f1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -416,15 +498,12 @@ export default function App() {
             <span className="font-bold text-sm text-white tracking-tight">BugForge SaaS</span>
           </div>
 
-          {/* Navigation Bar Tabs */}
           <nav className="flex items-center gap-1 text-xs font-semibold">
             {isSuperAdmin && (
               <button
                 onClick={() => setActiveTab("COMPANIES")}
-                className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === "COMPANIES"
-                    ? "bg-purple-600 text-white font-bold"
-                    : "text-slate-400 hover:text-slate-200"
+                className={`px-3 py-1.5 rounded-lg ${
+                  activeTab === "COMPANIES" ? "bg-purple-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
                 Software Companies ({companies.length})
@@ -434,70 +513,47 @@ export default function App() {
             {(isSuperAdmin || isTechLead) && (
               <button
                 onClick={() => setActiveTab("PROJECTS")}
-                className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === "PROJECTS"
-                    ? "bg-indigo-600 text-white font-bold"
-                    : "text-slate-400 hover:text-slate-200"
+                className={`px-3 py-1.5 rounded-lg ${
+                  activeTab === "PROJECTS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
-                Projects ({companyProjects.length})
+                Projects ({scopedProjects.length})
               </button>
             )}
 
             <button
               onClick={() => setActiveTab("BUGS")}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                activeTab === "BUGS"
-                  ? "bg-indigo-600 text-white font-bold"
-                  : "text-slate-400 hover:text-slate-200"
+              className={`px-3 py-1.5 rounded-lg ${
+                activeTab === "BUGS" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Bug Lifecycle ({companyBugs.length})
+              Bug Lifecycle ({scopedBugs.length})
             </button>
 
             {(isSuperAdmin || isTechLead) && (
               <button
                 onClick={() => setActiveTab("ASSIGNEES")}
-                className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === "ASSIGNEES"
-                    ? "bg-indigo-600 text-white font-bold"
-                    : "text-slate-400 hover:text-slate-200"
+                className={`px-3 py-1.5 rounded-lg ${
+                  activeTab === "ASSIGNEES" ? "bg-indigo-600 text-white font-bold" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
-                Team Assignees ({companyAssignees.length})
+                Team Assignees ({scopedAssignees.length})
               </button>
             )}
           </nav>
         </div>
 
-        {/* User Account Switcher */}
+        {/* LOGGED IN ACCOUNT IDENTITY (STRICTLY LOGGED IN) */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
-            <span className="text-slate-400">User:</span>
-            <select
-              value={currentUser.id}
-              onChange={(e) => {
-                const u = users.find((x) => x.id === e.target.value);
-                if (u) {
-                  setCurrentUser(u);
-                  if (u.role === "SUPER_ADMIN") setActiveTab("COMPANIES");
-                  else if (u.role === "TECH_LEAD") setActiveTab("PROJECTS");
-                  else setActiveTab("BUGS");
-                }
-              }}
-              className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
-            >
-              {users.map((u) => (
-                <option key={u.id} value={u.id} className="bg-slate-900 text-white">
-                  {u.name} [{u.role}]
-                </option>
-              ))}
-            </select>
+            <span className="text-slate-400">Logged in:</span>
+            <span className="font-bold text-white">{currentUser.name}</span>
+            <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
           </div>
 
           <button
-            onClick={() => setIsLoggedIn(false)}
-            className="text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1 rounded-lg"
+            onClick={handleLogout}
+            className="text-slate-400 hover:text-red-400 border border-slate-800 px-3 py-1 rounded-lg font-bold"
           >
             Logout
           </button>
@@ -516,22 +572,20 @@ export default function App() {
       >
         <span>
           {isSuperAdmin
-            ? "SUPER ADMIN MODE (ahad8641@gmail.com): Add software companies & set up authorized Tech Lead emails."
+            ? "SUPER ADMIN WORKSPACE (ahad8641@gmail.com): Add software companies & set authorized Tech Lead login emails."
             : isTechLead
-            ? `TECH LEAD MODE (${currentCompany.name}): Add projects, add assignee team emails, create & assign bugs.`
-            : `ASSIGNEE MODE (${currentUser.email}): View assigned bugs & update bug lifecycle status ONLY.`}
+            ? `TECH LEAD WORKSPACE (${userCompany?.name}): Manage projects, add team assignee emails, create & assign bugs.`
+            : `ASSIGNEE WORKSPACE (${currentUser.email}): View assigned bugs & update bug lifecycle status ONLY.`}
         </span>
         <span className="font-mono text-[10px] uppercase font-bold">
-          Company: {isSuperAdmin ? "ALL TENANTS" : currentCompany.name} | Role: {currentUser.role}
+          Tenant: {isSuperAdmin ? "GLOBAL SYSTEM" : userCompany?.name} | Role: {currentUser.role}
         </span>
       </div>
 
-      {/* ========================================================================= */}
-      {/* MAIN CONTAINER */}
-      {/* ========================================================================= */}
+      {/* MAIN WORKSPACE CONTENT */}
       <main className="flex-1 bg-[#090c15] overflow-y-auto p-6">
         {/* ========================================================================= */}
-        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES MANAGEMENT */}
+        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES (ADD, EDIT, DELETE) */}
         {/* ========================================================================= */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
@@ -539,13 +593,13 @@ export default function App() {
               <div>
                 <h2 className="text-base font-bold text-white">Software Companies</h2>
                 <p className="text-xs text-slate-400">
-                  Add software companies and configure their authorized Tech Lead login emails
+                  Add software companies and configure authorized Tech Lead login emails
                 </p>
               </div>
               <button
                 onClick={() => {
                   setEditingCompany(null);
-                  setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "" });
+                  setCompanyForm({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
                   setIsAddCompanyModalOpen(true);
                 }}
                 className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
@@ -571,6 +625,7 @@ export default function App() {
                               name: comp.name,
                               techLeadName: comp.techLeadName,
                               techLeadEmail: comp.techLeadEmail,
+                              techLeadPassword: "",
                             });
                             setIsAddCompanyModalOpen(true);
                           }}
@@ -607,7 +662,7 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 2: TECH LEAD / SUPER ADMIN - PROJECTS MANAGEMENT */}
+        {/* VIEW 2: TECH LEAD - PROJECTS (ADD, EDIT, DELETE) */}
         {/* ========================================================================= */}
         {activeTab === "PROJECTS" && (isSuperAdmin || isTechLead) && (
           <div className="space-y-5">
@@ -615,7 +670,7 @@ export default function App() {
               <div>
                 <h2 className="text-base font-bold text-white">Project Repositories</h2>
                 <p className="text-xs text-slate-400">
-                  Manage software projects for {currentCompany.name}
+                  Manage software projects for {userCompany?.name}
                 </p>
               </div>
               <button
@@ -631,8 +686,8 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {companyProjects.map((p) => {
-                const projBugs = bugs.filter((b) => b.projectKey === p.key);
+              {scopedProjects.map((p) => {
+                const projBugs = bugs.filter((b) => b.projectKey === p.key && b.companyId === p.companyId);
                 return (
                   <div key={p.id} className="bg-[#0f1422] border border-slate-800 rounded-xl p-4 space-y-3">
                     <div className="flex justify-between items-center">
@@ -684,7 +739,7 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 3: TECH LEAD / SUPER ADMIN - ASSIGNEE TEAM EMAILS */}
+        {/* VIEW 3: TECH LEAD - ASSIGNEE EMAILS (ADD, EDIT, DELETE) */}
         {/* ========================================================================= */}
         {activeTab === "ASSIGNEES" && (isSuperAdmin || isTechLead) && (
           <div className="space-y-5">
@@ -692,13 +747,13 @@ export default function App() {
               <div>
                 <h2 className="text-base font-bold text-white">Team Assignees (Developers)</h2>
                 <p className="text-xs text-slate-400">
-                  Add and manage developer emails authorized to work on bugs
+                  Add and manage authorized developer emails for {userCompany?.name}
                 </p>
               </div>
               <button
                 onClick={() => {
                   setEditingAssignee(null);
-                  setAssigneeForm({ name: "", email: "" });
+                  setAssigneeForm({ name: "", email: "", password: "" });
                   setIsAddAssigneeModalOpen(true);
                 }}
                 className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg"
@@ -712,15 +767,15 @@ export default function App() {
                 <thead className="bg-[#141a2a] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
                   <tr>
                     <th className="p-3">Assignee Name</th>
-                    <th className="p-3">Authorized Email</th>
+                    <th className="p-3">Authorized Login Email</th>
                     <th className="p-3">Role</th>
                     <th className="p-3">Assigned Bugs</th>
                     <th className="p-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
-                  {companyAssignees.map((u) => {
-                    const assignedCount = bugs.filter((b) => b.assigneeEmail === u.email).length;
+                  {scopedAssignees.map((u) => {
+                    const assignedCount = bugs.filter((b) => b.assigneeEmail.toLowerCase() === u.email.toLowerCase()).length;
                     return (
                       <tr key={u.id} className="hover:bg-slate-800/40">
                         <td className="p-3 font-bold text-white">{u.name}</td>
@@ -735,7 +790,7 @@ export default function App() {
                           <button
                             onClick={() => {
                               setEditingAssignee(u);
-                              setAssigneeForm({ name: u.name, email: u.email });
+                              setAssigneeForm({ name: u.name, email: u.email, password: "" });
                               setIsAddAssigneeModalOpen(true);
                             }}
                             className="text-indigo-400 font-bold hover:underline"
@@ -759,7 +814,7 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 4: BUG LIFECYCLE (ACCESSIBLE TO ALL: ASSIGNEE CAN UPDATE STATUS ONLY) */}
+        {/* VIEW 4: BUG LIFECYCLE (ASSIGNEES UPDATE LIFECYCLE STATUS ONLY) */}
         {/* ========================================================================= */}
         {activeTab === "BUGS" && (
           <div className="space-y-4">
@@ -770,8 +825,8 @@ export default function App() {
                   onChange={(e) => setSelectedProjectKey(e.target.value)}
                   className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none"
                 >
-                  <option value="ALL">All Projects ({companyProjects.length})</option>
-                  {companyProjects.map((p) => (
+                  <option value="ALL">All Projects ({scopedProjects.length})</option>
+                  {scopedProjects.map((p) => (
                     <option key={p.key} value={p.key}>
                       [{p.key}] {p.name}
                     </option>
@@ -797,7 +852,7 @@ export default function App() {
               )}
             </div>
 
-            {/* Kanban Columns */}
+            {/* Kanban Lifecycle Columns */}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {BUG_STATUSES.map((statusKey) => {
                 const colBugs = filteredBugs.filter((b) => b.status === statusKey);
@@ -843,7 +898,7 @@ export default function App() {
 
                           <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
                             <span className="font-mono">Assignee: {bug.assigneeEmail}</span>
-                            {/* ASSIGNEE CAN CHANGE STATUS HERE */}
+                            {/* ASSIGNEES CAN CHANGE BUG STATUS HERE */}
                             <select
                               value={bug.status}
                               onChange={(e) => {
@@ -877,7 +932,7 @@ export default function App() {
       </main>
 
       {/* ========================================================================= */}
-      {/* MODAL 1: ADD/EDIT SOFTWARE COMPANY (SUPER ADMIN ONLY) */}
+      {/* MODAL 1: SUPER ADMIN ADD/EDIT COMPANY */}
       {/* ========================================================================= */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
@@ -893,7 +948,7 @@ export default function App() {
 
             <form onSubmit={handleSaveCompany} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Company Name</label>
+                <label className="block font-semibold text-slate-300 mb-1">Software Company Name</label>
                 <input
                   type="text"
                   required
@@ -928,6 +983,20 @@ export default function App() {
                 />
               </div>
 
+              {!editingCompany && (
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Tech Lead Initial Password</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="password123"
+                    value={companyForm.techLeadPassword}
+                    onChange={(e) => setCompanyForm({ ...companyForm, techLeadPassword: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
+                  />
+                </div>
+              )}
+
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setIsAddCompanyModalOpen(false)} className="px-3 py-1.5 text-slate-400">
                   Cancel
@@ -942,7 +1011,7 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 2: ADD/EDIT PROJECT (TECH LEAD ONLY) */}
+      {/* MODAL 2: TECH LEAD ADD/EDIT PROJECT */}
       {/* ========================================================================= */}
       {isAddProjectModalOpen && (isTechLead || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
@@ -977,7 +1046,7 @@ export default function App() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Enterprise Core Backend"
+                  placeholder="e.g. Enterprise Core Engine"
                   value={projectForm.name}
                   onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
@@ -1009,7 +1078,7 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: ADD/EDIT TEAM ASSIGNEE EMAIL (TECH LEAD ONLY) */}
+      {/* MODAL 3: TECH LEAD ADD/EDIT ASSIGNEE EMAIL */}
       {/* ========================================================================= */}
       {isAddAssigneeModalOpen && (isTechLead || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
@@ -1037,7 +1106,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Assignee Authorized Email</label>
+                <label className="block font-semibold text-slate-300 mb-1">Authorized Assignee Email (Login Email)</label>
                 <input
                   type="email"
                   required
@@ -1047,6 +1116,20 @@ export default function App() {
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
                 />
               </div>
+
+              {!editingAssignee && (
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Initial Password</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="password123"
+                    value={assigneeForm.password}
+                    onChange={(e) => setAssigneeForm({ ...assigneeForm, password: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setIsAddAssigneeModalOpen(false)} className="px-3 py-1.5 text-slate-400">
@@ -1062,7 +1145,7 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 4: CREATE BUG (TECH LEAD ONLY) */}
+      {/* MODAL 4: TECH LEAD CREATE BUG */}
       {/* ========================================================================= */}
       {isAddBugModalOpen && (isTechLead || isSuperAdmin) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
@@ -1083,7 +1166,7 @@ export default function App() {
                     onChange={(e) => setBugForm({ ...bugForm, projectKey: e.target.value })}
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
                   >
-                    {companyProjects.map((p) => (
+                    {scopedProjects.map((p) => (
                       <option key={p.key} value={p.key}>
                         [{p.key}] {p.name}
                       </option>
@@ -1130,13 +1213,13 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Assign to Team Assignee</label>
+                <label className="block font-semibold text-slate-300 mb-1">Assign to Team Assignee Email</label>
                 <select
                   value={bugForm.assigneeEmail}
                   onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
                 >
-                  {companyAssignees.map((u) => (
+                  {scopedAssignees.map((u) => (
                     <option key={u.id} value={u.email}>
                       {u.name} ({u.email})
                     </option>
@@ -1158,7 +1241,7 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 5: BUG LIFECYCLE DETAIL MODAL (ASSIGNEE STATUS UPDATE) */}
+      {/* MODAL 5: BUG LIFECYCLE DETAIL MODAL (STATUS UPDATE BY ASSIGNEE) */}
       {/* ========================================================================= */}
       {selectedBugDetail && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
@@ -1186,7 +1269,7 @@ export default function App() {
                     className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-2 font-bold text-indigo-300 focus:outline-none"
                   >
                     {BUG_STATUSES.map((st) => (
-                      <option key={st} value={s}>
+                      <option key={st} value={st}>
                         {st}
                       </option>
                     ))}
@@ -1194,7 +1277,7 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Assignee Email</label>
+                  <label className="block text-slate-400 font-semibold mb-1">Assigned Email</label>
                   <input
                     type="text"
                     disabled
