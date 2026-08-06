@@ -73,7 +73,7 @@ const INITIAL_USERS = [
   },
 ];
 
-// Pre-seeded Projects (Private to respective company)
+// Pre-seeded Projects
 const INITIAL_PROJECTS = [
   {
     id: "prj-ep1",
@@ -91,33 +91,68 @@ const INITIAL_PROJECTS = [
   },
 ];
 
-// Pre-seeded Bugs / Issues (Private to respective company)
+// Pre-seeded Comprehensive Bugs matching user exact 12-field schema
 const INITIAL_BUGS = [
   {
-    id: "EPREC-101",
+    id: "BUG-001",
     companyId: "comp-eprecisio",
     projectKey: "EPREC",
-    title: "Database connection pool timeout under load",
-    description: "Asyncpg connection slots exhaust during peak checkout load.",
-    status: "OPEN",
-    priority: "CRITICAL",
+    category: "Functional",
+    title: "Broken navigation links on corporate portal footer",
+    stepsToReproduce: "1. Open homepage\n2. Scroll to footer\n3. Click the About page links and the footer social media icons.",
+    expectedResult: "Each link should open the correct page or social media profile.",
+    actualResult: "Several links (About page links, footer social icons) do not navigate anywhere.",
+    impact: "Users cannot reach intended pages; reduces site credibility and trust.",
+    severity: "Low",
+    priority: "P4 - Low",
+    status: "Closed",
+    evidence: "Screenshot 2026-07-27 at 5.46.21 PM.png",
+    notes: "Fixed via footer menu component link target update.",
     assigneeEmail: "david@eprecisio.com",
     createdBy: "lead@eprecisio.com",
   },
   {
-    id: "ANTI-201",
+    id: "BUG-002",
+    companyId: "comp-eprecisio",
+    projectKey: "EPREC",
+    category: "Performance",
+    title: "Database connection pool exhaustion under 10k RPS load",
+    stepsToReproduce: "1. Trigger JMeter load test with 10,000 concurrent threads\n2. Observe backend health check metrics endpoint.",
+    expectedResult: "Connection pool recycles slots efficiently with sub-50ms latency.",
+    actualResult: "Asyncpg pool exhausts all available slots causing 504 Gateway Timeouts.",
+    impact: "Checkout API service crashes during peak traffic sales events.",
+    severity: "Critical",
+    priority: "P1 - Urgent",
+    status: "Open",
+    evidence: "metrics_dump_2026-08-05.log",
+    notes: "Requires asyncpg max_overflow increase and Redis query caching.",
+    assigneeEmail: "david@eprecisio.com",
+    createdBy: "lead@eprecisio.com",
+  },
+  {
+    id: "BUG-003",
     companyId: "comp-antigravity",
     projectKey: "ANTI",
+    category: "Backend/API",
     title: "Vector database indexing latency delay",
-    description: "Redis vector store indexing delays agent response.",
-    status: "IN_PROGRESS",
-    priority: "HIGH",
+    stepsToReproduce: "1. Send trajectory batch payload to agent engine\n2. Query vector index within 100ms.",
+    expectedResult: "Vector index updates synchronously.",
+    actualResult: "Redis vector store indexing delays response by 250ms.",
+    impact: "Agent trajectory memory lookup times out.",
+    severity: "Major",
+    priority: "P2 - High",
+    status: "In Progress",
+    evidence: "latency_trace_8812.png",
+    notes: "Investigating worker thread event loop queue.",
     assigneeEmail: "john@antigravity.com",
     createdBy: "lead@antigravity.com",
   },
 ];
 
-const BUG_STATUSES = ["OPEN", "IN_PROGRESS", "IN_REVIEW", "RESOLVED", "CLOSED"];
+const BUG_CATEGORIES = ["Functional", "UI/UX", "Security", "Performance", "Backend/API", "Integration", "Database"];
+const SEVERITY_LEVELS = ["Blocker", "Critical", "Major", "Minor", "Low"];
+const PRIORITY_LEVELS = ["P1 - Urgent", "P2 - High", "P3 - Medium", "P4 - Low"];
+const BUG_STATUSES = ["Open", "In Progress", "In Review", "Resolved", "Closed"];
 
 export default function App() {
   // Master State
@@ -127,7 +162,7 @@ export default function App() {
   const [bugs, setBugs] = useState(INITIAL_BUGS);
 
   // Authentication State
-  const [currentUser, setCurrentUser] = useState(null); // Default null: always show Login Screen first
+  const [currentUser, setCurrentUser] = useState(null); // Default null: show Login Screen first
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -150,11 +185,32 @@ export default function App() {
   const [isAddBugModalOpen, setIsAddBugModalOpen] = useState(false);
   const [selectedBugDetail, setSelectedBugDetail] = useState(null);
 
+  // Change Password Modal State
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
+
   // Form Inputs
   const [companyForm, setCompanyForm] = useState({ name: "", techLeadName: "", techLeadEmail: "", techLeadPassword: "" });
   const [projectForm, setProjectForm] = useState({ key: "", name: "", description: "" });
   const [assigneeForm, setAssigneeForm] = useState({ name: "", email: "", password: "" });
-  const [bugForm, setBugForm] = useState({ title: "", description: "", projectKey: "", priority: "MEDIUM", assigneeEmail: "" });
+
+  // 12-Field Comprehensive Bug Form
+  const [bugForm, setBugForm] = useState({
+    projectKey: "",
+    category: "Functional",
+    title: "",
+    stepsToReproduce: "",
+    expectedResult: "",
+    actualResult: "",
+    impact: "",
+    severity: "Minor",
+    priority: "P3 - Medium",
+    status: "Open",
+    evidence: "",
+    notes: "",
+    assigneeEmail: "",
+  });
 
   // Handle Login Authentication
   const handleLoginSubmit = (e) => {
@@ -175,7 +231,6 @@ export default function App() {
     setAuthEmail("");
     setAuthPassword("");
 
-    // Set Default Tab per Role
     if (foundUser.role === "SUPER_ADMIN") setActiveTab("COMPANIES");
     else if (foundUser.role === "TECH_LEAD") setActiveTab("PROJECTS");
     else setActiveTab("BUGS");
@@ -187,6 +242,38 @@ export default function App() {
     setLoginError("");
   };
 
+  // Change Password Action for Tech Lead & Users
+  const handleChangePasswordSubmit = (e) => {
+    e.preventDefault();
+    setPasswordMessage({ type: "", text: "" });
+
+    if (passwordForm.currentPassword !== currentUser.password) {
+      setPasswordMessage({ type: "error", text: "Current password does not match." });
+      return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordMessage({ type: "error", text: "New password must be at least 6 characters." });
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "New passwords do not match." });
+      return;
+    }
+
+    // Update password in users state
+    setUsers(
+      users.map((u) => (u.id === currentUser.id ? { ...u, password: passwordForm.newPassword } : u))
+    );
+    setCurrentUser({ ...currentUser, password: passwordForm.newPassword });
+
+    setPasswordMessage({ type: "success", text: "Password updated successfully!" });
+    setTimeout(() => {
+      setIsChangePasswordModalOpen(false);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setPasswordMessage({ type: "", text: "" });
+    }, 1500);
+  };
+
   // Role Checks
   const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
   const isTechLead = currentUser?.role === "TECH_LEAD";
@@ -195,13 +282,9 @@ export default function App() {
   // Data Isolation: Strict Scoping per Company
   const userCompany = companies.find((c) => c.id === currentUser?.companyId);
 
-  // Projects strictly scoped to company (Super Admin does not view internal projects)
   const scopedProjects = projects.filter((p) => p.companyId === currentUser?.companyId);
-
-  // Assignees strictly scoped to company
   const scopedAssignees = users.filter((u) => u.companyId === currentUser?.companyId && u.role === "ASSIGNEE");
 
-  // Bugs strictly scoped to company & assignee
   const scopedBugs = isAssignee
     ? bugs.filter((b) => b.companyId === currentUser?.companyId && b.assigneeEmail.toLowerCase() === currentUser?.email.toLowerCase())
     : bugs.filter((b) => b.companyId === currentUser?.companyId);
@@ -210,11 +293,12 @@ export default function App() {
     const matchesProj = selectedProjectKey === "ALL" || b.projectKey === selectedProjectKey;
     const matchesSearch =
       b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.id.toLowerCase().includes(searchQuery.toLowerCase());
+      b.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesProj && matchesSearch;
   });
 
-  // Actions: Super Admin Software Companies (Add, Edit, Delete)
+  // Super Admin Company Actions
   const handleSaveCompany = (e) => {
     e.preventDefault();
     if (!isSuperAdmin) return;
@@ -270,7 +354,7 @@ export default function App() {
     setBugs(bugs.filter((b) => b.companyId !== compId));
   };
 
-  // Actions: Tech Lead Projects (Add, Edit, Delete)
+  // Tech Lead Projects Actions
   const handleSaveProject = (e) => {
     e.preventDefault();
     if (!isTechLead) return;
@@ -310,7 +394,7 @@ export default function App() {
     }
   };
 
-  // Actions: Tech Lead Assignee Team (Add, Edit, Delete)
+  // Tech Lead Assignee Team Actions
   const handleSaveAssignee = (e) => {
     e.preventDefault();
     if (!isTechLead) return;
@@ -346,7 +430,7 @@ export default function App() {
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  // Actions: Tech Lead Create Bug
+  // Tech Lead Create 12-Field Bug Action
   const handleSaveBug = (e) => {
     e.preventDefault();
     if (!isTechLead) return;
@@ -354,24 +438,46 @@ export default function App() {
     const targetProjKey = bugForm.projectKey || (scopedProjects[0]?.key || "EPREC");
     const targetAssignee = bugForm.assigneeEmail || (scopedAssignees[0]?.email || currentUser.email);
 
+    const bugNum = String(scopedBugs.length + 1).padStart(3, "0");
     const newBug = {
-      id: `${targetProjKey}-${100 + scopedBugs.length + 1}`,
+      id: `BUG-${bugNum}`,
       companyId: currentUser.companyId,
       projectKey: targetProjKey,
+      category: bugForm.category,
       title: bugForm.title.trim(),
-      description: bugForm.description.trim(),
-      status: "OPEN",
+      stepsToReproduce: bugForm.stepsToReproduce.trim(),
+      expectedResult: bugForm.expectedResult.trim(),
+      actualResult: bugForm.actualResult.trim(),
+      impact: bugForm.impact.trim(),
+      severity: bugForm.severity,
       priority: bugForm.priority,
+      status: bugForm.status || "Open",
+      evidence: bugForm.evidence.trim() || "No evidence file attached",
+      notes: bugForm.notes.trim() || "N/A",
       assigneeEmail: targetAssignee,
       createdBy: currentUser.email,
     };
 
     setBugs([newBug, ...bugs]);
-    setBugForm({ title: "", description: "", projectKey: "", priority: "MEDIUM", assigneeEmail: "" });
+    setBugForm({
+      projectKey: "",
+      category: "Functional",
+      title: "",
+      stepsToReproduce: "",
+      expectedResult: "",
+      actualResult: "",
+      impact: "",
+      severity: "Minor",
+      priority: "P3 - Medium",
+      status: "Open",
+      evidence: "",
+      notes: "",
+      assigneeEmail: "",
+    });
     setIsAddBugModalOpen(false);
   };
 
-  // Action: Assignee Update Bug Lifecycle Status ONLY
+  // Assignee Update Bug Lifecycle Status ONLY
   const handleUpdateBugStatus = (bugId, newStatus) => {
     setBugs(bugs.map((b) => (b.id === bugId ? { ...b, status: newStatus } : b)));
     if (selectedBugDetail && selectedBugDetail.id === bugId) {
@@ -380,7 +486,7 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: STRICT EMAIL & PASSWORD LOGIN SCREEN
+  // SCREEN 1: STRICT LOGIN SCREEN
   // =========================================================================
   if (!currentUser) {
     return (
@@ -438,11 +544,11 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: AUTHENTICATED WORKSPACE (STRICTLY ROLE-SCOPED VIEW)
+  // SCREEN 2: AUTHENTICATED WORKSPACE
   // =========================================================================
   return (
     <div className="w-full h-screen bg-[#090c15] text-slate-100 font-sans flex flex-col overflow-hidden">
-      {/* HEADER: STRICT ROLE NAVIGATION */}
+      {/* HEADER: USER IDENTITY, CHANGE PASSWORD, LOGOUT */}
       <header className="h-14 bg-[#0f1422] border-b border-slate-800 px-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -453,7 +559,6 @@ export default function App() {
           </div>
 
           <nav className="flex items-center gap-1 text-xs font-semibold">
-            {/* SUPER ADMIN: ONLY Software Companies Panel */}
             {isSuperAdmin && (
               <button
                 onClick={() => setActiveTab("COMPANIES")}
@@ -463,7 +568,6 @@ export default function App() {
               </button>
             )}
 
-            {/* TECH LEAD: Projects, Bug Lifecycle, Assignees */}
             {isTechLead && (
               <>
                 <button
@@ -493,7 +597,6 @@ export default function App() {
               </>
             )}
 
-            {/* ASSIGNEE: Bug Lifecycle ONLY */}
             {isAssignee && (
               <button
                 onClick={() => setActiveTab("BUGS")}
@@ -505,13 +608,24 @@ export default function App() {
           </nav>
         </div>
 
-        {/* LOGGED IN ACCOUNT IDENTITY */}
+        {/* ACCOUNT IDENTITY & CHANGE PASSWORD BUTTON */}
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2 bg-[#141a2a] border border-slate-700 px-3 py-1 rounded-lg">
             <span className="text-slate-400">Logged in as:</span>
             <span className="font-bold text-white">{currentUser.name}</span>
             <span className="font-mono text-indigo-300 text-[11px]">({currentUser.email})</span>
           </div>
+
+          <button
+            onClick={() => {
+              setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+              setPasswordMessage({ type: "", text: "" });
+              setIsChangePasswordModalOpen(true);
+            }}
+            className="text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1 rounded-lg font-bold"
+          >
+            Change Password
+          </button>
 
           <button
             onClick={handleLogout}
@@ -534,7 +648,7 @@ export default function App() {
       >
         <span>
           {isSuperAdmin
-            ? "SUPER ADMIN WORKSPACE (ahad8641@gmail.com): Software company management ONLY. Internal tenant data is private."
+            ? "SUPER ADMIN WORKSPACE: Software company management ONLY. Internal tenant data is private."
             : isTechLead
             ? `TECH LEAD WORKSPACE (${userCompany?.name}): Projects, team assignee emails, bug creation & assignment.`
             : `ASSIGNEE WORKSPACE (${currentUser.email}): View assigned bugs & update bug lifecycle status ONLY.`}
@@ -546,9 +660,7 @@ export default function App() {
 
       {/* MAIN WORKSPACE CONTENT */}
       <main className="flex-1 bg-[#090c15] overflow-y-auto p-6">
-        {/* ========================================================================= */}
-        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES ONLY */}
-        {/* ========================================================================= */}
+        {/* VIEW 1: SUPER ADMIN - SOFTWARE COMPANIES */}
         {activeTab === "COMPANIES" && isSuperAdmin && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
@@ -618,9 +730,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ========================================================================= */}
         {/* VIEW 2: TECH LEAD - PROJECTS */}
-        {/* ========================================================================= */}
         {activeTab === "PROJECTS" && isTechLead && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
@@ -695,9 +805,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ========================================================================= */}
         {/* VIEW 3: TECH LEAD - TEAM ASSIGNEE EMAILS */}
-        {/* ========================================================================= */}
         {activeTab === "ASSIGNEES" && isTechLead && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
@@ -770,9 +878,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 4: BUG LIFECYCLE (TECH LEAD & ASSIGNEES) */}
-        {/* ========================================================================= */}
+        {/* VIEW 4: COMPREHENSIVE BUG LIFECYCLE TABLE & CARDS */}
         {activeTab === "BUGS" && (isTechLead || isAssignee) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -792,10 +898,10 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder="Search bugs..."
+                  placeholder="Search by ID, Title, Category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-64"
+                  className="bg-[#0f1422] border border-slate-700 rounded px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none w-72"
                 />
               </div>
 
@@ -809,87 +915,180 @@ export default function App() {
               )}
             </div>
 
-            {/* Kanban Lifecycle Columns */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {BUG_STATUSES.map((statusKey) => {
-                const colBugs = filteredBugs.filter((b) => b.status === statusKey);
-                return (
-                  <div
-                    key={statusKey}
-                    className="bg-[#0f1422] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[500px]"
-                  >
-                    <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
-                      <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
-                        {statusKey.replace("_", " ")}
-                      </span>
-                      <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                        {colBugs.length}
-                      </span>
-                    </div>
+            {/* Bugs Data Table View */}
+            <div className="bg-[#0f1422] border border-slate-800 rounded-xl overflow-hidden text-xs">
+              <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#141a2a]">
+                <h3 className="font-bold text-white">Commercial Bug Tracking Register</h3>
+                <span className="text-slate-400 font-mono text-[11px]">{filteredBugs.length} Reported Issues</span>
+              </div>
 
-                    <div className="flex-1 space-y-2.5">
-                      {colBugs.map((bug) => (
-                        <div
-                          key={bug.id}
-                          onClick={() => setSelectedBugDetail(bug)}
-                          className="bg-[#141a2a] border border-slate-800 hover:border-indigo-500/60 rounded-xl p-3 cursor-pointer transition space-y-2"
-                        >
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="font-mono font-bold text-indigo-400">{bug.id}</span>
-                            <span
-                              className={`font-bold px-1.5 py-0.5 rounded ${
-                                bug.priority === "CRITICAL"
-                                  ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                                  : bug.priority === "HIGH"
-                                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                                  : "bg-slate-800 text-slate-300"
-                              }`}
-                            >
-                              {bug.priority}
-                            </span>
-                          </div>
-
-                          <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-slate-300 border-collapse">
+                  <thead className="bg-[#182032] text-slate-400 uppercase font-bold text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3 whitespace-nowrap">Bug ID</th>
+                      <th className="p-3 whitespace-nowrap">Category</th>
+                      <th className="p-3 whitespace-nowrap">Title / Summary</th>
+                      <th className="p-3 whitespace-nowrap">Severity</th>
+                      <th className="p-3 whitespace-nowrap">Priority</th>
+                      <th className="p-3 whitespace-nowrap">Status (Lifecycle)</th>
+                      <th className="p-3 whitespace-nowrap">Assignee</th>
+                      <th className="p-3 whitespace-nowrap">Evidence</th>
+                      <th className="p-3 text-right whitespace-nowrap">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {filteredBugs.map((bug) => (
+                      <tr key={bug.id} className="hover:bg-slate-800/40 transition">
+                        <td className="p-3 font-mono font-bold text-indigo-400 whitespace-nowrap">{bug.id}</td>
+                        <td className="p-3 whitespace-nowrap font-medium text-slate-300">{bug.category}</td>
+                        <td className="p-3 max-w-xs font-semibold text-white">
+                          <button
+                            onClick={() => setSelectedBugDetail(bug)}
+                            className="hover:text-indigo-300 text-left line-clamp-1"
+                          >
                             {bug.title}
-                          </p>
+                          </button>
+                        </td>
+                        <td className="p-3 whitespace-nowrap">
+                          <span
+                            className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                              bug.severity === "Blocker" || bug.severity === "Critical"
+                                ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                : "bg-slate-800 text-slate-300 border border-slate-700"
+                            }`}
+                          >
+                            {bug.severity}
+                          </span>
+                        </td>
+                        <td className="p-3 whitespace-nowrap font-bold text-slate-300 text-[11px]">{bug.priority}</td>
+                        <td className="p-3 whitespace-nowrap">
+                          {/* STATUS UPDATE DROPDOWN */}
+                          <select
+                            value={bug.status}
+                            onChange={(e) => handleUpdateBugStatus(bug.id, e.target.value)}
+                            className="bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 text-[11px] font-bold focus:outline-none"
+                          >
+                            {BUG_STATUSES.map((st) => (
+                              <option key={st} value={st}>
+                                {st}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="p-3 whitespace-nowrap font-mono text-indigo-300 text-[11px]">{bug.assigneeEmail}</td>
+                        <td className="p-3 whitespace-nowrap text-slate-400 font-mono text-[10px]">
+                          {bug.evidence || "None"}
+                        </td>
+                        <td className="p-3 text-right whitespace-nowrap">
+                          <button
+                            onClick={() => setSelectedBugDetail(bug)}
+                            className="text-indigo-400 font-bold hover:underline"
+                          >
+                            View Full 12 Fields
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
 
-                          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
-                            <span className="font-mono">Assignee: {bug.assigneeEmail}</span>
-                            {/* STATUS UPDATE DROPDOWN */}
-                            <select
-                              value={bug.status}
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                handleUpdateBugStatus(bug.id, e.target.value);
-                              }}
-                              className="bg-slate-900 border border-slate-700 text-white rounded px-1.5 py-0.5 text-[10px] font-bold focus:outline-none"
-                            >
-                              {BUG_STATUSES.map((s) => (
-                                <option key={s} value={s}>
-                                  {s}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                      ))}
-
-                      {colBugs.length === 0 && (
-                        <div className="h-24 border border-dashed border-slate-800 rounded-xl flex items-center justify-center text-[11px] text-slate-600 font-medium">
-                          No bugs
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                    {filteredBugs.length === 0 && (
+                      <tr>
+                        <td colSpan={9} className="p-8 text-center text-slate-500 text-xs">
+                          No bugs found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
       </main>
 
-      {/* MODALS */}
-      {/* MODAL 1: ADD/EDIT SOFTWARE COMPANY (SUPER ADMIN ONLY) */}
+      {/* ========================================================================= */}
+      {/* MODAL: CHANGE PASSWORD MODAL */}
+      {/* ========================================================================= */}
+      {isChangePasswordModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white">Change Account Password</h3>
+              <button
+                onClick={() => setIsChangePasswordModalOpen(false)}
+                className="text-slate-400 hover:text-white font-bold"
+              >
+                Close
+              </button>
+            </div>
+
+            {passwordMessage.text && (
+              <div
+                className={`p-3 rounded-lg text-xs font-semibold text-center ${
+                  passwordMessage.type === "success"
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                    : "bg-red-500/20 text-red-300 border border-red-500/30"
+                }`}
+              >
+                {passwordMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleChangePasswordSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Current Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Enter current password..."
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">New Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="At least 6 characters..."
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Re-enter new password..."
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsChangePasswordModalOpen(false)}
+                  className="px-3 py-1.5 text-slate-400"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg">
+                  Update Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: ADD COMPANY (SUPER ADMIN) */}
       {isAddCompanyModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -966,7 +1165,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 2: ADD/EDIT PROJECT (TECH LEAD ONLY) */}
+      {/* MODAL 2: ADD PROJECT (TECH LEAD) */}
       {isAddProjectModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1031,7 +1230,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: ADD/EDIT ASSIGNEE EMAIL (TECH LEAD ONLY) */}
+      {/* MODAL 3: ADD ASSIGNEE EMAIL (TECH LEAD) */}
       {isAddAssigneeModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
@@ -1096,12 +1295,12 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: CREATE BUG (TECH LEAD ONLY) */}
+      {/* MODAL 4: CREATE BUG MODAL (WITH ALL 12 EXACT FIELDS) */}
       {isAddBugModalOpen && isTechLead && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-sm font-bold text-white">Create & Assign Bug</h3>
+          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white">Create & Assign Commercial Bug Ticket</h3>
               <button onClick={() => setIsAddBugModalOpen(false)} className="text-slate-400 hover:text-white font-bold">
                 Close
               </button>
@@ -1125,96 +1324,116 @@ export default function App() {
                 </div>
 
                 <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Category</label>
+                  <select
+                    value={bugForm.category}
+                    onChange={(e) => setBugForm({ ...bugForm, category: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  >
+                    {BUG_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Title / Summary</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Broken navigation links on corporate portal footer"
+                  value={bugForm.title}
+                  onChange={(e) => setBugForm({ ...bugForm, title: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Steps to Reproduce</label>
+                <textarea
+                  rows="3"
+                  required
+                  placeholder="1. Open homepage&#10;2. Scroll to footer&#10;3. Click link..."
+                  value={bugForm.stepsToReproduce}
+                  onChange={(e) => setBugForm({ ...bugForm, stepsToReproduce: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Expected Result</label>
+                  <textarea
+                    rows="2"
+                    placeholder="Each link should open the correct page..."
+                    value={bugForm.expectedResult}
+                    onChange={(e) => setBugForm({ ...bugForm, expectedResult: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Actual Result</label>
+                  <textarea
+                    rows="2"
+                    placeholder="Links do not navigate anywhere..."
+                    value={bugForm.actualResult}
+                    onChange={(e) => setBugForm({ ...bugForm, actualResult: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Impact</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Users cannot reach intended pages; reduces site credibility"
+                  value={bugForm.impact}
+                  onChange={(e) => setBugForm({ ...bugForm, impact: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Severity</label>
+                  <select
+                    value={bugForm.severity}
+                    onChange={(e) => setBugForm({ ...bugForm, severity: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                  >
+                    {SEVERITY_LEVELS.map((sev) => (
+                      <option key={sev} value={sev}>
+                        {sev}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block font-semibold text-slate-300 mb-1">Priority</label>
                   <select
                     value={bugForm.priority}
                     onChange={(e) => setBugForm({ ...bugForm, priority: e.target.value })}
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
                   >
-                    <option value="LOW">LOW</option>
-                    <option value="MEDIUM">MEDIUM</option>
-                    <option value="HIGH">HIGH</option>
-                    <option value="CRITICAL">CRITICAL</option>
+                    {PRIORITY_LEVELS.map((pri) => (
+                      <option key={pri} value={pri}>
+                        {pri}
+                      </option>
+                    ))}
                   </select>
                 </div>
-              </div>
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Bug Summary Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Summary of issue..."
-                  value={bugForm.title}
-                  onChange={(e) => setBugForm({ ...bugForm, title: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Technical Description</label>
-                <textarea
-                  rows="3"
-                  placeholder="Steps to reproduce and issue details..."
-                  value={bugForm.description}
-                  onChange={(e) => setBugForm({ ...bugForm, description: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Assign to Team Assignee Email</label>
-                <select
-                  value={bugForm.assigneeEmail}
-                  onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
-                >
-                  {scopedAssignees.map((u) => (
-                    <option key={u.id} value={u.email}>
-                      {u.name} ({u.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400">
-                  Cancel
-                </button>
-                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg">
-                  Create & Assign Bug
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 5: BUG DETAIL (STATUS UPDATE BY ASSIGNEES & TECH LEADS) */}
-      {selectedBugDetail && (
-        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-sm text-indigo-400">{selectedBugDetail.id}</span>
-                <span className="text-xs text-slate-400">[{selectedBugDetail.projectKey}]</span>
-              </div>
-              <button onClick={() => setSelectedBugDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs">
-                Close
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <h3 className="text-sm font-bold text-white leading-snug">{selectedBugDetail.title}</h3>
-              <p className="text-slate-300 p-3 rounded-lg bg-slate-900 border border-slate-800">{selectedBugDetail.description}</p>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Bug Lifecycle / Status</label>
+                  <label className="block font-semibold text-slate-300 mb-1">Status (Lifecycle)</label>
                   <select
-                    value={selectedBugDetail.status}
-                    onChange={(e) => handleUpdateBugStatus(selectedBugDetail.id, e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-2 font-bold text-indigo-300 focus:outline-none"
+                    value={bugForm.status}
+                    onChange={(e) => setBugForm({ ...bugForm, status: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none font-bold"
                   >
                     {BUG_STATUSES.map((st) => (
                       <option key={st} value={st}>
@@ -1223,17 +1442,162 @@ export default function App() {
                     ))}
                   </select>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Assigned Email</label>
+                  <label className="block font-semibold text-slate-300 mb-1">Screenshot / Evidence</label>
                   <input
                     type="text"
-                    disabled
-                    value={selectedBugDetail.assigneeEmail}
-                    className="w-full bg-slate-900 border border-slate-800 text-slate-400 rounded-lg p-2 font-mono text-[11px] opacity-75 cursor-not-allowed"
+                    placeholder="e.g. Screenshot 2026-07-27 at 5.46.21 PM.png"
+                    value={bugForm.evidence}
+                    onChange={(e) => setBugForm({ ...bugForm, evidence: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none"
                   />
                 </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-300 mb-1">Assignee Email</label>
+                  <select
+                    value={bugForm.assigneeEmail}
+                    onChange={(e) => setBugForm({ ...bugForm, assigneeEmail: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-indigo-300 focus:outline-none"
+                  >
+                    {scopedAssignees.map((u) => (
+                      <option key={u.id} value={u.email}>
+                        {u.name} ({u.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Notes</label>
+                <input
+                  type="text"
+                  placeholder="Additional technical notes..."
+                  value={bugForm.notes}
+                  onChange={(e) => setBugForm({ ...bugForm, notes: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button type="button" onClick={() => setIsAddBugModalOpen(false)} className="px-3 py-1.5 text-slate-400">
+                  Cancel
+                </button>
+                <button type="submit" className="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg">
+                  Create & Assign Bug
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: BUG DETAIL (FULL 12-FIELDS DISPLAY & ASSIGNEE STATUS UPDATE) */}
+      {selectedBugDetail && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+          <div className="bg-[#0f1422] border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-bold text-base text-indigo-400">{selectedBugDetail.id}</span>
+                <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
+                  Category: {selectedBugDetail.category}
+                </span>
+                <span className="text-xs text-slate-400 font-mono">[{selectedBugDetail.projectKey}]</span>
+              </div>
+              <button onClick={() => setSelectedBugDetail(null)} className="text-slate-400 hover:text-white font-bold text-xs">
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                  Title / Summary
+                </span>
+                <h3 className="text-base font-bold text-white leading-snug">{selectedBugDetail.title}</h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                    Steps to Reproduce
+                  </span>
+                  <p className="whitespace-pre-line text-slate-300 leading-relaxed">{selectedBugDetail.stepsToReproduce}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                      Expected Result
+                    </span>
+                    <p className="text-slate-300">{selectedBugDetail.expectedResult}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                      Actual Result
+                    </span>
+                    <p className="text-slate-300">{selectedBugDetail.actualResult}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                  Impact
+                </span>
+                <p className="text-slate-300">{selectedBugDetail.impact}</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-[#141a2a] border border-slate-800">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Severity</span>
+                  <span className="font-bold text-red-400">{selectedBugDetail.severity}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Priority</span>
+                  <span className="font-bold text-amber-400">{selectedBugDetail.priority}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status (Lifecycle)</span>
+                  <select
+                    value={selectedBugDetail.status}
+                    onChange={(e) => handleUpdateBugStatus(selectedBugDetail.id, e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 text-white rounded px-2 py-1 font-bold text-indigo-300 focus:outline-none"
+                  >
+                    {BUG_STATUSES.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                    Screenshot / Evidence
+                  </span>
+                  <span className="font-mono text-indigo-300">{selectedBugDetail.evidence}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">
+                    Assigned Email
+                  </span>
+                  <span className="font-mono text-indigo-300">{selectedBugDetail.assigneeEmail}</span>
+                </div>
+              </div>
+
+              {selectedBugDetail.notes && (
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Notes</span>
+                  <p className="text-slate-400">{selectedBugDetail.notes}</p>
+                </div>
+              )}
             </div>
 
             <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
@@ -1248,7 +1612,7 @@ export default function App() {
                   Delete Bug (Tech Lead)
                 </button>
               )}
-              <button onClick={() => setSelectedBugDetail(null)} className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-bold ml-auto">
+              <button onClick={() => setSelectedBugDetail(null)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold ml-auto">
                 Done
               </button>
             </div>
