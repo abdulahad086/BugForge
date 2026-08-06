@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   backend-ci:
-    name:  Backend Test & Quality
+    name: Backend Test & Quality
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +38,7 @@ jobs:
           PYTHONPATH=. python -m pytest
 
   frontend-ci:
-    name:  Frontend Build & Quality
+    name: Frontend Build & Quality
     runs-on: ubuntu-latest
 
     steps:
@@ -59,7 +59,7 @@ jobs:
           npm run build
 
   docker-build-and-push:
-    name:  Docker Build & Push GHCR
+    name: Docker Build & Push GHCR
     needs: [backend-ci, frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -102,8 +102,28 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  deploy-azure-vm:
+    name: ☁️ Deploy to Azure Linux Virtual Machine
+    needs: [docker-build-and-push]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Azure VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        continue-on-error: true
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          script: |
+            curl -sSL https://raw.githubusercontent.com/abdulahad086/BugForge/main/scripts/deploy_azure_vm.sh | bash
+
   deploy-gitops:
-    name:  GitOps ArgoCD Deployment
+    name: GitOps ArgoCD Deployment
     needs: [docker-build-and-push]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
