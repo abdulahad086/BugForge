@@ -1,4 +1,4 @@
-# 🛡️ BugForge — Enterprise Multi-Tenant Bug Tracker & Jira Kanban Platform
+#  BugForge — Enterprise Multi-Tenant Bug Tracker & Jira Kanban Platform
 
 [![Build Status](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue.svg)](https://github.com/abdulahad086/BugForge/actions)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-blue?logo=docker)](https://github.com/abdulahad086/BugForge)
@@ -11,27 +11,27 @@
 
 ---
 
-## 🌟 Key Architectural Highlights
+##  Key Architectural Highlights
 
-- **🔒 Multi-Tenant Data Isolation**: Strict tenant scoping ensures Software Companies (Super Admin, Tech Leads, Devs) can only access their company's projects, users, and bug tickets.
-- **💎 Glassmorphism UI & WebGL Graphics**: Integrated React Bits UI components including `<ParticleText />`, `<RippleGrid />`, and `<GlassSurface />` with interactive particle sampling canvas engines.
-- **⚡ Asynchronous FastAPI Backend**: Built on Python 3.13, FastAPI, Pydantic V2 data validation, and OWASP-recommended **Argon2id** password hashing.
-- **🗄️ Robust Persistence & Migrations**: PostgreSQL 16 database with SQLAlchemy ORM models, Alembic schema migrations, and Docker Volume hard disk persistence.
-- **🚀 Automated CI/CD & GitOps Pipeline**: GitHub Actions workflows running automated Pytest test suites, Vite production builds, multi-platform Docker container image publishing to GitHub Container Registry (`ghcr.io`), and GitOps ArgoCD triggers.
-- **☁️ Cloud Infrastructure as Code (IaC)**: Provisioned via Terraform on Azure Linux Virtual Machine (Ubuntu 22.04 LTS) with zero-downtime container updates.
+- ** Multi-Tenant Data Isolation**: Strict tenant scoping ensures Software Companies (Super Admin, Tech Leads, Devs) can only access their company's projects, users, and bug tickets.
+- ** Glassmorphism UI & WebGL Graphics**: Integrated React Bits UI components including `<ParticleText />`, `<RippleGrid />`, and `<GlassSurface />` with interactive particle sampling canvas engines.
+- ** Asynchronous FastAPI Backend**: Built on Python 3.13, FastAPI, Pydantic V2 data validation, and OWASP-recommended **Argon2id** password hashing.
+- ** Robust Persistence & Migrations**: PostgreSQL 16 database with SQLAlchemy ORM models, Alembic schema migrations, and Docker Volume hard disk persistence.
+- ** Automated CI/CD & GitOps Pipeline**: GitHub Actions workflows running automated Pytest test suites, Vite production builds, multi-platform Docker container image publishing to GitHub Container Registry (`ghcr.io`), and GitOps ArgoCD triggers.
+- ** Cloud Infrastructure as Code (IaC)**: Provisioned via Terraform on Azure Linux Virtual Machine (Ubuntu 22.04 LTS) with zero-downtime container updates.
 
 ---
 
-## 📐 System Architecture
+##  System Architecture
 
 ```
 [Developer Laptop] ──(git push)──> [GitHub Repository]
                                         │
                                         ▼ (Webhook)
                           [GitHub Actions CI/CD Worker]
-                                ├── 🐍 Backend Pytest Test Suite
-                                ├── ⚡ Frontend Vite Production Build
-                                └── 🐳 Multi-Stage Docker Image Build
+                                ├──  Backend Pytest Test Suite
+                                ├──  Frontend Vite Production Build
+                                └──  Multi-Stage Docker Image Build
                                         │
                                         ▼ (Push Images)
                         [GHCR - GitHub Container Registry]
@@ -45,7 +45,7 @@
                                 │
         ┌───────────────────────┼───────────────────────┐
         ▼                       ▼                       ▼
-  🌐 Frontend Container   ⚡ Backend Container   🗄️ Database Container
+   Frontend Container    Backend Container      Database Container
  (Nginx + React App)    (FastAPI + Uvicorn)     (PostgreSQL 16 + Volume)
       (Port 80)               (Port 8000)             (Port 5432)
         ▲                       ▲                       ▲
@@ -58,7 +58,7 @@
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 | Domain | Technology | Description |
 | :--- | :--- | :--- |
@@ -76,7 +76,7 @@
 
 ---
 
-## 🚀 Quick Start (Local Development)
+##  Quick Start (Local Development)
 
 ### Prerequisites
 - [Docker Engine](https://docs.docker.com/get-docker/) & Docker Compose
@@ -103,7 +103,7 @@
 
 ---
 
-## ☁️ Azure Cloud Deployment
+##  Azure Cloud Deployment
 
 Deploy BugForge to an Azure Linux Virtual Machine with a single automated script:
 
@@ -128,7 +128,7 @@ This automated bootstrap script will:
 
 ---
 
-## 🧪 Testing & Quality Assurance
+##  Testing & Quality Assurance
 
 BugForge includes automated test suites for continuous integration quality control:
 
