@@ -13,12 +13,12 @@
 
 ##  Key Architectural Highlights
 
-- ** Multi-Tenant Data Isolation**: Strict tenant scoping ensures Software Companies (Super Admin, Tech Leads, Devs) can only access their company's projects, users, and bug tickets.
-- ** Glassmorphism UI & WebGL Graphics**: Integrated React Bits UI components including `<ParticleText />`, `<RippleGrid />`, and `<GlassSurface />` with interactive particle sampling canvas engines.
-- ** Asynchronous FastAPI Backend**: Built on Python 3.13, FastAPI, Pydantic V2 data validation, and OWASP-recommended **Argon2id** password hashing.
-- ** Robust Persistence & Migrations**: PostgreSQL 16 database with SQLAlchemy ORM models, Alembic schema migrations, and Docker Volume hard disk persistence.
-- ** Automated CI/CD & GitOps Pipeline**: GitHub Actions workflows running automated Pytest test suites, Vite production builds, multi-platform Docker container image publishing to GitHub Container Registry (`ghcr.io`), and GitOps ArgoCD triggers.
-- ** Cloud Infrastructure as Code (IaC)**: Provisioned via Terraform on Azure Linux Virtual Machine (Ubuntu 22.04 LTS) with zero-downtime container updates.
+- **Multi-Tenant Data Isolation**: Strict tenant scoping ensures Software Companies (Super Admin, Tech Leads, Devs) can only access their company's projects, users, and bug tickets.
+- **Glassmorphism UI & WebGL Graphics**: Integrated React Bits UI components including `<ParticleText />`, `<RippleGrid />`, and `<GlassSurface />` with interactive particle sampling canvas engines.
+- **Asynchronous FastAPI Backend**: Built on Python 3.13, FastAPI, Pydantic V2 data validation, and OWASP-recommended **Argon2id** password hashing.
+- **Robust Persistence & Migrations**: PostgreSQL 16 database with SQLAlchemy ORM models, Alembic schema migrations, and Docker Volume hard disk persistence.
+- **Automated CI/CD & GitOps Pipeline**: GitHub Actions workflows running automated Pytest test suites, Vite production builds, multi-platform Docker container image publishing to GitHub Container Registry (`ghcr.io`), and GitOps ArgoCD triggers.
+- **Cloud Infrastructure as Code (IaC)**: Provisioned via Terraform on Azure Linux Virtual Machine (Ubuntu 22.04 LTS) with zero-downtime container updates.
 
 ---
 
